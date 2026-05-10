@@ -2123,25 +2123,80 @@ async function enterApp(user, nameOverride) {
   const name = nameOverride || profile?.name || user.email.split('@')[0];
   const initials = name.substring(0,2).toUpperCase();
 
-  // Apply to UI
+  // ── Apply to sidebar ──
   document.querySelectorAll('.user-name').forEach(el => el.textContent = name);
   document.querySelectorAll('.user-av').forEach(el => el.textContent = initials);
-  document.getElementById('ob-name').value = name;
 
   if(profile?.goal_race) {
-    document.querySelectorAll('.user-role').forEach(el => el.textContent = (profile.goal_race || '') + ' · ' + (profile.level || ''));
-    document.getElementById('plan-week-sub').textContent = (profile.goal_race || 'Ironman') + ' · Phase Build · ' + name;
+    document.querySelectorAll('.user-role').forEach(el =>
+      el.textContent = (profile.goal_race||'') + ' · ' + (profile.level||''));
+    const planSub = document.getElementById('plan-week-sub');
+    if(planSub) planSub.textContent = (profile.goal_race||'Ironman') + ' · Phase Build · ' + name;
     document.getElementById('ob-overlay').classList.add('hidden');
+
+    // ── Apply to profile page ──
+    applyProfileToUI(profile, name, initials);
+
     showToast('👋 Bon retour ' + name + ' !', '#6366F1');
   }
-  // else: onboarding will show naturally
 
-  // Load body measures and check ICU connection
+  // Pre-fill onboarding name
+  const obName = document.getElementById('ob-name');
+  if(obName) obName.value = name;
+
+  // Load body measures and ICU
   loadBodyMeasures();
   await initIcu();
+}
 
-  // Si ICU connecté → vider les données de démo et inviter à synchroniser
-  // Si pas de profil complet → inviter à connecter ICU après l'onboarding
+function applyProfileToUI(profile, name, initials) {
+  // Avatar + nom en haut de la page profil
+  const profAvatar = document.querySelector('#page-profile > div:first-child > div:first-child');
+  if(profAvatar && profAvatar.textContent.trim().length <= 3) profAvatar.textContent = initials;
+
+  // Titre + sous-titre
+  const profTitle = document.querySelector('#page-profile .page-title, #page-profile [style*="font-size:20px"]');
+  if(profTitle) profTitle.textContent = name;
+
+  const profSub = document.querySelector('#page-profile [style*="font-size:13px"][style*="color:var(--text2)"]');
+  if(profSub) profSub.textContent = `Triathlète · ${profile.goal_race||''} · ${profile.level||''}`;
+
+  // Tableau informations
+  const setProfileRow = (label, value) => {
+    document.querySelectorAll('#page-profile .card td, #page-profile .card div').forEach(el => {
+      // cherche les spans/divs qui affichent les valeurs dans le tableau
+    });
+  };
+
+  // Mise à jour directe des cellules via les divs flex
+  const rows = document.querySelectorAll('#page-profile .card:first-of-type [style*="justify-content:space-between"]');
+  if(rows.length >= 4) {
+    if(profile.age)       rows[0].querySelector('span:last-child').textContent = profile.age + ' ans';
+    if(profile.height_cm) rows[1].querySelector('span:last-child').textContent = profile.height_cm + ' cm';
+    if(profile.weight_kg) rows[2].querySelector('span:last-child').textContent = profile.weight_kg + ' kg';
+  }
+
+  // Besoins caloriques recalculés (Mifflin-St Jeor femme)
+  if(profile.weight_kg && profile.height_cm && profile.age) {
+    const bmr = Math.round(10*profile.weight_kg + 6.25*profile.height_cm - 5*profile.age - 161);
+    const calRows = document.querySelectorAll('#page-profile .card:nth-of-type(2) [style*="justify-content:space-between"]');
+    if(calRows.length >= 5) {
+      calRows[0].querySelector('span:last-child').textContent = bmr.toLocaleString('fr') + ' kcal';
+      calRows[1].querySelector('span:last-child').textContent = Math.round(bmr*1.2).toLocaleString('fr') + ' kcal';
+      calRows[2].querySelector('span:last-child').textContent = Math.round(bmr*1.5+200).toLocaleString('fr') + ' kcal';
+      calRows[3].querySelector('span:last-child').textContent = Math.round(bmr*1.7+300).toLocaleString('fr') + ' kcal';
+      calRows[4].querySelector('span:last-child').innerHTML = `<span style="font-weight:600;color:var(--green)">${Math.round(bmr*1.9+400).toLocaleString('fr')}+ kcal</span>`;
+    }
+  }
+
+  // Badges sous le nom
+  const badgeContainer = document.querySelector('#page-profile [style*="display:flex"][style*="gap:6px"]');
+  if(badgeContainer && profile.goal_race) {
+    badgeContainer.innerHTML = `
+      <span class="badge badge-green">${profile.days||'6–7j'}/semaine</span>
+      <span class="badge badge-indigo">${profile.regime||'Omnivore'}</span>
+      <span class="badge badge-blue">${profile.goal_nutrition||'Performance + composition'}</span>`;
+  }
 }
 
 // ── Clear demo training data (called when ICU is connected) ──

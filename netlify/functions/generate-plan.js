@@ -1,4 +1,17 @@
 exports.handler = async (event) => {
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+      },
+      body: ''
+    };
+  }
+
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method not allowed' };
   }
@@ -107,19 +120,37 @@ Réponds UNIQUEMENT avec un tableau JSON des repas adaptés (même format que le
     const data = await response.json();
     const text = data.content?.[0]?.text || '';
 
-    // Parse JSON from response
-    const jsonMatch = text.match(/\[[\s\S]*\]|\{[\s\S]*\}/);
+    // Strip markdown code blocks if present
+    let clean = text
+      .replace(/```json\s*/gi, '')
+      .replace(/```\s*/gi, '')
+      .trim();
+
+    // Extract JSON array or object
+    const jsonMatch = clean.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
     if (!jsonMatch) {
-      return { statusCode: 500, body: JSON.stringify({ error: 'No JSON in response', raw: text }) };
+      return { 
+        statusCode: 500, 
+        body: JSON.stringify({ error: 'No JSON in response', raw: text.substring(0, 500) }) 
+      };
     }
 
-    const parsed = JSON.parse(jsonMatch[0]);
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonMatch[1]);
+    } catch(parseErr) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: 'JSON parse error: ' + parseErr.message, raw: jsonMatch[1].substring(0, 300) })
+      };
+    }
 
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type'
       },
       body: JSON.stringify({ result: parsed })
     };

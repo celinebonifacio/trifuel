@@ -242,7 +242,7 @@ button,input,select,textarea{font-family:inherit}
 .page-title{font-size:20px;font-weight:700;letter-spacing:-0.3px}
 .page-sub{font-size:13px;color:var(--text2);margin-top:2px}
 
-@media(max-width:700px){
+@keyframes progress{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
   .sidebar{display:none}
   .g2,.g3,.g4{grid-template-columns:1fr}
 }
@@ -466,6 +466,7 @@ button,input,select,textarea{font-family:inherit}
         </div>
         <button class="btn btn-sm" onclick="showPage('shopping')">🛒 Courses</button>
         <button class="btn btn-sm btn-primary" onclick="toggleFridgePlanModal()">🥬 Inventaire frigo</button>
+        <button class="btn btn-sm" style="background:linear-gradient(135deg,#6366F1,#8B5CF6);color:white;border:none;font-weight:600" onclick="triggerAIPlanGeneration()">✨ Générer avec Claude</button>
       </div>
     </div>
 
@@ -1078,6 +1079,8 @@ function obFinish(){
   // Save to Supabase
   saveProfileToDB({ name, goal_race: race, level, goal_nutrition: goal, regime, allergies });
   showToast(`✅ Profil de ${name} créé · ${race} · ${level}`, '#6366F1');
+  // Lance la génération du plan IA
+  setTimeout(() => triggerAIPlanGeneration(), 1000);
 }
 function selR(el){
   // Find the closest parent that contains other .r-card siblings
@@ -1107,7 +1110,7 @@ function selectDay(i){selectedDay=i;renderDayStrip();renderDayDetail();}
 // ══ DAY DETAIL ══
 function renderDayDetail(){
   const d=DAYS[selectedDay];
-  const meals=MEALS[d.kcal]||MEALS[2200];
+  const meals=getMealsForDay(selectedDay);
   const iLabels=['Repos','Léger','Modéré','Intense'];
 
   // Macro rings totals — use overrides when they exist
@@ -2033,6 +2036,125 @@ async function saveProfileToDB(profileData) {
   await sb.from('profiles').upsert({ id: currentUser.id, ...profileData, updated_at: new Date().toISOString() });
 }
 
+// ══ CLAUDE AI — Génération du plan alimentaire ══
+const FUNCTION_URL = '/.netlify/functions/generate-plan';
+
+async function generateAIPlan(profile) {
+  // Prépare les données d'entraînement pour Claude
+  const trainings = DAYS.map(d => ({
+    day: d.name + ' ' + d.date,
+    type: d.trainings.map(t => t.type).join(' + ') || 'Repos',
+    dur: d.trainings.map(t => t.dur).join(' + ') || '—',
+    intensity: ['Repos','Léger','Modéré','Intense'][d.intensity],
+    startTime: d.trainings[0]?.startTime || '—'
+  }));
+
+  showToast('🤖 Claude génère ton plan alimentaire de la semaine...', '#6366F1');
+
+  // Affiche un loader dans le planning
+  const detail = document.getElementById('day-detail');
+  const loader = document.createElement('div');
+  loader.id = 'ai-loader';
+  loader.style.cssText = 'background:var(--indigo-l);border:1px solid #C7D2FE;border-radius:var(--r);padding:1.5rem;text-align:center;margin-bottom:.875rem';
+  loader.innerHTML = `
+    <div style="font-size:24px;margin-bottom:8px">🤖</div>
+    <div style="font-size:14px;font-weight:600;color:#3730A3">Claude analyse tes séances et génère ton plan...</div>
+    <div style="font-size:12px;color:#4338CA;margin-top:4px">Personnalisation en cours · ${trainings.filter(t=>t.type!=='Repos').length} séances détectées</div>
+    <div style="margin-top:12px;height:4px;background:#C7D2FE;border-radius:2px;overflow:hidden">
+      <div style="height:100%;width:60%;background:var(--indigo);border-radius:2px;animation:progress 2s infinite"></div>
+    </div>`;
+  if(detail) detail.parentNode.insertBefore(loader, detail);
+
+  try {
+    const response = await fetch(FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        request_type: 'weekly_plan',
+        profile,
+        trainings
+      })
+    });
+
+    const data = await response.json();
+    loader.remove();
+
+    if(data.error) {
+      showToast('❌ Erreur Claude : ' + data.error, '#EF4444');
+      return;
+    }
+
+    // Applique le plan généré par Claude
+    applyAIPlan(data.result);
+    showToast('✅ Plan de la semaine généré par Claude !', '#059669');
+
+  } catch(err) {
+    loader.remove();
+    showToast('❌ Erreur de connexion à Claude : ' + err.message, '#EF4444');
+  }
+}
+
+function applyAIPlan(plan) {
+  // plan = array of {day, kcal, meals: [...]}
+  if(!Array.isArray(plan)) return;
+
+  plan.forEach((dayPlan, i) => {
+    if(!DAYS[i]) return;
+    DAYS[i].kcal = dayPlan.kcal || DAYS[i].kcal;
+    // Store AI meals in a separate object (override MEALS static data)
+    if(dayPlan.meals && dayPlan.meals.length) {
+      window.AI_MEALS = window.AI_MEALS || {};
+      window.AI_MEALS[i] = dayPlan.meals.map(m => ({
+        emoji: m.emoji || '🍽️',
+        bg: m.bg || '#F1F0EC',
+        name: m.name,
+        time: m.time || '—',
+        dur: m.dur || '—',
+        kcal: m.kcal || 0,
+        desc: m.desc || '',
+        macros: { g: m.macros?.g||0, p: m.macros?.p||0, l: m.macros?.l||0 },
+        preTraining: m.preTraining || false,
+        postTraining: m.postTraining || false,
+        effort: m.effort || false
+      }));
+    }
+  });
+
+  renderDayStrip();
+  renderDayDetail();
+  renderWeeklySummary();
+}
+
+// Override getMealsForDay to use AI meals when available
+function getMealsForDay(dayIdx) {
+  if(window.AI_MEALS && window.AI_MEALS[dayIdx]) return window.AI_MEALS[dayIdx];
+  const d = DAYS[dayIdx];
+  return MEALS[d.kcal] || MEALS[2200];
+}
+
+async function generateAIAlternatives(mealName, mealKcal, dayKcal) {
+  if(!currentUser) return null;
+  const { data: profile } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+  if(!profile) return null;
+
+  try {
+    const response = await fetch(FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        request_type: 'meal_alternatives',
+        profile: { name: profile.name, goal_race: profile.goal_race, weight_kg: profile.weight_kg, allergies: profile.allergies },
+        meal: { name: mealName, kcal: mealKcal },
+        day_kcal: dayKcal
+      })
+    });
+    const data = await response.json();
+    return data.result || null;
+  } catch(err) {
+    return null;
+  }
+}
+
 // ── Check session on load ──
 async function initAuth() {
   const { data: { session } } = await sb.auth.getSession();
@@ -2059,6 +2181,26 @@ function switchAccount() {
     if(check) check.style.display='none';
   });
   document.getElementById('login-screen').style.display = 'flex';
+}
+
+async function triggerAIPlanGeneration() {
+  if(!currentUser) { showToast('Connecte-toi d\'abord', '#EF4444'); return; }
+  const { data: profile } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+  if(!profile?.goal_race) {
+    showToast('Complète d\'abord ton profil', '#F59E0B');
+    document.getElementById('ob-overlay').classList.remove('hidden');
+    return;
+  }
+  await generateAIPlan({
+    name: profile.name,
+    goal_race: profile.goal_race,
+    level: profile.level,
+    weight_kg: profile.weight_kg || 62,
+    height_cm: profile.height_cm || 168,
+    regime: profile.regime || 'Omnivore',
+    allergies: profile.allergies || 'aucune',
+    gastro: profile.gastro || 'Normale'
+  });
 }
 
 // ══ INIT ══

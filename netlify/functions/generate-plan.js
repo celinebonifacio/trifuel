@@ -31,17 +31,19 @@ exports.handler = async (event) => {
   let prompt = '';
 
   if (request_type === 'weekly_plan') {
-    prompt = `Tu es expert en nutrition sportive triathlon. Génère un plan alimentaire pour cette semaine.
+    // Limite à 3 jours pour rester sous le timeout Netlify (10s)
+    const days3 = trainings.slice(0, 3);
+    prompt = `Tu es expert en nutrition sportive triathlon. Génère un plan alimentaire pour 3 jours.
 
 ATHLÈTE: ${profile.name}, ${profile.goal_race}, ${profile.level}, ${profile.weight_kg}kg, ${profile.regime}${profile.allergies ? ', allergies: '+profile.allergies : ''}
 
 SÉANCES:
-${trainings.map(t => `${t.day}: ${t.type} ${t.dur} (${t.intensity}) ${t.startTime!=='—'?'à '+t.startTime:''}`).join('\n')}
+${days3.map(t => `${t.day}: ${t.type} ${t.dur} (${t.intensity}) ${t.startTime!=='—'?'à '+t.startTime:''}`).join('\n')}
 
-Réponds UNIQUEMENT avec ce tableau JSON (7 éléments, un par jour):
+Réponds UNIQUEMENT avec ce tableau JSON (3 éléments):
 [{"day":"Lundi","kcal":2200,"meals":[{"name":"Petit-déjeuner","time":"7h00","emoji":"🥣","desc":"description courte","kcal":520,"macros":{"g":65,"p":25,"l":15}},{"name":"Déjeuner","time":"12h30","emoji":"🥗","desc":"description","kcal":620,"macros":{"g":75,"p":40,"l":18}},{"name":"Dîner","time":"19h30","emoji":"🐟","desc":"description","kcal":680,"macros":{"g":80,"p":42,"l":16}}]}]
 
-Adapte les calories selon l'intensité. Inclus un repas pré-séance si séance le matin. JSON uniquement, sans texte.`;
+Adapte calories/macros selon intensité séance. Ajoute repas pré-séance si matin. JSON uniquement.`;
 
   } else if (request_type === 'meal_alternatives') {
     const { meal, day_kcal } = body;

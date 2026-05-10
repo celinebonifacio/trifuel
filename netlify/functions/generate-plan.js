@@ -89,7 +89,7 @@ Réponds UNIQUEMENT avec un tableau JSON des repas adaptés (même format que le
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5',
-        max_tokens: 4000,
+        max_tokens: 2000,
         messages: [{ role: 'user', content: prompt }]
       })
     });

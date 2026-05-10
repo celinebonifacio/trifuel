@@ -251,6 +251,82 @@ button,input,select,textarea{font-family:inherit}
 </head>
 <body>
 
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="login-screen" style="position:fixed;inset:0;background:#F8F7F4;z-index:300;display:flex;align-items:center;justify-content:center;padding:1rem">
+  <div style="width:100%;max-width:400px">
+
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:2.5rem">
+      <div style="width:56px;height:56px;background:#1E1B4B;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      </div>
+      <div style="font-size:26px;font-weight:700;color:#1E1B4B;letter-spacing:-0.5px">TriFuel</div>
+      <div style="font-size:14px;color:#6B7280;margin-top:4px">Nutrition sportive personnalisée</div>
+    </div>
+
+    <!-- Error message -->
+    <div id="login-error" style="display:none;background:#FEE2E2;color:#991B1B;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;text-align:center">
+      Mot de passe incorrect
+    </div>
+
+    <!-- Profile cards -->
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem">
+
+      <!-- Céline -->
+      <div style="background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:14px;padding:1rem 1.25rem;cursor:pointer;transition:all 0.15s" id="card-celine"
+        onclick="selectProfile('celine')"
+        onmouseover="this.style.borderColor='#6366F1';this.style.boxShadow='0 0 0 3px rgba(99,102,241,0.1)'"
+        onmouseout="if(selectedProfile!=='celine'){this.style.borderColor='rgba(0,0,0,0.08)';this.style.boxShadow='none'}">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:44px;height:44px;border-radius:50%;background:#FDE68A;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#92400E;flex-shrink:0">CÉ</div>
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:600;color:#111827">Céline</div>
+            <div style="font-size:12px;color:#6B7280;margin-top:1px">70.3 Ironman · Intermédiaire</div>
+          </div>
+          <div id="check-celine" style="display:none;width:22px;height:22px;border-radius:50%;background:#6366F1;display:none;align-items:center;justify-content:center">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Samir -->
+      <div style="background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:14px;padding:1rem 1.25rem;cursor:pointer;transition:all 0.15s" id="card-samir"
+        onclick="selectProfile('samir')"
+        onmouseover="this.style.borderColor='#6366F1';this.style.boxShadow='0 0 0 3px rgba(99,102,241,0.1)'"
+        onmouseout="if(selectedProfile!=='samir'){this.style.borderColor='rgba(0,0,0,0.08)';this.style.boxShadow='none'}">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:44px;height:44px;border-radius:50%;background:#DDD6FE;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#5B21B6;flex-shrink:0">SA</div>
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:600;color:#111827">Samir</div>
+            <div style="font-size:12px;color:#6B7280;margin-top:1px">Triathète · Mon profil</div>
+          </div>
+          <div id="check-samir" style="display:none;width:22px;height:22px;border-radius:50%;background:#6366F1;align-items:center;justify-content:center">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Password field -->
+    <div id="password-section" style="display:none;margin-bottom:1rem">
+      <div style="font-size:12px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px">Mot de passe</div>
+      <input type="password" id="login-pwd" class="form-input" placeholder="Entre ton mot de passe"
+        style="font-size:15px;padding:12px 14px;border-radius:10px"
+        onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+
+    <!-- Login button -->
+    <button id="login-btn" onclick="doLogin()" style="display:none;width:100%;padding:13px;background:#1E1B4B;color:white;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:inherit"
+      onmouseover="this.style.background='#312e81'" onmouseout="this.style.background='#1E1B4B'">
+      Se connecter →
+    </button>
+
+    <div style="text-align:center;margin-top:1.5rem;font-size:12px;color:#9CA3AF">
+      TriFuel · Version bêta privée · Céline & Samir
+    </div>
+  </div>
+</div>
+
 <!-- ══ ONBOARDING ══ -->
 <div id="ob-overlay">
 <div class="ob-wrap">
@@ -1005,6 +1081,7 @@ function obFinish(){
   }
 
   document.getElementById('ob-overlay').classList.add('hidden');
+  if(selectedProfile) localStorage.setItem('trifuel_profile_'+selectedProfile, '1');
   showToast(`✅ Profil de ${name} créé · ${race} · ${level}`, '#6366F1');
 }
 function selR(el){
@@ -1685,6 +1762,71 @@ function disconnectIcu(){
 }
 
 function initIcu(){try{if(localStorage.getItem(ICU_KEY))showIcuConnected();}catch(e){}}
+
+// ══ LOGIN ══
+// Mots de passe simples — à changer après la semaine de test
+const PROFILES = {
+  celine: { pwd: 'trifuel2025', name: 'Céline', initials: 'CÉ', avatarBg: '#FDE68A', avatarColor: '#92400E', role: '70.3 Ironman · Intermédiaire' },
+  samir:  { pwd: 'samir2025',   name: 'Samir',  initials: 'SA', avatarBg: '#DDD6FE', avatarColor: '#5B21B6', role: 'Triathlète · Mon profil' }
+};
+let selectedProfile = null;
+
+function selectProfile(who) {
+  selectedProfile = who;
+  // Style cards
+  ['celine','samir'].forEach(p => {
+    const card = document.getElementById('card-'+p);
+    const check = document.getElementById('check-'+p);
+    if(p === who) {
+      card.style.borderColor = '#6366F1';
+      card.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.15)';
+      if(check) { check.style.display = 'flex'; }
+    } else {
+      card.style.borderColor = 'rgba(0,0,0,0.08)';
+      card.style.boxShadow = 'none';
+      if(check) { check.style.display = 'none'; }
+    }
+  });
+  document.getElementById('password-section').style.display = 'block';
+  document.getElementById('login-btn').style.display = 'block';
+  document.getElementById('login-error').style.display = 'none';
+  setTimeout(() => document.getElementById('login-pwd').focus(), 100);
+}
+
+function doLogin() {
+  if(!selectedProfile) return;
+  const pwd = document.getElementById('login-pwd').value;
+  const profile = PROFILES[selectedProfile];
+  if(pwd !== profile.pwd) {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('login-pwd').value = '';
+    document.getElementById('login-pwd').focus();
+    return;
+  }
+  // Success — apply profile and enter app
+  document.getElementById('login-screen').style.display = 'none';
+
+  // Apply profile data to app
+  document.querySelectorAll('.user-name').forEach(el => el.textContent = profile.name);
+  document.querySelectorAll('.user-av').forEach(el => {
+    el.textContent = profile.initials;
+    el.style.background = profile.avatarBg;
+    el.style.color = profile.avatarColor;
+  });
+  document.querySelectorAll('.user-role').forEach(el => el.textContent = profile.role);
+
+  // Pre-fill onboarding name
+  const nameInput = document.getElementById('ob-name');
+  if(nameInput) nameInput.value = profile.name;
+
+  // Show onboarding if first time, else go straight to app
+  const hasProfile = localStorage.getItem('trifuel_profile_'+selectedProfile);
+  if(hasProfile) {
+    document.getElementById('ob-overlay').classList.add('hidden');
+    showToast('👋 Bon retour ' + profile.name + ' !', '#6366F1');
+  }
+  // else onboarding shows naturally
+}
 
 // ══ INIT ══
 renderOb();

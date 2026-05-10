@@ -508,7 +508,12 @@ button,input,select,textarea{font-family:inherit}
         <div class="page-title">Entraînements</div>
         <div class="page-sub" id="train-sub">Semaine du 5 mai · 7 séances</div>
       </div>
-      <div style="display:flex;gap:8px">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:2px;border:1px solid var(--border2);border-radius:var(--r-sm);overflow:hidden">
+          <button class="btn btn-sm" style="border:none;border-radius:0;padding:6px 10px" onclick="changeWeek(-1)">←</button>
+          <button class="btn btn-sm" style="border:none;border-radius:0;padding:6px 10px;border-left:1px solid var(--border2);border-right:1px solid var(--border2);font-size:11px;font-weight:600;color:var(--indigo)" onclick="goToCurrentWeek()" id="train-week-label">Semaine actuelle</button>
+          <button class="btn btn-sm" style="border:none;border-radius:0;padding:6px 10px" onclick="changeWeek(1)">→</button>
+        </div>
         <button class="btn btn-sm" onclick="toggleImportPanel()">↑ Importer</button>
         <button class="btn btn-sm btn-primary" onclick="toggleAddForm()">+ Ajouter séance</button>
       </div>
@@ -1441,6 +1446,17 @@ function updateWeekDisplay(){
   if(label){
     label.style.color = currentWeekOffset===0 ? 'var(--indigo)' : 'var(--text2)';
     label.style.background = currentWeekOffset===0 ? 'var(--indigo-l)' : '';
+  }
+  // Sync training page label
+  const trainLabel = document.getElementById('train-week-label');
+  if(trainLabel) {
+    trainLabel.textContent = currentWeekOffset===0 ? 'Semaine actuelle' : currentWeekOffset<0 ? '← Passée' : 'Suivante →';
+    trainLabel.style.color = currentWeekOffset===0 ? 'var(--indigo)' : 'var(--text2)';
+  }
+  const trainSub = document.getElementById('train-sub');
+  if(trainSub) {
+    const dates = ['28 avr – 4 mai','5 – 11 mai','12 – 18 mai'];
+    trainSub.textContent = dates[currentWeekOffset+1] + ' · ' + DAYS.filter(d=>d.trainings.length>0).length + ' séances';
   }
   renderWeeklySummary();
 }

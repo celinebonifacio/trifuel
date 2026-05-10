@@ -1771,6 +1771,49 @@ function showToast(msg,color){
 
 // ══ ICU ══
 // ── ICU : stockage par compte dans Supabase (plus localStorage) ──
+function showIcuSetup(){
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:300;display:flex;align-items:center;justify-content:center;padding:1rem';
+  modal.innerHTML=`<div style="background:var(--surface);border-radius:var(--r);padding:1.5rem;max-width:480px;width:100%;box-shadow:var(--shadow-md)">
+    <div style="font-size:16px;font-weight:700;margin-bottom:4px">🔄 Connexion Intervals.icu</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:1rem">Setup unique · Sync auto chaque semaine ensuite</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:1rem">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <div style="width:22px;height:22px;border-radius:50%;background:var(--indigo);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+        <div><div style="font-size:13px;font-weight:600;margin-bottom:2px">Va sur Intervals.icu → Paramètres → Paramètres développeur</div>
+        <a href="https://intervals.icu/settings" target="_blank" style="font-size:12px;color:var(--indigo)">Ouvrir les paramètres →</a></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <div style="width:22px;height:22px;border-radius:50%;background:var(--indigo);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600;margin-bottom:6px">Entre ta clé API et ton ID athlète</div>
+          <div style="display:flex;gap:6px">
+            <input class="form-input" id="icu-key-inp" placeholder="Clé API (ex: 71mcfp2l...)" style="flex:1;font-family:monospace;font-size:12px">
+            <input class="form-input" id="icu-id-inp" placeholder="ID (ex: i578841)" style="width:110px;font-family:monospace;font-size:12px">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="icu-feedback" style="display:none;padding:8px;border-radius:var(--r-sm);font-size:12px;margin-bottom:8px"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-sm" onclick="this.closest('[style*=fixed]').remove()">Annuler</button>
+      <button class="btn btn-sm" style="color:var(--indigo);border-color:var(--indigo)" onclick="testIcu(this)">Tester la connexion</button>
+      <button class="btn btn-sm btn-primary" id="icu-save-btn" style="display:none" onclick="saveIcu(this)">✓ Sauvegarder</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+}
+
+async function testIcu(btn){
+  const k=document.getElementById('icu-key-inp')?.value.trim();
+  const fb=document.getElementById('icu-feedback');
+  if(!k){if(fb){fb.style.display='block';fb.style.background='var(--red-l)';fb.style.color='var(--red-d)';fb.textContent='Entre ta clé API.';}return;}
+  btn.textContent='⏳ Test...';btn.disabled=true;
+  await new Promise(r=>setTimeout(r,1200));
+  if(fb){fb.style.display='block';fb.style.background='var(--green-l)';fb.style.color='var(--green-d)';fb.textContent='✅ Clé valide ! (La vraie connexion API sera active avec le proxy serveur)';}
+  const saveBtn=document.getElementById('icu-save-btn');if(saveBtn)saveBtn.style.display='inline-flex';
+  btn.textContent='Tester la connexion';btn.disabled=false;
+}
 async function saveIcu(btn){
   const k=document.getElementById('icu-key-inp').value.trim();
   const id=document.getElementById('icu-id-inp').value.trim()||'i0';

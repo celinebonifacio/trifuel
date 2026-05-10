@@ -119,6 +119,10 @@ Réponds UNIQUEMENT avec un tableau JSON des repas adaptés (même format que le
 
     const data = await response.json();
     const text = data.content?.[0]?.text || '';
+    
+    console.log('Claude response status:', response.status);
+    console.log('Claude response text (first 500):', text.substring(0, 500));
+    console.log('Claude error if any:', data.error);
 
     // Strip markdown code blocks if present
     let clean = text

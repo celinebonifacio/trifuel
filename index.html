@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --sidebar-bg: #1E1B4B;
@@ -251,7 +252,7 @@ button,input,select,textarea{font-family:inherit}
 </head>
 <body>
 
-<!-- ══ LOGIN SCREEN ══ -->
+<!-- ══ AUTH SCREEN ══ -->
 <div id="login-screen" style="position:fixed;inset:0;background:#F8F7F4;z-index:300;display:flex;align-items:center;justify-content:center;padding:1rem">
   <div style="width:100%;max-width:400px">
 
@@ -264,65 +265,54 @@ button,input,select,textarea{font-family:inherit}
       <div style="font-size:14px;color:#6B7280;margin-top:4px">Nutrition sportive personnalisée</div>
     </div>
 
-    <!-- Error message -->
-    <div id="login-error" style="display:none;background:#FEE2E2;color:#991B1B;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;text-align:center">
-      Mot de passe incorrect
+    <!-- Tabs login / signup -->
+    <div style="display:flex;background:#F1F0EC;border-radius:10px;padding:3px;margin-bottom:1.5rem">
+      <button id="tab-login" onclick="showAuthTab('login')" style="flex:1;padding:8px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:#1E1B4B;color:white;font-family:inherit;transition:all 0.15s">Se connecter</button>
+      <button id="tab-signup" onclick="showAuthTab('signup')" style="flex:1;padding:8px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#6B7280;font-family:inherit;transition:all 0.15s">Créer un compte</button>
     </div>
 
-    <!-- Profile cards -->
-    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem">
+    <!-- Error / success message -->
+    <div id="auth-msg" style="display:none;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;text-align:center"></div>
 
-      <!-- Céline -->
-      <div style="background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:14px;padding:1rem 1.25rem;cursor:pointer;transition:all 0.15s" id="card-celine"
-        onclick="selectProfile('celine')"
-        onmouseover="this.style.borderColor='#6366F1';this.style.boxShadow='0 0 0 3px rgba(99,102,241,0.1)'"
-        onmouseout="if(selectedProfile!=='celine'){this.style.borderColor='rgba(0,0,0,0.08)';this.style.boxShadow='none'}">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:44px;height:44px;border-radius:50%;background:#FDE68A;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#92400E;flex-shrink:0">CÉ</div>
-          <div style="flex:1">
-            <div style="font-size:15px;font-weight:600;color:#111827">Céline</div>
-            <div style="font-size:12px;color:#6B7280;margin-top:1px">70.3 Ironman · Intermédiaire</div>
-          </div>
-          <div id="check-celine" style="display:none;width:22px;height:22px;border-radius:50%;background:#6366F1;display:none;align-items:center;justify-content:center">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-        </div>
+    <!-- Login form -->
+    <div id="form-login">
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px">Email</div>
+        <input type="email" id="login-email" class="form-input" placeholder="ton@email.com" style="font-size:14px;padding:12px 14px;border-radius:10px" onkeydown="if(event.key==='Enter')doLogin()">
       </div>
-
-      <!-- Samir -->
-      <div style="background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:14px;padding:1rem 1.25rem;cursor:pointer;transition:all 0.15s" id="card-samir"
-        onclick="selectProfile('samir')"
-        onmouseover="this.style.borderColor='#6366F1';this.style.boxShadow='0 0 0 3px rgba(99,102,241,0.1)'"
-        onmouseout="if(selectedProfile!=='samir'){this.style.borderColor='rgba(0,0,0,0.08)';this.style.boxShadow='none'}">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:44px;height:44px;border-radius:50%;background:#DDD6FE;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#5B21B6;flex-shrink:0">SA</div>
-          <div style="flex:1">
-            <div style="font-size:15px;font-weight:600;color:#111827">Samir</div>
-            <div style="font-size:12px;color:#6B7280;margin-top:1px">Triathète · Mon profil</div>
-          </div>
-          <div id="check-samir" style="display:none;width:22px;height:22px;border-radius:50%;background:#6366F1;align-items:center;justify-content:center">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-        </div>
+      <div style="margin-bottom:20px">
+        <div style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px">Mot de passe</div>
+        <input type="password" id="login-pwd" class="form-input" placeholder="••••••••" style="font-size:14px;padding:12px 14px;border-radius:10px" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button onclick="doLogin()" id="login-btn" style="width:100%;padding:13px;background:#1E1B4B;color:white;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s">
+        Se connecter →
+      </button>
+      <div style="text-align:center;margin-top:12px">
+        <button onclick="doForgotPassword()" style="background:none;border:none;color:#6B7280;font-size:12px;cursor:pointer;font-family:inherit;text-decoration:underline">Mot de passe oublié ?</button>
       </div>
     </div>
 
-    <!-- Password field -->
-    <div id="password-section" style="display:none;margin-bottom:1rem">
-      <div style="font-size:12px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px">Mot de passe</div>
-      <input type="password" id="login-pwd" class="form-input" placeholder="Entre ton mot de passe"
-        style="font-size:15px;padding:12px 14px;border-radius:10px"
-        onkeydown="if(event.key==='Enter')doLogin()">
+    <!-- Signup form -->
+    <div id="form-signup" style="display:none">
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px">Prénom</div>
+        <input type="text" id="signup-name" class="form-input" placeholder="Céline" style="font-size:14px;padding:12px 14px;border-radius:10px">
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px">Email</div>
+        <input type="email" id="signup-email" class="form-input" placeholder="ton@email.com" style="font-size:14px;padding:12px 14px;border-radius:10px">
+      </div>
+      <div style="margin-bottom:20px">
+        <div style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px">Mot de passe</div>
+        <input type="password" id="signup-pwd" class="form-input" placeholder="8 caractères minimum" style="font-size:14px;padding:12px 14px;border-radius:10px" onkeydown="if(event.key==='Enter')doSignup()">
+      </div>
+      <button onclick="doSignup()" id="signup-btn" style="width:100%;padding:13px;background:#6366F1;color:white;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s">
+        Créer mon compte →
+      </button>
     </div>
-
-    <!-- Login button -->
-    <button id="login-btn" onclick="doLogin()" style="display:none;width:100%;padding:13px;background:#1E1B4B;color:white;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:inherit"
-      onmouseover="this.style.background='#312e81'" onmouseout="this.style.background='#1E1B4B'">
-      Se connecter →
-    </button>
 
     <div style="text-align:center;margin-top:1.5rem;font-size:12px;color:#9CA3AF">
-      TriFuel · Version bêta privée · Céline & Samir
+      TriFuel · Version bêta privée
     </div>
   </div>
 </div>
@@ -446,6 +436,9 @@ button,input,select,textarea{font-family:inherit}
       <div class="user-name">Céline</div>
       <div class="user-role">Ironman 140.6 · Avancé</div>
     </div>
+    <button onclick="event.stopPropagation();switchAccount()" title="Changer de compte" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;opacity:0.5;transition:opacity 0.15s;flex-shrink:0" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </button>
   </div>
 </div>
 
@@ -1082,6 +1075,8 @@ function obFinish(){
 
   document.getElementById('ob-overlay').classList.add('hidden');
   if(selectedProfile) localStorage.setItem('trifuel_profile_'+selectedProfile, '1');
+  // Save to Supabase
+  saveProfileToDB({ name, goal_race: race, level, goal_nutrition: goal, regime, allergies });
   showToast(`✅ Profil de ${name} créé · ${race} · ${level}`, '#6366F1');
 }
 function selR(el){
@@ -1763,69 +1758,179 @@ function disconnectIcu(){
 
 function initIcu(){try{if(localStorage.getItem(ICU_KEY))showIcuConnected();}catch(e){}}
 
-// ══ LOGIN ══
-// Mots de passe simples — à changer après la semaine de test
-const PROFILES = {
-  celine: { pwd: 'celine2026', name: 'Céline', initials: 'CÉ', avatarBg: '#FDE68A', avatarColor: '#92400E', role: '70.3 Ironman · Intermédiaire' },
-  samir:  { pwd: 'samir2026',  name: 'Samir',  initials: 'SA', avatarBg: '#DDD6FE', avatarColor: '#5B21B6', role: 'Triathlète · Mon profil' }
-};
+// ══ SUPABASE ══
+const SUPABASE_URL = 'https://qejzmfoupuwxvjkmbuix.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_foDbXgzThSHBGk6sv4nGnw_tLEka0Ir';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
 let selectedProfile = null;
 
-function selectProfile(who) {
-  selectedProfile = who;
-  // Style cards
+// ── Auth tab toggle ──
+function showAuthTab(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('form-login').style.display = isLogin ? 'block' : 'none';
+  document.getElementById('form-signup').style.display = isLogin ? 'none' : 'block';
+  document.getElementById('tab-login').style.background = isLogin ? '#1E1B4B' : 'transparent';
+  document.getElementById('tab-login').style.color = isLogin ? 'white' : '#6B7280';
+  document.getElementById('tab-signup').style.background = isLogin ? 'transparent' : '#6366F1';
+  document.getElementById('tab-signup').style.color = isLogin ? '#6B7280' : 'white';
+  document.getElementById('auth-msg').style.display = 'none';
+}
+
+function showAuthMsg(msg, type) {
+  const el = document.getElementById('auth-msg');
+  el.style.display = 'block';
+  el.style.background = type === 'error' ? '#FEE2E2' : '#D1FAE5';
+  el.style.color = type === 'error' ? '#991B1B' : '#065F46';
+  el.textContent = msg;
+}
+
+// ── Login ──
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pwd = document.getElementById('login-pwd').value;
+  if(!email || !pwd) { showAuthMsg('Entre ton email et mot de passe', 'error'); return; }
+  const btn = document.getElementById('login-btn');
+  btn.textContent = 'Connexion...'; btn.disabled = true;
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pwd });
+  btn.textContent = 'Se connecter →'; btn.disabled = false;
+  if(error) { showAuthMsg('Email ou mot de passe incorrect', 'error'); return; }
+  await enterApp(data.user);
+}
+
+// ── Signup ──
+async function doSignup() {
+  const name  = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const pwd   = document.getElementById('signup-pwd').value;
+  if(!name || !email || !pwd) { showAuthMsg('Remplis tous les champs', 'error'); return; }
+  if(pwd.length < 8) { showAuthMsg('Mot de passe : 8 caractères minimum', 'error'); return; }
+  const btn = document.getElementById('signup-btn');
+  btn.textContent = 'Création...'; btn.disabled = true;
+  const { data, error } = await sb.auth.signUp({ email, password: pwd, options: { data: { name } } });
+  btn.textContent = 'Créer mon compte →'; btn.disabled = false;
+  if(error) { showAuthMsg(error.message, 'error'); return; }
+  // Update profile name in DB
+  if(data.user) {
+    await sb.from('profiles').upsert({ id: data.user.id, name });
+    await enterApp(data.user, name);
+  } else {
+    showAuthMsg('✅ Compte créé ! Vérifie tes emails pour confirmer.', 'success');
+  }
+}
+
+// ── Forgot password ──
+async function doForgotPassword() {
+  const email = document.getElementById('login-email').value.trim();
+  if(!email) { showAuthMsg('Entre ton email d\'abord', 'error'); return; }
+  await sb.auth.resetPasswordForEmail(email);
+  showAuthMsg('✅ Email de réinitialisation envoyé !', 'success');
+}
+
+// ── Enter app after auth ──
+async function enterApp(user, nameOverride) {
+  currentUser = user;
+  document.getElementById('login-screen').style.display = 'none';
+
+  // Load profile from DB
+  const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  const name = nameOverride || profile?.name || user.email.split('@')[0];
+  const initials = name.substring(0,2).toUpperCase();
+
+  // Apply to UI
+  document.querySelectorAll('.user-name').forEach(el => el.textContent = name);
+  document.querySelectorAll('.user-av').forEach(el => el.textContent = initials);
+  document.getElementById('ob-name').value = name;
+
+  if(profile?.goal_race) {
+    document.querySelectorAll('.user-role').forEach(el => el.textContent = (profile.goal_race || '') + ' · ' + (profile.level || ''));
+    document.getElementById('plan-week-sub').textContent = (profile.goal_race || 'Ironman') + ' · Phase Build · ' + name;
+    document.getElementById('ob-overlay').classList.add('hidden');
+    showToast('👋 Bon retour ' + name + ' !', '#6366F1');
+  }
+  // else: onboarding will show naturally
+
+  // Load body measures
+  loadBodyMeasures();
+}
+
+// ── Logout ──
+function switchAccount() {
+  if(!confirm('Se déconnecter ?')) return;
+  sb.auth.signOut();
+  currentUser = null;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-pwd').value = '';
+  document.getElementById('auth-msg').style.display = 'none';
+}
+
+// ── Load body measures from DB ──
+async function loadBodyMeasures() {
+  if(!currentUser) return;
+  const { data } = await sb.from('body_measures').select('*').eq('user_id', currentUser.id).order('measured_at', { ascending: false }).limit(10);
+  if(!data?.length) return;
+  const tbody = document.getElementById('body-history-body');
+  if(!tbody) return;
+  tbody.innerHTML = data.map(m => `
+    <tr style="border-top:1px solid var(--border)">
+      <td style="padding:5px 0;font-weight:600">${new Date(m.measured_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}</td>
+      <td>${m.weight_kg?.toFixed(1)||'—'} kg</td>
+      <td>${m.body_fat_pct?.toFixed(1)||'—'}%</td>
+      <td>${m.muscle_kg?.toFixed(1)||'—'} kg</td>
+    </tr>`).join('');
+}
+
+// ── Save body entry to DB ──
+async function saveBodyEntry() {
+  const w = parseFloat(document.getElementById('inp-w')?.value)||0;
+  const f = parseFloat(document.getElementById('inp-f')?.value)||0;
+  const m = parseFloat(document.getElementById('inp-m')?.value)||0;
+  if(currentUser) {
+    await sb.from('body_measures').insert({
+      user_id: currentUser.id,
+      weight_kg: w, body_fat_pct: f, muscle_kg: m,
+      source: 'Manuel',
+    });
+    loadBodyMeasures();
+  }
+  hideBodyForm();
+  showToast('✅ Mesure enregistrée', '#059669');
+}
+
+// ── Save profile after onboarding ──
+async function saveProfileToDB(profileData) {
+  if(!currentUser) return;
+  await sb.from('profiles').upsert({ id: currentUser.id, ...profileData, updated_at: new Date().toISOString() });
+}
+
+// ── Check session on load ──
+async function initAuth() {
+  const { data: { session } } = await sb.auth.getSession();
+  if(session?.user) {
+    await enterApp(session.user);
+  }
+  // If no session, login screen stays visible
+}
+
+// ══ LOGIN (old simple system - kept for fallback) ══
+// No longer used - replaced by Supabase above
+
+function switchAccount() {
+  if(!confirm('Changer de compte ?')) return;
+  selectedProfile = null;
+  document.getElementById('login-pwd').value = '';
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('password-section').style.display = 'none';
+  document.getElementById('login-btn').style.display = 'none';
   ['celine','samir'].forEach(p => {
     const card = document.getElementById('card-'+p);
     const check = document.getElementById('check-'+p);
-    if(p === who) {
-      card.style.borderColor = '#6366F1';
-      card.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.15)';
-      if(check) { check.style.display = 'flex'; }
-    } else {
-      card.style.borderColor = 'rgba(0,0,0,0.08)';
-      card.style.boxShadow = 'none';
-      if(check) { check.style.display = 'none'; }
-    }
+    if(card){ card.style.borderColor='rgba(0,0,0,0.08)'; card.style.boxShadow='none'; }
+    if(check) check.style.display='none';
   });
-  document.getElementById('password-section').style.display = 'block';
-  document.getElementById('login-btn').style.display = 'block';
-  document.getElementById('login-error').style.display = 'none';
-  setTimeout(() => document.getElementById('login-pwd').focus(), 100);
-}
-
-function doLogin() {
-  if(!selectedProfile) return;
-  const pwd = document.getElementById('login-pwd').value;
-  const profile = PROFILES[selectedProfile];
-  if(pwd !== profile.pwd) {
-    document.getElementById('login-error').style.display = 'block';
-    document.getElementById('login-pwd').value = '';
-    document.getElementById('login-pwd').focus();
-    return;
-  }
-  // Success — apply profile and enter app
-  document.getElementById('login-screen').style.display = 'none';
-
-  // Apply profile data to app
-  document.querySelectorAll('.user-name').forEach(el => el.textContent = profile.name);
-  document.querySelectorAll('.user-av').forEach(el => {
-    el.textContent = profile.initials;
-    el.style.background = profile.avatarBg;
-    el.style.color = profile.avatarColor;
-  });
-  document.querySelectorAll('.user-role').forEach(el => el.textContent = profile.role);
-
-  // Pre-fill onboarding name
-  const nameInput = document.getElementById('ob-name');
-  if(nameInput) nameInput.value = profile.name;
-
-  // Show onboarding if first time, else go straight to app
-  const hasProfile = localStorage.getItem('trifuel_profile_'+selectedProfile);
-  if(hasProfile) {
-    document.getElementById('ob-overlay').classList.add('hidden');
-    showToast('👋 Bon retour ' + profile.name + ' !', '#6366F1');
-  }
-  // else onboarding shows naturally
+  document.getElementById('login-screen').style.display = 'flex';
 }
 
 // ══ INIT ══
@@ -1837,6 +1942,7 @@ renderShopLists();
 renderWeeklySummary();
 updateWeekDisplay();
 initIcu();
+initAuth(); // Check Supabase session
 </script>
 </body>
 </html>

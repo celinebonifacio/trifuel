@@ -31,40 +31,17 @@ exports.handler = async (event) => {
   let prompt = '';
 
   if (request_type === 'weekly_plan') {
-    prompt = `Tu es un expert en nutrition sportive spécialisé dans le triathlon Ironman.
+    prompt = `Tu es expert en nutrition sportive triathlon. Génère un plan alimentaire pour cette semaine.
 
-PROFIL ATHLÈTE :
-- Nom : ${profile.name}
-- Objectif : ${profile.goal_race}
-- Niveau : ${profile.level}
-- Poids : ${profile.weight_kg}kg · Taille : ${profile.height_cm}cm
-- Régime : ${profile.regime}
-- Allergies : ${profile.allergies || 'aucune'}
-- Tolérance effort : ${profile.gastro}
+ATHLÈTE: ${profile.name}, ${profile.goal_race}, ${profile.level}, ${profile.weight_kg}kg, ${profile.regime}${profile.allergies ? ', allergies: '+profile.allergies : ''}
 
-PLANNING SEMAINE :
-${trainings.map(t => `- ${t.day} : ${t.type} ${t.dur} (${t.intensity}) à ${t.startTime}`).join('\n')}
+SÉANCES:
+${trainings.map(t => `${t.day}: ${t.type} ${t.dur} (${t.intensity}) ${t.startTime!=='—'?'à '+t.startTime:''}`).join('\n')}
 
-Génère un plan alimentaire complet pour chaque jour de cette semaine.
-Pour chaque jour, fournis exactement ce JSON :
-{
-  "day": "Lundi",
-  "kcal": 2600,
-  "meals": [
-    {
-      "name": "Petit-déjeuner",
-      "time": "7h00",
-      "emoji": "🥣",
-      "desc": "description courte des aliments",
-      "kcal": 620,
-      "macros": {"g": 85, "p": 28, "l": 16},
-      "preTraining": false,
-      "postTraining": false
-    }
-  ]
-}
+Réponds UNIQUEMENT avec ce tableau JSON (7 éléments, un par jour):
+[{"day":"Lundi","kcal":2200,"meals":[{"name":"Petit-déjeuner","time":"7h00","emoji":"🥣","desc":"description courte","kcal":520,"macros":{"g":65,"p":25,"l":15}},{"name":"Déjeuner","time":"12h30","emoji":"🥗","desc":"description","kcal":620,"macros":{"g":75,"p":40,"l":18}},{"name":"Dîner","time":"19h30","emoji":"🐟","desc":"description","kcal":680,"macros":{"g":80,"p":42,"l":16}}]}]
 
-Réponds UNIQUEMENT avec un tableau JSON valide, sans texte avant ou après.`;
+Adapte les calories selon l'intensité. Inclus un repas pré-séance si séance le matin. JSON uniquement, sans texte.`;`
 
   } else if (request_type === 'meal_alternatives') {
     const { meal, day_kcal } = body;

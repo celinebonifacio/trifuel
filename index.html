@@ -1446,24 +1446,56 @@ function renderWeeklySummary(){
   const badgesEl  = document.getElementById('week-summary-badges');
   if(!metricsEl) return;
 
-  const totalKcal  = DAYS.reduce((s,d)=>s+d.kcal,0);
-  const totalG     = DAYS.reduce((s,d)=>s+(MEALS[d.kcal]||MEALS[2200]).reduce((ss,m)=>ss+(m.macros.g||0),0),0);
-  const totalP     = DAYS.reduce((s,d)=>s+(MEALS[d.kcal]||MEALS[2200]).reduce((ss,m)=>ss+(m.macros.p||0),0),0);
-  const totalL     = DAYS.reduce((s,d)=>s+(MEALS[d.kcal]||MEALS[2200]).reduce((ss,m)=>ss+(m.macros.l||0),0),0);
-  const avgKcal    = Math.round(totalKcal/7);
-  const trainDays  = DAYS.filter(d=>d.trainings.length>0).length;
-  const bigDays    = DAYS.filter(d=>d.intensity>=3).length;
-  const totalTSS   = DAYS.reduce((s,d)=>s+d.trainings.reduce((ss,t)=>{
-    const tss = t.tss || 0;
-    return ss + tss;
-  },0),0);
+  const totalKcal = DAYS.reduce((s,d)=>s+d.kcal,0);
+  const totalG    = DAYS.reduce((s,d)=>s+(MEALS[d.kcal]||MEALS[2200]).reduce((ss,m)=>ss+(m.macros.g||0),0),0);
+  const totalP    = DAYS.reduce((s,d)=>s+(MEALS[d.kcal]||MEALS[2200]).reduce((ss,m)=>ss+(m.macros.p||0),0),0);
+  const totalL    = DAYS.reduce((s,d)=>s+(MEALS[d.kcal]||MEALS[2200]).reduce((ss,m)=>ss+(m.macros.l||0),0),0);
+  const avgKcal   = Math.round(totalKcal/7);
+  const trainDays = DAYS.filter(d=>d.trainings.length>0).length;
+  const bigDays   = DAYS.filter(d=>d.intensity>=3).length;
+
+  // Calcul des pourcentages macro sur la semaine
+  const totalKcalFromMacros = totalG*4 + totalP*4 + totalL*9;
+  const pctG = totalKcalFromMacros ? Math.round(totalG*4*100/totalKcalFromMacros) : 0;
+  const pctP = totalKcalFromMacros ? Math.round(totalP*4*100/totalKcalFromMacros) : 0;
+  const pctL = totalKcalFromMacros ? Math.round(totalL*9*100/totalKcalFromMacros) : 0;
+
+  function macroBar(pct, color) {
+    return `<div style="height:5px;background:var(--surface2);border-radius:3px;margin-top:5px;overflow:hidden">
+      <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width 0.5s"></div>
+    </div>`;
+  }
 
   metricsEl.innerHTML = `
     <div class="metric"><div class="metric-label">Total semaine</div><div class="metric-val" style="font-size:17px">${totalKcal.toLocaleString('fr')}</div><div class="metric-sub">kcal / 7 jours</div></div>
     <div class="metric"><div class="metric-label">Moyenne / jour</div><div class="metric-val" style="font-size:17px">${avgKcal.toLocaleString('fr')}</div><div class="metric-sub">kcal / jour</div></div>
-    <div class="metric"><div class="metric-label">Glucides</div><div class="metric-val" style="font-size:17px;color:var(--orange)">${totalG}g</div><div class="metric-sub">semaine entière</div></div>
-    <div class="metric"><div class="metric-label">Protéines</div><div class="metric-val" style="font-size:17px;color:var(--blue)">${totalP}g</div><div class="metric-sub">semaine entière</div></div>
-    <div class="metric"><div class="metric-label">Lipides</div><div class="metric-val" style="font-size:17px;color:var(--purple)">${totalL}g</div><div class="metric-sub">semaine entière</div></div>
+    <div class="metric">
+      <div class="metric-label">Glucides</div>
+      <div style="display:flex;align-items:baseline;gap:5px">
+        <div class="metric-val" style="font-size:17px;color:var(--orange)">${totalG}g</div>
+        <div style="font-size:12px;font-weight:600;color:var(--orange)">${pctG}%</div>
+      </div>
+      <div class="metric-sub">semaine entière</div>
+      ${macroBar(pctG,'var(--orange)')}
+    </div>
+    <div class="metric">
+      <div class="metric-label">Protéines</div>
+      <div style="display:flex;align-items:baseline;gap:5px">
+        <div class="metric-val" style="font-size:17px;color:var(--blue)">${totalP}g</div>
+        <div style="font-size:12px;font-weight:600;color:var(--blue)">${pctP}%</div>
+      </div>
+      <div class="metric-sub">semaine entière</div>
+      ${macroBar(pctP,'var(--blue)')}
+    </div>
+    <div class="metric">
+      <div class="metric-label">Lipides</div>
+      <div style="display:flex;align-items:baseline;gap:5px">
+        <div class="metric-val" style="font-size:17px;color:var(--purple)">${totalL}g</div>
+        <div style="font-size:12px;font-weight:600;color:var(--purple)">${pctL}%</div>
+      </div>
+      <div class="metric-sub">semaine entière</div>
+      ${macroBar(pctL,'var(--purple)')}
+    </div>
     <div class="metric"><div class="metric-label">Jours entraînement</div><div class="metric-val" style="font-size:17px">${trainDays}/7</div><div class="metric-sub">${bigDays} grosse(s) séance(s)</div></div>
   `;
 

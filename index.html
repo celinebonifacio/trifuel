@@ -822,31 +822,22 @@ const SPORT_META = {
   rest: {emoji:'😴',label:'Repos',bg:'#F3F4F6',color:'#9CA3AF',tagClass:'sport-rest'},
 };
 
-const DAYS = [
-  {name:'Lun',date:'5 mai',kcal:2600,intensity:2,trainings:[
-    {type:'Vélo',sport:'bike',dur:'1h30',dist:'45km',hard:false,startTime:'07:30'},
-    {type:'Natation',sport:'swim',dur:'45min',dist:'2,5km',hard:false,startTime:'17:30'}
-  ]},
-  {name:'Mar',date:'6 mai',kcal:2200,intensity:1,trainings:[
-    {type:'Course à pied',sport:'run',dur:'1h',dist:'12km',hard:false,startTime:'07:30'}
-  ]},
-  {name:'Mer',date:'7 mai',kcal:3200,intensity:3,trainings:[
-    {type:'Vélo long',sport:'bike',dur:'4h',dist:'130km',hard:true,startTime:'08:00'},
-    {type:'Course (brick)',sport:'run',dur:'30min',dist:'6km',hard:false,startTime:'12:30'}
-  ]},
-  {name:'Jeu',date:'8 mai',kcal:2400,intensity:1,trainings:[
-    {type:'Natation',sport:'swim',dur:'1h',dist:'3,2km',hard:false,startTime:'07:00'}
-  ]},
-  {name:'Ven',date:'9 mai',kcal:2800,intensity:2,trainings:[
-    {type:'Course',sport:'run',dur:'1h30',dist:'18km',hard:false,startTime:'07:30'},
-    {type:'Vélo',sport:'bike',dur:'1h',dist:'30km',hard:false,startTime:'17:00'}
-  ]},
-  {name:'Sam',date:'10 mai',kcal:3400,intensity:3,trainings:[
-    {type:'Sortie longue vélo',sport:'bike',dur:'5h30',dist:'175km',hard:true,startTime:'07:30'},
-    {type:'Course',sport:'run',dur:'45min',dist:'9km',hard:false,startTime:'13:30'}
-  ]},
-  {name:'Dim',date:'11 mai',kcal:1900,intensity:0,trainings:[],rest:true}
-];
+// DAYS est généré dynamiquement à partir de la semaine courante
+// et rempli par la sync Intervals.icu
+function buildEmptyWeek(weekOffset) {
+  const today = new Date();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - today.getDay() + 1 + weekOffset * 7);
+  const days = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  return days.map((name, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const date = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+    return { name, date, kcal: 1900, intensity: 0, trainings: [], rest: true };
+  });
+}
+
+let DAYS = buildEmptyWeek(0);
 
 const MEALS = {
   2200:[
@@ -1427,22 +1418,42 @@ const WEEK_LABELS = ['Semaine précédente','Semaine actuelle','Semaine suivante
 const WEEK_DATES  = ['28 avr – 4 mai 2025','5 mai – 11 mai 2025','12 mai – 18 mai 2025'];
 
 function changeWeek(dir){
-  currentWeekOffset = Math.max(-1, Math.min(1, currentWeekOffset + dir));
+  currentWeekOffset = Math.max(-4, Math.min(4, currentWeekOffset + dir));
+  DAYS = buildEmptyWeek(currentWeekOffset);
+  window.AI_MEALS = {};
   updateWeekDisplay();
+  renderDayStrip();
+  renderDayDetail();
+  renderTrainingList();
+  // Re-sync ICU for the new week if connected
+  if(document.getElementById('icu-connected').style.display !== 'none') {
+    syncFromIntervals();
+  }
 }
 function goToCurrentWeek(){
   currentWeekOffset = 0;
+  DAYS = buildEmptyWeek(0);
+  window.AI_MEALS = {};
   updateWeekDisplay();
+  renderDayStrip();
+  renderDayDetail();
+  renderTrainingList();
 }
 function updateWeekDisplay(){
   const label = document.getElementById('week-label');
   const title = document.getElementById('plan-week-title');
+
+  // Calculate real Monday date for this offset
+  const today = new Date();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - today.getDay() + 1 + currentWeekOffset * 7);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  const fmtShort = d => d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+
   if(label) label.textContent = currentWeekOffset===0 ? 'Semaine actuelle' : currentWeekOffset<0 ? '← Semaine passée' : 'Semaine suivante →';
-  if(title){
-    const dates = ['Semaine du 28 avr 2025','Semaine du 5 mai 2025','Semaine du 12 mai 2025'];
-    title.textContent = dates[currentWeekOffset+1];
-  }
-  // Highlight current week indicator
+  if(title) title.textContent = `Semaine du ${fmtShort(monday)} au ${fmtShort(sunday)}`;
+
   if(label){
     label.style.color = currentWeekOffset===0 ? 'var(--indigo)' : 'var(--text2)';
     label.style.background = currentWeekOffset===0 ? 'var(--indigo-l)' : '';
@@ -1455,8 +1466,7 @@ function updateWeekDisplay(){
   }
   const trainSub = document.getElementById('train-sub');
   if(trainSub) {
-    const dates = ['28 avr – 4 mai','5 – 11 mai','12 – 18 mai'];
-    trainSub.textContent = dates[currentWeekOffset+1] + ' · ' + DAYS.filter(d=>d.trainings.length>0).length + ' séances';
+    trainSub.textContent = `${fmtShort(monday)} – ${fmtShort(sunday)} · ${DAYS.filter(d=>d.trainings.length>0).length} séances`;
   }
   renderWeeklySummary();
 }
@@ -1845,34 +1855,114 @@ function showIcuConnected(){
 }
 
 async function syncFromIntervals(){
-  const btn=document.getElementById('icu-sync-btn');if(btn){btn.textContent='⏳ Sync...';btn.disabled=true;}
-  // Remove prompts
+  const btn = document.getElementById('icu-sync-btn');
+  if(btn){ btn.textContent = '⏳ Sync...'; btn.disabled = true; }
+
+  // Remove any existing prompts
   document.getElementById('icu-sync-prompt')?.remove();
-  document.getElementById('icu-setup-prompt')?.remove();
 
-  await new Promise(r=>setTimeout(r,2000));
+  try {
+    // Get ICU credentials from Supabase profile
+    const { data: profile } = await sb.from('profiles')
+      .select('icu_api_key, icu_athlete_id')
+      .eq('id', currentUser.id)
+      .single();
 
-  const now=new Date().toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-  document.getElementById('icu-last-sync').textContent='Dernière sync : '+now;
-  if(btn){btn.textContent='↻ Synchroniser';btn.disabled=false;}
+    if(!profile?.icu_api_key) {
+      showToast('❌ Clé API Intervals.icu manquante — reconnecte ton compte', '#EF4444');
+      if(btn){ btn.textContent = '↻ Synchroniser'; btn.disabled = false; }
+      return;
+    }
 
-  // Note : la vraie sync API nécessite un proxy serveur (CORS).
-  // Pour l'instant on affiche un message clair.
-  showToast('⚠️ Sync simulée — la vraie connexion API Intervals.icu nécessite le déploiement du proxy serveur. Tes séances réelles seront importées à cette étape.', '#F59E0B');
+    // Calculate date range for current week
+    const today = new Date();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - today.getDay() + 1 + currentWeekOffset * 7);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    const fmt = d => d.toISOString().split('T')[0];
 
-  // Afficher un état vide propre en attendant les vraies données
-  const detail = document.getElementById('day-detail');
-  if(detail) {
-    const emptyBanner = document.createElement('div');
-    emptyBanner.style.cssText = 'background:var(--green-l);border:1px solid #6EE7B7;border-radius:var(--r);padding:1.25rem 1.5rem;margin-bottom:.875rem;text-align:center';
-    emptyBanner.innerHTML = `
-      <div style="font-size:24px;margin-bottom:6px">✅</div>
-      <div style="font-size:14px;font-weight:600;color:var(--green-d)">Intervals.icu connecté · ID i578841</div>
-      <div style="font-size:12px;color:var(--green);margin-top:4px">La synchronisation automatique de tes séances Athletica sera active dès le déploiement du proxy serveur. En attendant, utilise "+ Ajouter séance" manuellement.</div>
-    `;
-    detail.parentNode.insertBefore(emptyBanner, detail);
-    setTimeout(() => emptyBanner.remove(), 8000);
+    // Call our proxy function
+    const response = await fetch('/.netlify/functions/icu-proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        icu_api_key: profile.icu_api_key,
+        icu_athlete_id: profile.icu_athlete_id,
+        action: 'get_events',
+        params: { start: fmt(monday), end: fmt(sunday) }
+      })
+    });
+
+    const data = await response.json();
+
+    if(data.error) {
+      showToast('❌ Erreur Intervals.icu : ' + data.error, '#EF4444');
+      if(btn){ btn.textContent = '↻ Synchroniser'; btn.disabled = false; }
+      return;
+    }
+
+    // Parse ICU events into DAYS structure
+    const events = data.result || [];
+    DAYS = buildEmptyWeek(currentWeekOffset);
+
+    // Map sport types
+    const sportMap = {
+      'Ride': { type: 'Vélo', sport: 'bike' },
+      'VirtualRide': { type: 'Vélo (home trainer)', sport: 'bike' },
+      'Run': { type: 'Course à pied', sport: 'run' },
+      'Swim': { type: 'Natation', sport: 'swim' },
+      'WeightTraining': { type: 'Musculation', sport: 'gym' },
+      'Walk': { type: 'Marche', sport: 'run' },
+      'Workout': { type: 'Entraînement', sport: 'gym' }
+    };
+
+    events.forEach(ev => {
+      if(!ev.start_date_local) return;
+      const evDate = new Date(ev.start_date_local);
+      const dayIdx = (evDate.getDay() + 6) % 7; // 0=Mon
+      if(dayIdx < 0 || dayIdx > 6) return;
+
+      const sportInfo = sportMap[ev.type] || { type: ev.type || 'Entraînement', sport: 'gym' };
+      const dur = ev.moving_time ? 
+        (ev.moving_time >= 3600 ? Math.floor(ev.moving_time/3600) + 'h' + (ev.moving_time%3600>=60?Math.floor((ev.moving_time%3600)/60)+'min':'') : Math.floor(ev.moving_time/60) + 'min') 
+        : (ev.icu_training_load ? Math.round(ev.icu_training_load) + 'min' : '—');
+      const dist = ev.distance ? (ev.distance >= 1000 ? (ev.distance/1000).toFixed(1) + 'km' : ev.distance + 'm') : '—';
+      const tss = ev.icu_training_load || 0;
+      const startTime = ev.start_date_local.split('T')[1]?.substring(0,5) || '07:00';
+
+      DAYS[dayIdx].trainings.push({
+        type: ev.name || sportInfo.type,
+        sport: sportInfo.sport,
+        dur, dist, tss,
+        hard: tss > 150,
+        startTime: startTime.replace(':', 'h'),
+        icuId: ev.id
+      });
+
+      // Set intensity based on TSS
+      const newIntensity = tss > 200 ? 3 : tss > 100 ? 2 : tss > 30 ? 1 : 0;
+      if(newIntensity > DAYS[dayIdx].intensity) DAYS[dayIdx].intensity = newIntensity;
+      DAYS[dayIdx].rest = false;
+      DAYS[dayIdx].kcal = [1900, 2200, 2600, 3200][DAYS[dayIdx].intensity];
+    });
+
+    // Update UI
+    const now = new Date().toLocaleString('fr-FR', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    document.getElementById('icu-last-sync').textContent = 'Dernière sync : ' + now;
+    renderDayStrip();
+    renderDayDetail();
+    renderTrainingList();
+    renderWeeklySummary();
+
+    const nbEvents = events.length;
+    showToast(`✅ ${nbEvents} séance${nbEvents > 1 ? 's' : ''} importée${nbEvents > 1 ? 's' : ''} depuis Intervals.icu`, '#059669');
+
+  } catch(err) {
+    showToast('❌ Erreur sync : ' + err.message, '#EF4444');
   }
+
+  if(btn){ btn.textContent = '↻ Synchroniser'; btn.disabled = false; }
 }
 
 async function disconnectIcu(){
@@ -1887,11 +1977,9 @@ async function initIcu(){
   const {data} = await sb.from('profiles').select('icu_api_key').eq('id', currentUser.id).single();
   if(data?.icu_api_key) {
     showIcuConnected();
-    // Vide les données de démo et affiche une invitation à synchroniser
-    clearDemoData();
-    showIcuSyncBanner();
+    showToast('🔄 Import de tes séances Intervals.icu...', '#6366F1');
+    await syncFromIntervals();
   } else {
-    // Pas encore connecté — affiche l'invitation à connecter ICU
     showIcuSetupPrompt();
   }
 }

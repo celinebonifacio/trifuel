@@ -725,14 +725,14 @@ button,input,select,textarea{font-family:inherit}
   <!-- ── PAGE PROFIL ── -->
   <div class="page" id="page-profile">
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:1.5rem">
-      <div style="width:64px;height:64px;border-radius:50%;background:#FDE68A;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#92400E">CÉ</div>
+      <div style="width:64px;height:64px;border-radius:50%;background:#FDE68A;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#92400E" id="prof-avatar">CÉ</div>
       <div>
-        <div style="font-size:20px;font-weight:700;letter-spacing:-0.3px">Céline</div>
-        <div style="font-size:13px;color:var(--text2);margin-top:2px">Triathlète · Ironman 140.6 · Avancée</div>
-        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
-          <span class="badge badge-green">6–7j/semaine</span>
-          <span class="badge badge-indigo">Omnivore</span>
-          <span class="badge badge-blue">Performance + composition</span>
+        <div style="font-size:20px;font-weight:700;letter-spacing:-0.3px" id="prof-name">Céline</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:2px" id="prof-sub">Triathlète · 70.3 Ironman · Intermédiaire</div>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap" id="prof-badges">
+          <span class="badge badge-green" id="prof-badge-days">6–7j/semaine</span>
+          <span class="badge badge-indigo" id="prof-badge-regime">Omnivore</span>
+          <span class="badge badge-blue" id="prof-badge-goal">Performance + composition</span>
         </div>
       </div>
     </div>
@@ -740,20 +740,20 @@ button,input,select,textarea{font-family:inherit}
       <div class="card">
         <div class="card-title">👤 Informations</div>
         <div style="display:flex;flex-direction:column">
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Âge</span><span>34 ans</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Taille</span><span>168 cm</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Poids</span><span>62 kg</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0"><span style="color:var(--text2)">Partenaire</span><span>Samir</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Âge</span><span id="prof-age">—</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Taille</span><span id="prof-height">—</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Poids</span><span id="prof-weight">—</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0"><span style="color:var(--text2)">Partenaire</span><span id="prof-partner">—</span></div>
         </div>
       </div>
       <div class="card">
         <div class="card-title">🔥 Besoins caloriques</div>
         <div style="display:flex;flex-direction:column">
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Métabolisme de base</span><span>1 462 kcal</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Jour repos</span><span style="font-weight:600">1 900 kcal</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Entraînement léger</span><span style="font-weight:600">2 200 kcal</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Entraînement modéré</span><span style="font-weight:600">2 600 kcal</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0"><span style="color:var(--text2)">Grosse séance</span><span style="font-weight:600;color:var(--green)">3 200+ kcal</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Métabolisme de base</span><span id="prof-bmr">—</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Jour repos</span><span style="font-weight:600" id="prof-kcal-rest">—</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Entraînement léger</span><span style="font-weight:600" id="prof-kcal-light">—</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Entraînement modéré</span><span style="font-weight:600" id="prof-kcal-mod">—</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0"><span style="color:var(--text2)">Grosse séance</span><span style="font-weight:600;color:var(--green)" id="prof-kcal-hard">—</span></div>
         </div>
       </div>
     </div>
@@ -2167,52 +2167,42 @@ async function enterApp(user, nameOverride) {
 }
 
 function applyProfileToUI(profile, name, initials) {
-  // Avatar + nom en haut de la page profil
-  const profAvatar = document.querySelector('#page-profile > div:first-child > div:first-child');
-  if(profAvatar && profAvatar.textContent.trim().length <= 3) profAvatar.textContent = initials;
+  const set = (id, val) => { const el = document.getElementById(id); if(el && val) el.textContent = val; };
 
-  // Titre + sous-titre
-  const profTitle = document.querySelector('#page-profile .page-title, #page-profile [style*="font-size:20px"]');
-  if(profTitle) profTitle.textContent = name;
+  // Avatar + nom
+  set('prof-avatar', initials);
+  set('prof-name', name);
+  set('prof-sub', `Triathlète · ${profile.goal_race||''} · ${profile.level||''}`);
 
-  const profSub = document.querySelector('#page-profile [style*="font-size:13px"][style*="color:var(--text2)"]');
-  if(profSub) profSub.textContent = `Triathlète · ${profile.goal_race||''} · ${profile.level||''}`;
+  // Badges
+  set('prof-badge-days', (profile.days||'6–7j') + '/semaine');
+  set('prof-badge-regime', profile.regime||'Omnivore');
+  set('prof-badge-goal', profile.goal_nutrition||'Performance + composition');
 
-  // Tableau informations
-  const setProfileRow = (label, value) => {
-    document.querySelectorAll('#page-profile .card td, #page-profile .card div').forEach(el => {
-      // cherche les spans/divs qui affichent les valeurs dans le tableau
-    });
-  };
+  // Informations
+  if(profile.age)       set('prof-age',     profile.age + ' ans');
+  if(profile.height_cm) set('prof-height',  profile.height_cm + ' cm');
+  if(profile.weight_kg) set('prof-weight',  profile.weight_kg + ' kg');
+  if(profile.partner)   set('prof-partner', profile.partner);
 
-  // Mise à jour directe des cellules via les divs flex
-  const rows = document.querySelectorAll('#page-profile .card:first-of-type [style*="justify-content:space-between"]');
-  if(rows.length >= 4) {
-    if(profile.age)       rows[0].querySelector('span:last-child').textContent = profile.age + ' ans';
-    if(profile.height_cm) rows[1].querySelector('span:last-child').textContent = profile.height_cm + ' cm';
-    if(profile.weight_kg) rows[2].querySelector('span:last-child').textContent = profile.weight_kg + ' kg';
-  }
+  // Sidebar
+  document.querySelectorAll('.user-name').forEach(el => el.textContent = name);
+  document.querySelectorAll('.user-av').forEach(el => el.textContent = initials);
+  document.querySelectorAll('.user-role').forEach(el =>
+    el.textContent = (profile.goal_race||'') + ' · ' + (profile.level||''));
 
-  // Besoins caloriques recalculés (Mifflin-St Jeor femme)
+  // Planning subtitle
+  const planSub = document.getElementById('plan-week-sub');
+  if(planSub) planSub.textContent = (profile.goal_race||'Ironman') + ' · Phase Build · ' + name;
+
+  // Besoins caloriques — Mifflin-St Jeor femme
   if(profile.weight_kg && profile.height_cm && profile.age) {
     const bmr = Math.round(10*profile.weight_kg + 6.25*profile.height_cm - 5*profile.age - 161);
-    const calRows = document.querySelectorAll('#page-profile .card:nth-of-type(2) [style*="justify-content:space-between"]');
-    if(calRows.length >= 5) {
-      calRows[0].querySelector('span:last-child').textContent = bmr.toLocaleString('fr') + ' kcal';
-      calRows[1].querySelector('span:last-child').textContent = Math.round(bmr*1.2).toLocaleString('fr') + ' kcal';
-      calRows[2].querySelector('span:last-child').textContent = Math.round(bmr*1.5+200).toLocaleString('fr') + ' kcal';
-      calRows[3].querySelector('span:last-child').textContent = Math.round(bmr*1.7+300).toLocaleString('fr') + ' kcal';
-      calRows[4].querySelector('span:last-child').innerHTML = `<span style="font-weight:600;color:var(--green)">${Math.round(bmr*1.9+400).toLocaleString('fr')}+ kcal</span>`;
-    }
-  }
-
-  // Badges sous le nom
-  const badgeContainer = document.querySelector('#page-profile [style*="display:flex"][style*="gap:6px"]');
-  if(badgeContainer && profile.goal_race) {
-    badgeContainer.innerHTML = `
-      <span class="badge badge-green">${profile.days||'6–7j'}/semaine</span>
-      <span class="badge badge-indigo">${profile.regime||'Omnivore'}</span>
-      <span class="badge badge-blue">${profile.goal_nutrition||'Performance + composition'}</span>`;
+    set('prof-bmr',       bmr.toLocaleString('fr') + ' kcal');
+    set('prof-kcal-rest', Math.round(bmr*1.2).toLocaleString('fr') + ' kcal');
+    set('prof-kcal-light',Math.round(bmr*1.5+200).toLocaleString('fr') + ' kcal');
+    set('prof-kcal-mod',  Math.round(bmr*1.7+300).toLocaleString('fr') + ' kcal');
+    set('prof-kcal-hard', Math.round(bmr*1.9+400).toLocaleString('fr') + '+ kcal');
   }
 }
 

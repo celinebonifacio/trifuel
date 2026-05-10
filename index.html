@@ -2316,22 +2316,6 @@ async function initAuth() {
 // ══ LOGIN (old simple system - kept for fallback) ══
 // No longer used - replaced by Supabase above
 
-function switchAccount() {
-  if(!confirm('Changer de compte ?')) return;
-  selectedProfile = null;
-  document.getElementById('login-pwd').value = '';
-  document.getElementById('login-error').style.display = 'none';
-  document.getElementById('password-section').style.display = 'none';
-  document.getElementById('login-btn').style.display = 'none';
-  ['celine','samir'].forEach(p => {
-    const card = document.getElementById('card-'+p);
-    const check = document.getElementById('check-'+p);
-    if(card){ card.style.borderColor='rgba(0,0,0,0.08)'; card.style.boxShadow='none'; }
-    if(check) check.style.display='none';
-  });
-  document.getElementById('login-screen').style.display = 'flex';
-}
-
 async function triggerAIPlanGeneration() {
   if(!currentUser) { showToast('Connecte-toi d\'abord', '#EF4444'); return; }
   const { data: profile } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();

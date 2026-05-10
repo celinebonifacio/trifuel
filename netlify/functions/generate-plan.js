@@ -1,0 +1,133 @@
+exports.handler = async (event) => {
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, body: 'Method not allowed' };
+  }
+
+  const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+  if (!ANTHROPIC_KEY) {
+    return { statusCode: 500, body: JSON.stringify({ error: 'API key not configured' }) };
+  }
+
+  let body;
+  try { body = JSON.parse(event.body); } 
+  catch { return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
+
+  const { profile, trainings, request_type } = body;
+
+  // Build prompt based on request type
+  let prompt = '';
+
+  if (request_type === 'weekly_plan') {
+    prompt = `Tu es un expert en nutrition sportive spécialisé dans le triathlon Ironman.
+
+PROFIL ATHLÈTE :
+- Nom : ${profile.name}
+- Objectif : ${profile.goal_race}
+- Niveau : ${profile.level}
+- Poids : ${profile.weight_kg}kg · Taille : ${profile.height_cm}cm
+- Régime : ${profile.regime}
+- Allergies : ${profile.allergies || 'aucune'}
+- Tolérance effort : ${profile.gastro}
+
+PLANNING SEMAINE :
+${trainings.map(t => `- ${t.day} : ${t.type} ${t.dur} (${t.intensity}) à ${t.startTime}`).join('\n')}
+
+Génère un plan alimentaire complet pour chaque jour de cette semaine.
+Pour chaque jour, fournis exactement ce JSON :
+{
+  "day": "Lundi",
+  "kcal": 2600,
+  "meals": [
+    {
+      "name": "Petit-déjeuner",
+      "time": "7h00",
+      "emoji": "🥣",
+      "desc": "description courte des aliments",
+      "kcal": 620,
+      "macros": {"g": 85, "p": 28, "l": 16},
+      "preTraining": false,
+      "postTraining": false
+    }
+  ]
+}
+
+Réponds UNIQUEMENT avec un tableau JSON valide, sans texte avant ou après.`;
+
+  } else if (request_type === 'meal_alternatives') {
+    const { meal, day_kcal } = body;
+    prompt = `Tu es un expert en nutrition sportive.
+
+ATHLÈTE : ${profile.name}, ${profile.goal_race}, ${profile.weight_kg}kg
+REPAS À REMPLACER : ${meal.name} (${meal.kcal} kcal, G${meal.macros?.g}g P${meal.macros?.p}g L${meal.macros?.l}g)
+BUDGET JOURNALIER : ${day_kcal} kcal
+ALLERGIES : ${profile.allergies || 'aucune'}
+
+Propose 3 alternatives équilibrées pour ce repas.
+Réponds UNIQUEMENT avec ce JSON :
+[
+  {
+    "name": "Nom du plat",
+    "desc": "Ingrédients principaux",
+    "emoji": "🥣",
+    "kcal": 600,
+    "g": 80, "p": 30, "l": 15,
+    "dur": "10 min",
+    "bg": "#FEF3C7"
+  }
+]`;
+
+  } else if (request_type === 'fridge_adapt') {
+    const { fridge_contents, meals } = body;
+    prompt = `Tu es un expert en nutrition sportive.
+
+ATHLÈTE : ${profile.name}, ${profile.goal_race}
+CONTENU DU FRIGO : ${fridge_contents}
+PLAN PRÉVU :
+${meals.map(m => `- ${m.name}: ${m.desc}`).join('\n')}
+
+Adapte le plan de la journée en utilisant prioritairement les ingrédients du frigo, tout en respectant les besoins nutritionnels.
+Réponds UNIQUEMENT avec un tableau JSON des repas adaptés (même format que le plan prévu).`;
+  }
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content?.[0]?.text || '';
+
+    // Parse JSON from response
+    const jsonMatch = text.match(/\[[\s\S]*\]|\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      return { statusCode: 500, body: JSON.stringify({ error: 'No JSON in response', raw: text }) };
+    }
+
+    const parsed = JSON.parse(jsonMatch[0]);
+
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify({ result: parsed })
+    };
+
+  } catch (err) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: err.message })
+    };
+  }
+};

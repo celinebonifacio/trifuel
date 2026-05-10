@@ -1143,13 +1143,18 @@ function renderDayDetail(){
   } else {
     trainHtml=d.trainings.map((t,ti)=>{
       const sm=SPORT_META[t.sport]||SPORT_META.rest;
-      const ep=EFFORT_PLANS[t.type];
+
+      // Cherche le plan effort par sport (pas par nom de séance ICU)
+      const sportToEffortKey = { swim:'Natation', bike:'Vélo', run:'Course à pied', gym:null };
+      const effortKey = sportToEffortKey[t.sport];
+      const ep = effortKey ? EFFORT_PLANS[effortKey] : null;
+
       let effortHtml='';
       if(ep){
         const effortColors={swim:['#DBEAFE','#BFDBFE','#1D4ED8'],bike:['#FEF3C7','#FDE68A','#B45309'],run:['#FEE2E2','#FECACA','#B91C1C']};
         const ec=effortColors[ep.sport]||effortColors.bike;
         effortHtml=`<div class="effort-box" style="background:${ec[0]};border:1px solid ${ec[1]}">
-          <div style="font-size:11px;font-weight:700;color:${ec[2]};margin-bottom:5px">${sm.emoji} Plan nutrition · ${t.type}</div>
+          <div style="font-size:11px;font-weight:700;color:${ec[2]};margin-bottom:5px">${sm.emoji} Plan nutrition · ${sm.label} · ${t.dur}</div>
           ${ep.items.map(it=>`<div class="effort-row" style="border-bottom-color:${ec[1]}"><span class="effort-t" style="color:${ec[2]}">${it.t}</span><span style="color:${ec[2]};opacity:0.85;font-size:11px;line-height:1.4">${it.v}</span></div>`).join('')}
         </div>`;
       }
@@ -1157,7 +1162,7 @@ function renderDayDetail(){
       const timeId=`time-${selectedDay}-${ti}`;
       const timeHtml=`<span class="meal-time-chip" id="chip-${timeId}" onclick="editTrainingTime('${timeId}','${t.startTime||'07:30'}',${selectedDay},${ti})">⏰ ${t.startTime||'?h??'}</span>
         <div id="editor-${timeId}" style="display:none" class="time-edit-inline">
-          <input type="time" value="${t.startTime||'07:30'}" id="inp-${timeId}" class="">
+          <input type="time" value="${(t.startTime||'07:30').replace('h',':')}" id="inp-${timeId}" class="">
           <button class="btn btn-sm btn-primary" style="padding:2px 8px;font-size:10px" onclick="saveTrainingTime('${timeId}',${selectedDay},${ti})">✓</button>
           <button class="btn btn-sm" style="padding:2px 8px;font-size:10px" onclick="cancelTimeEdit('${timeId}')">✕</button>
         </div>`;
@@ -1176,6 +1181,15 @@ function renderDayDetail(){
     }).join('');
   }
 
+  // ── Calcul dynamique des contextes repas selon heure réelle de séance ──
+  // Trouve la première séance du jour et son heure
+  const firstTraining = d.trainings[0];
+  const trainingHour = firstTraining?.startTime
+    ? parseInt((firstTraining.startTime.replace('h',':')).split(':')[0])
+    : null;
+  const sportLabel = firstTraining ? (SPORT_META[firstTraining.sport]?.label || 'séance') : 'séance';
+  const sportEmoji = firstTraining ? (SPORT_META[firstTraining.sport]?.emoji || '⚡') : '⚡';
+
   // Meal rows
   const mealRowsHtml=meals.map(m=>{
     const key=`${selectedDay}_${m.name}`;
@@ -1189,9 +1203,12 @@ function renderDayDetail(){
       <span style="color:var(--green-d);margin-left:4px;font-size:10px">vs prévu G${m.macros.g}g P${m.macros.p}g L${m.macros.l}g</span>
     </div>`:'';
     let trainingCtx='';
-    if(m.preTraining)trainingCtx=`<span style="font-size:10px;background:var(--orange-l);color:var(--orange-d);padding:1px 7px;border-radius:4px;font-weight:600">⚡ Fuel pré-séance</span>`;
-    if(m.postTraining)trainingCtx=`<span style="font-size:10px;background:var(--green-l);color:var(--green-d);padding:1px 7px;border-radius:4px;font-weight:600">💪 Récupération</span>`;
-    if(m.effort)trainingCtx=`<span style="font-size:10px;background:var(--red-l);color:var(--red-d);padding:1px 7px;border-radius:4px;font-weight:600">🚴 Pendant l'effort</span>`;
+    if(m.preTraining) {
+      const timeLabel = trainingHour !== null ? `${trainingHour}h00` : 'séance';
+      trainingCtx=`<span style="font-size:10px;background:var(--orange-l);color:var(--orange-d);padding:1px 7px;border-radius:4px;font-weight:600">${sportEmoji} Fuel pré-${sportLabel} · ${timeLabel}</span>`;
+    }
+    if(m.postTraining) trainingCtx=`<span style="font-size:10px;background:var(--green-l);color:var(--green-d);padding:1px 7px;border-radius:4px;font-weight:600">💪 Récupération ${sportLabel}</span>`;
+    if(m.effort) trainingCtx=`<span style="font-size:10px;background:var(--red-l);color:var(--red-d);padding:1px 7px;border-radius:4px;font-weight:600">${sportEmoji} Pendant l'effort</span>`;
     return `<div class="meal-row" style="${override?'background:#FAFAFF;border-radius:var(--r-sm);margin:2px -4px;padding:12px 4px':''}">
       <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
         <div class="meal-emoji" style="background:${disp.bg}">${disp.emoji}</div>

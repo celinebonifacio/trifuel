@@ -1794,15 +1794,32 @@ function toggleTimingEdit(){
   const editing=e.style.display!=='none';v.style.display=editing?'block':'none';e.style.display=editing?'none':'block';
 }
 function saveTimings(){
-  const g=id=>{const el=document.getElementById(id);return el?el.value.replace(':','h')+'':''};
-  document.getElementById('t-lever').textContent=g('te-lever');
-  document.getElementById('t-ptidej').textContent=g('te-ptidej');
-  document.getElementById('t-dej').textContent=g('te-dej');
-  document.getElementById('t-diner').textContent=g('te-diner');
-  document.getElementById('t-matin').textContent=g('te-m1')+'–'+g('te-m2');
-  document.getElementById('t-midi').textContent=g('te-mi1')+'–'+g('te-mi2');
-  document.getElementById('t-soir').textContent=g('te-s1')+'–'+g('te-s2');
-  toggleTimingEdit();showToast('✅ Horaires enregistrés — plan recalculé','#6366F1');
+  const g=id=>{const el=document.getElementById(id);return el?el.value.replace(':','h'):'';};
+  const timings = {
+    time_lever:  g('te-lever'),
+    time_ptidej: g('te-ptidej'),
+    time_dej:    g('te-dej'),
+    time_diner:  g('te-diner'),
+    time_matin:  g('te-m1')+'-'+g('te-m2'),
+    time_midi:   g('te-mi1')+'-'+g('te-mi2'),
+    time_soir:   g('te-s1')+'-'+g('te-s2')
+  };
+  // Update display
+  document.getElementById('t-lever').textContent    = timings.time_lever;
+  document.getElementById('t-ptidej').textContent   = timings.time_ptidej;
+  document.getElementById('t-dej').textContent      = timings.time_dej;
+  document.getElementById('t-diner').textContent    = timings.time_diner;
+  document.getElementById('t-matin').textContent    = timings.time_matin.replace('-','–');
+  document.getElementById('t-midi').textContent     = timings.time_midi.replace('-','–');
+  document.getElementById('t-soir').textContent     = timings.time_soir.replace('-','–');
+  toggleTimingEdit();
+  // Save to Supabase
+  if(currentUser) {
+    sb.from('profiles').update(timings).eq('id', currentUser.id)
+      .then(() => showToast('✅ Horaires enregistrés','#6366F1'));
+  } else {
+    showToast('✅ Horaires enregistrés','#6366F1');
+  }
 }
 
 // ══ TOAST ══
@@ -2204,6 +2221,15 @@ function applyProfileToUI(profile, name, initials) {
     set('prof-kcal-mod',  Math.round(bmr*1.7+300).toLocaleString('fr') + ' kcal');
     set('prof-kcal-hard', Math.round(bmr*1.9+400).toLocaleString('fr') + '+ kcal');
   }
+
+  // Horaires depuis Supabase
+  if(profile.time_lever)  { set('t-lever', profile.time_lever); }
+  if(profile.time_ptidej) { set('t-ptidej', profile.time_ptidej); }
+  if(profile.time_dej)    { set('t-dej', profile.time_dej); }
+  if(profile.time_diner)  { set('t-diner', profile.time_diner); }
+  if(profile.time_matin)  { set('t-matin', profile.time_matin.replace('-','–')); }
+  if(profile.time_midi)   { set('t-midi', profile.time_midi.replace('-','–')); }
+  if(profile.time_soir)   { set('t-soir', profile.time_soir.replace('-','–')); }
 }
 
 // ── Clear demo training data (called when ICU is connected) ──

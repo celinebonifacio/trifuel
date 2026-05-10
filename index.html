@@ -1616,35 +1616,76 @@ function showFridgeModal(){const m=document.getElementById('fridge-modal');if(m)
 function saveFridgeAndGenerate(){document.getElementById('fridge-modal').style.display='none';showToast('✅ Restes pris en compte — plan de la semaine mis à jour','#059669');}
 
 // ══ FAMILY SYNC ══
-function showFamilySync(){
+async function showFamilySync(){
   const existing=document.getElementById('family-modal');if(existing){existing.remove();return;}
+
+  // Génère ou charge le code de liaison
+  let linkCode='';
+  if(currentUser){
+    const {data:prof}=await sb.from('profiles').select('family_code,partner_id,name').eq('id',currentUser.id).single();
+    if(prof?.family_code){
+      linkCode=prof.family_code;
+    } else {
+      linkCode='TF-'+Math.random().toString(36).substring(2,6).toUpperCase();
+      await sb.from('profiles').update({family_code:linkCode}).eq('id',currentUser.id);
+    }
+  }
+
   const modal=document.createElement('div');modal.id='family-modal';
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:300;display:flex;align-items:center;justify-content:center;padding:1rem';
-  modal.innerHTML=`<div style="background:var(--surface);border-radius:var(--r);padding:1.5rem;max-width:420px;width:100%;box-shadow:var(--shadow-md)">
+  modal.innerHTML=`<div style="background:var(--surface);border-radius:var(--r);padding:1.5rem;max-width:440px;width:100%;box-shadow:var(--shadow-md)">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-      <div style="font-size:16px;font-weight:700">🔗 Synchronisation famille</div>
-      <button onclick="document.getElementById('family-modal').remove()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text2)">✕</button>
+      <div style="font-size:16px;font-weight:700">🔗 Lier les comptes famille</div>
+      <button onclick="document.getElementById('family-modal').remove()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text2)">✕</button>
     </div>
-    <div style="font-size:13px;color:var(--text2);margin-bottom:1rem">Chaque membre a son compte. La liste de courses est fusionnée automatiquement.</div>
-    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem">
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--green-l);border-radius:var(--r-sm);border:1px solid #6EE7B7">
-        <div style="width:36px;height:36px;border-radius:50%;background:#FDE68A;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#92400E">CÉ</div>
-        <div style="flex:1"><div style="font-size:13px;font-weight:600">Céline <span class="badge badge-green" style="font-size:10px">Connectée</span></div><div style="font-size:11px;color:var(--text2)">Ironman 140.6 · 2 200–3 400 kcal/j</div></div>
-        <span style="font-size:18px">✅</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:var(--r-sm);border:1.5px dashed var(--border2)">
-        <div style="width:36px;height:36px;border-radius:50%;background:#DDD6FE;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#5B21B6">SA</div>
-        <div style="flex:1"><div style="font-size:13px;font-weight:600">Samir <span class="badge badge-orange" style="font-size:10px">Invitation envoyée</span></div><div style="font-size:11px;color:var(--text2)">En attente de création de compte</div></div>
-        <button class="btn btn-sm" style="font-size:11px;color:var(--purple);border-color:var(--purple)" onclick="alert('🔗 Lien d\'invitation copié !')">📋 Copier lien</button>
-      </div>
+
+    <div style="background:var(--indigo-l);border-radius:var(--r-sm);padding:1rem;margin-bottom:1rem;text-align:center">
+      <div style="font-size:11px;font-weight:700;color:#3730A3;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Ton code de liaison</div>
+      <div style="font-size:32px;font-weight:700;color:#1E1B4B;letter-spacing:6px;font-family:'DM Mono',monospace">${linkCode||'...'}</div>
+      <div style="font-size:11px;color:#4338CA;margin-top:6px">Envoie ce code à Samir par SMS</div>
+      <button onclick="navigator.clipboard?.writeText('${linkCode}').then(()=>showToast('📋 Code copié !','#6366F1'))" style="margin-top:10px;background:var(--indigo);color:white;border:none;border-radius:8px;padding:7px 18px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">📋 Copier le code</button>
     </div>
-    <div style="padding:8px 10px;background:var(--indigo-l);border-radius:var(--r-sm);font-size:11px;color:#3730A3;margin-bottom:1rem">💡 Une fois que Samir crée son compte, sa liste de courses s'affiche et la liste commune est fusionnée.</div>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="document.getElementById('family-modal').remove()" class="btn btn-sm">Fermer</button>
-      <button class="btn btn-sm btn-primary" onclick="alert('📨 Invitation renvoyée à Samir !')">↗ Renvoyer invitation</button>
+
+    <div style="border-top:1px solid var(--border);padding-top:1rem;margin-bottom:.875rem">
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px">Tu as reçu un code de ton partenaire ?</div>
+      <div style="display:flex;gap:8px">
+        <input class="form-input" id="link-code-inp" placeholder="TF-XXXX" maxlength="7"
+          style="flex:1;font-family:'DM Mono',monospace;font-size:16px;letter-spacing:3px;text-transform:uppercase;text-align:center"
+          oninput="this.value=this.value.toUpperCase()">
+        <button class="btn btn-primary btn-sm" onclick="linkFamilyAccount()">Lier →</button>
+      </div>
+      <div id="link-result" style="margin-top:8px;font-size:12px;display:none;padding:7px 10px;border-radius:var(--r-sm)"></div>
+    </div>
+
+    <div style="font-size:11px;color:var(--text2);padding:8px 10px;background:var(--surface2);border-radius:var(--r-sm)">
+      💡 Une fois liés, vos listes de courses seront fusionnées automatiquement dans l'onglet Courses.
     </div>
   </div>`;
-  document.body.appendChild(modal);modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+}
+
+async function linkFamilyAccount(){
+  const code=document.getElementById('link-code-inp')?.value.trim().toUpperCase();
+  const result=document.getElementById('link-result');
+  const show=(msg,ok)=>{result.style.display='block';result.style.background=ok?'var(--green-l)':'var(--red-l)';result.style.color=ok?'var(--green-d)':'var(--red-d)';result.textContent=msg;};
+
+  if(!code||code.length<5){show('Entre un code valide (ex: TF-A3B2)',false);return;}
+  const {data:partner}=await sb.from('profiles').select('id,name').eq('family_code',code).single();
+  if(!partner){show('Code introuvable — vérifie avec ton partenaire.',false);return;}
+  if(partner.id===currentUser?.id){show('Tu ne peux pas te lier à toi-même !',false);return;}
+
+  // Lier les deux comptes
+  await sb.from('profiles').update({partner_id:partner.id}).eq('id',currentUser.id);
+  await sb.from('profiles').update({partner_id:currentUser.id}).eq('id',partner.id);
+
+  show(`✅ Lié avec ${partner.name} ! Vos listes de courses sont maintenant partagées.`,true);
+  // Update sidebar
+  const partnerAv=document.querySelector('.partner-av');
+  const partnerName=document.querySelector('.partner-name');
+  if(partnerAv)partnerAv.textContent=partner.name.substring(0,2).toUpperCase();
+  if(partnerName)partnerName.textContent=partner.name+' · Lié ✓';
+  showToast('✅ Comptes liés avec '+partner.name+' !','#059669');
 }
 
 // ══ BODY ══
@@ -1692,43 +1733,12 @@ function showToast(msg,color){
 }
 
 // ══ ICU ══
-const ICU_KEY='trifuel_icu_key',ICU_ID='trifuel_icu_id',ICU_SYNC='trifuel_icu_sync';
-function showIcuSetup(){
-  const modal=document.createElement('div');
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:300;display:flex;align-items:center;justify-content:center;padding:1rem';
-  modal.innerHTML=`<div style="background:var(--surface);border-radius:var(--r);padding:1.5rem;max-width:480px;width:100%;box-shadow:var(--shadow-md)">
-    <div style="font-size:16px;font-weight:700;margin-bottom:4px">🔄 Connexion Intervals.icu</div>
-    <div style="font-size:12px;color:var(--text2);margin-bottom:1rem">Setup unique · Sync auto chaque semaine ensuite</div>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:1rem">
-      <div style="display:flex;gap:10px;align-items:flex-start"><div style="width:22px;height:22px;border-radius:50%;background:var(--indigo);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div><div><div style="font-size:13px;font-weight:600;margin-bottom:2px">Crée un compte Intervals.icu</div><a href="https://intervals.icu" target="_blank" style="font-size:12px;color:var(--indigo)">intervals.icu →</a></div></div>
-      <div style="display:flex;gap:10px;align-items:flex-start"><div style="width:22px;height:22px;border-radius:50%;background:var(--indigo);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div><div><div style="font-size:13px;font-weight:600;margin-bottom:2px">Dans Athletica → Settings → Integrations → active Intervals.icu</div><div style="font-size:11px;color:var(--text3)">Ton plan sera synchronisé automatiquement</div></div></div>
-      <div style="display:flex;gap:10px;align-items:flex-start"><div style="width:22px;height:22px;border-radius:50%;background:var(--indigo);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div><div style="flex:1"><div style="font-size:13px;font-weight:600;margin-bottom:4px">Entre ta clé API Intervals.icu</div><a href="https://intervals.icu/settings" target="_blank" style="font-size:12px;color:var(--indigo)">Ouvrir paramètres →</a>
-        <div style="display:flex;gap:6px;margin-top:6px"><input class="form-input" id="icu-key-inp" placeholder="Clé API (ex: d842c1fc...)" style="flex:1;font-family:monospace;font-size:12px"><input class="form-input" id="icu-id-inp" placeholder="ID (i12345)" style="width:100px;font-family:monospace;font-size:12px"></div></div></div>
-    </div>
-    <div id="icu-feedback" style="display:none;padding:8px;border-radius:var(--r-sm);font-size:12px;margin-bottom:8px"></div>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button class="btn btn-sm" onclick="this.closest('[style*=fixed]').remove()">Annuler</button>
-      <button class="btn btn-sm" style="color:var(--indigo);border-color:var(--indigo)" onclick="testIcu(this)">Tester</button>
-      <button class="btn btn-sm btn-primary" id="icu-save" style="display:none" onclick="saveIcu(this)">✓ Sauvegarder & Synchro</button>
-    </div>
-  </div>`;
-  document.body.appendChild(modal);modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
-}
-
-async function testIcu(btn){
-  const k=document.getElementById('icu-key-inp').value.trim();const fb=document.getElementById('icu-feedback');
-  if(!k){fb.style.display='block';fb.style.background='var(--red-l)';fb.style.color='var(--red-d)';fb.textContent='Entre ta clé API.';return;}
-  btn.textContent='⏳ Test...';btn.disabled=true;
-  await new Promise(r=>setTimeout(r,1200));
-  fb.style.display='block';fb.style.background='var(--green-l)';fb.style.color='var(--green-d)';
-  fb.textContent='✅ Connexion réussie ! (simulée — vraie requête en version déployée avec proxy CORS)';
-  document.getElementById('icu-save').style.display='inline-flex';
-  btn.textContent='Tester';btn.disabled=false;
-}
-
-function saveIcu(btn){
-  const k=document.getElementById('icu-key-inp').value.trim();const id=document.getElementById('icu-id-inp').value.trim()||'i0';
-  try{localStorage.setItem(ICU_KEY,k);localStorage.setItem(ICU_ID,id);}catch(e){}
+// ── ICU : stockage par compte dans Supabase (plus localStorage) ──
+async function saveIcu(btn){
+  const k=document.getElementById('icu-key-inp').value.trim();
+  const id=document.getElementById('icu-id-inp').value.trim()||'i0';
+  if(!k)return;
+  if(currentUser) await sb.from('profiles').update({icu_api_key:k,icu_athlete_id:id}).eq('id',currentUser.id);
   btn.closest('[style*=fixed]').remove();
   showIcuConnected();syncFromIntervals();
 }
@@ -1736,27 +1746,30 @@ function saveIcu(btn){
 function showIcuConnected(){
   document.getElementById('icu-banner').style.display='none';
   const el=document.getElementById('icu-connected');el.style.display='flex';
-  try{const s=localStorage.getItem(ICU_SYNC);if(s)document.getElementById('icu-last-sync').textContent='Dernière sync : '+s;}catch(e){}
 }
 
 async function syncFromIntervals(){
   const btn=document.getElementById('icu-sync-btn');if(btn){btn.textContent='⏳ Sync...';btn.disabled=true;}
   await new Promise(r=>setTimeout(r,1800));
   const now=new Date().toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-  try{localStorage.setItem(ICU_SYNC,now);}catch(e){}
   document.getElementById('icu-last-sync').textContent='Dernière sync : '+now;
   if(btn){btn.textContent='↻ Synchroniser';btn.disabled=false;}
-  showToast('✅ '+DAYS.length+' séances synchronisées depuis Intervals.icu','#059669');
+  showToast('✅ Séances synchronisées depuis Intervals.icu','#059669');
 }
 
-function disconnectIcu(){
+async function disconnectIcu(){
   if(!confirm('Déconnecter Intervals.icu ?'))return;
-  try{localStorage.removeItem(ICU_KEY);localStorage.removeItem(ICU_ID);localStorage.removeItem(ICU_SYNC);}catch(e){}
+  if(currentUser) await sb.from('profiles').update({icu_api_key:null,icu_athlete_id:null}).eq('id',currentUser.id);
   document.getElementById('icu-connected').style.display='none';
   document.getElementById('icu-banner').style.display='flex';
 }
 
-function initIcu(){try{if(localStorage.getItem(ICU_KEY))showIcuConnected();}catch(e){}}
+async function initIcu(){
+  // Vérifie la clé ICU dans le profil Supabase, pas localStorage
+  if(!currentUser)return;
+  const {data}=await sb.from('profiles').select('icu_api_key').eq('id',currentUser.id).single();
+  if(data?.icu_api_key) showIcuConnected();
+}
 
 // ══ SUPABASE ══
 const SUPABASE_URL = 'https://qejzmfoupuwxvjkmbuix.supabase.co';
@@ -1851,8 +1864,9 @@ async function enterApp(user, nameOverride) {
   }
   // else: onboarding will show naturally
 
-  // Load body measures
+  // Load body measures and check ICU connection
   loadBodyMeasures();
+  initIcu();
 }
 
 // ── Logout ──
@@ -1941,7 +1955,7 @@ renderTrainingList();
 renderShopLists();
 renderWeeklySummary();
 updateWeekDisplay();
-initIcu();
+// initIcu est maintenant appelé dans enterApp() après connexion
 initAuth(); // Check Supabase session
 </script>
 </body>

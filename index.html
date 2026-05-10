@@ -1924,25 +1924,44 @@ async function syncFromIntervals(){
       if(dayIdx < 0 || dayIdx > 6) return;
 
       const sportInfo = sportMap[ev.type] || { type: ev.type || 'Entraînement', sport: 'gym' };
-      const dur = ev.moving_time ? 
-        (ev.moving_time >= 3600 ? Math.floor(ev.moving_time/3600) + 'h' + (ev.moving_time%3600>=60?Math.floor((ev.moving_time%3600)/60)+'min':'') : Math.floor(ev.moving_time/60) + 'min') 
-        : (ev.icu_training_load ? Math.round(ev.icu_training_load) + 'min' : '—');
-      const dist = ev.distance ? (ev.distance >= 1000 ? (ev.distance/1000).toFixed(1) + 'km' : ev.distance + 'm') : '—';
-      const tss = ev.icu_training_load || 0;
+
+      // Durée : moving_time (activité complétée) ou planned_duration (planifié)
+      const durationSecs = ev.moving_time || ev.icu_planned_duration || ev.elapsed_time || 0;
+      const durMins = Math.round(durationSecs / 60);
+      const durStr = durationSecs >= 3600
+        ? Math.floor(durationSecs/3600) + 'h' + (durationSecs%3600>=60 ? Math.floor((durationSecs%3600)/60)+'min' : '')
+        : (durMins > 0 ? durMins+'min' : '—');
+
+      // Distance
+      const distM = ev.distance || ev.icu_planned_distance || 0;
+      const dist = distM >= 1000 ? (distM/1000).toFixed(1)+'km' : distM > 0 ? distM+'m' : '—';
+
+      // TSS : réel ou estimé depuis la durée si planifié
+      const tss = ev.icu_training_load || ev.icu_planned_training_load || 0;
+
+      // Intensité : TSS réel en priorité, sinon estimation depuis la durée
+      let intensity;
+      if(tss > 0) {
+        intensity = tss > 200 ? 3 : tss > 100 ? 2 : tss > 30 ? 1 : 0;
+      } else if(durMins > 0) {
+        // Estimation depuis la durée de la séance planifiée
+        intensity = durMins > 180 ? 3 : durMins > 90 ? 2 : durMins > 30 ? 1 : 0;
+      } else {
+        intensity = 0;
+      }
+
       const startTime = ev.start_date_local.split('T')[1]?.substring(0,5) || '07:00';
 
       DAYS[dayIdx].trainings.push({
         type: ev.name || sportInfo.type,
         sport: sportInfo.sport,
-        dur, dist, tss,
-        hard: tss > 150,
+        dur: durStr, dist, tss,
+        hard: intensity >= 3,
         startTime: startTime.replace(':', 'h'),
         icuId: ev.id
       });
 
-      // Set intensity based on TSS
-      const newIntensity = tss > 200 ? 3 : tss > 100 ? 2 : tss > 30 ? 1 : 0;
-      if(newIntensity > DAYS[dayIdx].intensity) DAYS[dayIdx].intensity = newIntensity;
+      if(intensity > DAYS[dayIdx].intensity) DAYS[dayIdx].intensity = intensity;
       DAYS[dayIdx].rest = false;
       DAYS[dayIdx].kcal = [1900, 2200, 2600, 3200][DAYS[dayIdx].intensity];
     });

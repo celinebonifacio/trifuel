@@ -1379,8 +1379,8 @@ function renderDayDetail(){
         ${actualHtml}
       </div>
       <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0;align-items:flex-end">
-        <button class="swap-btn" onclick="openMealSwap('${m.name}',${m.kcal},${m.macros.g},${m.macros.p},${m.macros.l})">↻ Modifier</button>
-        <button class="actual-btn" onclick="openActualInput('${m.name}')">📸 Réel</button>
+        <button class="swap-btn" style="background:linear-gradient(135deg,#059669,#10B981);color:white;border:none;font-size:10px;padding:4px 8px;border-radius:6px;cursor:pointer;white-space:nowrap" onclick="openChatForMeal(${selectedDay}, ${meals.indexOf(m)})">💬 Changer</button>
+        <button class="actual-btn" onclick="openChatForRestaurantMeal(${selectedDay}, ${meals.indexOf(m)})">🍽️ Restaurant</button>
       </div>
     </div>`;
   }).join('');
@@ -2853,6 +2853,31 @@ const EFFORT_KCAL = { gel: 100, bidon: 150, barre: 200 };
 
 // Seuils de durée (minutes) en dessous desquels on ne prend rien pendant l'effort
 const EFFORT_MIN_DUR = { swim: 60, bike: 60, run: 45, gym: 999 };
+
+function openChatForMeal(dayIdx, mealIdx) {
+  openAIChat();
+  const meals = getMealsForDay(dayIdx);
+  const m = meals[mealIdx];
+  if(!m) return;
+  const input = document.getElementById('chat-input');
+  if(input) {
+    input.value = `Je veux changer mon ${m.name} de ${DAYS[dayIdx].name} (${m.kcal} kcal, ${m.desc}). Propose-moi une alternative équivalente.`;
+    input.focus();
+  }
+}
+
+function openChatForRestaurantMeal(dayIdx, mealIdx) {
+  openAIChat();
+  const meals = getMealsForDay(dayIdx);
+  const m = meals[mealIdx];
+  if(!m) return;
+  const input = document.getElementById('chat-input');
+  if(input) {
+    input.value = `Je suis au restaurant pour mon ${m.name} de ${DAYS[dayIdx].name} (prévu ${m.kcal} kcal). J'ai mangé : `;
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+  }
+}
 
 function toggleMealDetail(id) {
   const el = document.getElementById(id);

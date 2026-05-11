@@ -2454,6 +2454,16 @@ function switchAccount() {
   if(!confirm('Se déconnecter ?')) return;
   sb.auth.signOut();
   currentUser = null;
+  // Remet le profil à zéro
+  ['prof-name','prof-sub','prof-age','prof-height','prof-weight','prof-partner',
+   'prof-bmr','prof-kcal-rest','prof-kcal-light','prof-kcal-mod','prof-kcal-hard'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = '—';
+  });
+  document.getElementById('prof-avatar').textContent = '?';
+  // Remet les données semaine à zéro
+  DAYS = buildEmptyWeek(0);
+  window.AI_MEALS = {};
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-email').value = '';
   document.getElementById('login-pwd').value = '';

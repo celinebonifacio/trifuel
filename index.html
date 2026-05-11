@@ -1208,9 +1208,16 @@ function renderDayDetail(){
   const preMin  = trainingHour !== null ? (trainingHour * 60 + trainingMin - 90) % 60 : 0;
   const preTimeStr = preHour !== null ? `${preHour}h${preMin > 0 ? preMin : '00'}` : null;
 
-  // Calcule l'heure post-séance (durée + 30 min)
-  const durMins = firstTraining ? (parseInt(firstTraining.dur)||0) * 60 : 0;
-  const postTotalMins = trainingHour !== null ? trainingHour * 60 + trainingMin + durMins + 30 : null;
+  // Post-séance
+  const firstDurMins = (() => {
+    if(!firstTraining?.dur || firstTraining.dur === '—') return 60;
+    const hMatch = firstTraining.dur.match(/(\d+)h(\d+)?/);
+    const mMatch = firstTraining.dur.match(/(\d+)min/);
+    if(hMatch) return parseInt(hMatch[1])*60 + parseInt(hMatch[2]||0);
+    if(mMatch) return parseInt(mMatch[1]);
+    return 60;
+  })();
+  const postTotalMins = trainingHour !== null ? trainingHour * 60 + trainingMin + firstDurMins + 30 : null;
   const postHour = postTotalMins !== null ? Math.floor(postTotalMins / 60) : null;
   const postMin  = postTotalMins !== null ? postTotalMins % 60 : 0;
   const postTimeStr = postHour !== null ? `${postHour}h${postMin > 0 ? postMin : '00'}` : null;

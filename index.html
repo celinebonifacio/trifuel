@@ -2622,7 +2622,8 @@ async function generateAIPlan(profile) {
       body: JSON.stringify({
         request_type: 'weekly_plan',
         profile: { ...profile, bmr },
-        trainings
+        trainings,
+        effort_nutrition: EFFORT_NUTRITION
       })
     });
 

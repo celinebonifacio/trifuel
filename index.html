@@ -1981,12 +1981,20 @@ async function syncFromIntervals(){
 
     events.forEach(ev => {
       if(!ev.start_date_local) return;
-      // Parse date from string directly to avoid timezone issues
-      // start_date_local format: "2026-05-11T07:00:00" or "2026-05-11"
-      const datePart = ev.start_date_local.split('T')[0]; // "2026-05-11"
+      // Extrait la date locale depuis la chaîne ICU (ex: "2026-05-11T07:00:00" → "2026-05-11")
+      const datePart = ev.start_date_local.split('T')[0];
       const [year, month, day] = datePart.split('-').map(Number);
-      const evDate = new Date(year, month - 1, day); // local date, no timezone shift
-      const dayIdx = (evDate.getDay() + 6) % 7; // 0=Mon, 6=Sun
+      
+      // Trouve le jour correspondant dans DAYS en comparant jour et mois
+      const dayIdx = DAYS.findIndex(d => {
+        // d.date = "11 mai", "12 mai", etc.
+        const parts = d.date.split(' ');
+        const dDay = parseInt(parts[0]);
+        const monthNames = ['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'];
+        const dMonth = monthNames.indexOf(parts[1]) + 1;
+        return dDay === day && dMonth === month;
+      });
+      
       if(dayIdx < 0 || dayIdx > 6) return;
 
       const sportInfo = sportMap[ev.type] || { type: ev.type || 'Entraînement', sport: 'gym' };

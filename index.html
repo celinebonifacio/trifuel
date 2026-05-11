@@ -2314,7 +2314,7 @@ async function saveProfileToDB(profileData) {
 }
 
 // ══ CLAUDE AI — Génération du plan alimentaire ══
-const FUNCTION_URL = '/.netlify/functions/generate-plan';
+const FUNCTION_URL = 'https://trifuel-ai.lingering-night-8d92.workers.dev';
 
 async function generateAIPlan(profile) {
   const trainings = DAYS.map(d => ({

@@ -1561,6 +1561,24 @@ function renderTrainingList(){
   el.innerHTML=DAYS.map((d,di)=>{
     const sm=d.rest?SPORT_META.rest:SPORT_META[d.trainings[0]?.sport]||SPORT_META.rest;
     const allSports=[...new Set(d.trainings.map(t=>t.sport))];
+    const load = d.load || 0;
+    const loadPct = Math.min(load, 150) / 150 * 100;
+    const loadColor = load < 30 ? 'var(--green)' : load < 60 ? 'var(--orange)' : load < 100 ? 'var(--red)' : '#7C3AED';
+    const loadLabel = load === 0 ? '' : load < 30 ? 'Très léger' : load < 60 ? 'Modéré' : load < 100 ? 'Intense' : 'Très intense';
+
+    const loadInput = d.trainings.length ? `
+      <div style="margin-top:8px;display:flex;align-items:center;gap:8px" onclick="event.stopPropagation()">
+        <span style="font-size:10px;color:var(--text3);white-space:nowrap">Load Athletica</span>
+        <input type="number" min="0" max="400" value="${load||''}" placeholder="ex: 45"
+          style="width:60px;font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"
+          onchange="setDayLoad(${di}, this.value)">
+        ${load > 0 ? `
+        <div style="flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${loadPct}%;background:${loadColor};border-radius:3px;transition:width 0.4s"></div>
+        </div>
+        <span style="font-size:10px;font-weight:600;color:${loadColor};white-space:nowrap">${load} · ${loadLabel}</span>` : ''}
+      </div>` : '';
+
     return `<div class="train-card" onclick="openSessionDetail(${di})">
       <div class="train-sport-icon" style="background:${sm.bg}">
         ${allSports.length?allSports.map(s=>SPORT_META[s]?.emoji||'').join(''):'😴'}
@@ -1576,6 +1594,7 @@ function renderTrainingList(){
           const s=SPORT_META[t.sport]||SPORT_META.rest;
           return `<span style="font-size:10px;padding:2px 8px;border-radius:4px;background:${s.bg};color:${s.color};font-weight:600">${s.emoji} ${t.dist}</span>`;
         }).join('')}</div>`:''}
+        ${loadInput}
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
         <div style="text-align:right">
@@ -1594,6 +1613,43 @@ function renderTrainingList(){
       </div>
     </div>`;
   }).join('');
+}
+
+function setDayLoad(di, value) {
+  const load = parseInt(value) || 0;
+  DAYS[di].load = load;
+
+  // Intensité depuis load Athletica
+  let intensity;
+  if(load === 0)      intensity = 0;
+  else if(load < 30)  intensity = 1; // Très léger
+  else if(load < 60)  intensity = 2; // Modéré
+  else if(load < 100) intensity = 3; // Intense
+  else                intensity = 3; // Très intense
+
+  // Calories calculées depuis le BMR du profil utilisateur
+  const kcal = getKcalForIntensity(intensity, load);
+
+  DAYS[di].intensity = intensity;
+  DAYS[di].kcal = kcal;
+  DAYS[di].rest = load === 0;
+  renderTrainingList();
+  renderDayStrip();
+  renderWeeklySummary();
+  if(selectedDay === di) renderDayDetail();
+}
+
+function getKcalForIntensity(intensity, load) {
+  // Récupère le BMR depuis le profil affiché (calculé à la connexion)
+  const bmrEl = document.getElementById('prof-bmr');
+  const bmrText = bmrEl ? bmrEl.textContent : '';
+  const bmr = parseInt(bmrText.replace(/\s/g,'')) || 1400;
+
+  // Multiplicateur selon intensité + bonus load
+  const multipliers = [1.2, 1.5, 1.75, 1.95];
+  const mult = multipliers[intensity] || 1.2;
+  const bonus = load > 100 ? Math.round((load - 100) * 3) : 0;
+  return Math.round(bmr * mult) + bonus;
 }
 
 function macroForDay(d,macro){const meals=MEALS[d.kcal]||MEALS[2200];return meals.reduce((s,m)=>s+(m.macros[macro]||0),0);}
@@ -2014,15 +2070,22 @@ async function syncFromIntervals(){
       // TSS : réel ou estimé depuis la durée si planifié
       const tss = ev.icu_training_load || ev.icu_planned_training_load || 0;
 
-      // Intensité : TSS réel en priorité, sinon estimation depuis la durée
-      let intensity;
+      // Intensité depuis TSS réel, ou depuis le nom de la séance si planifiée
+      let intensity = 0;
       if(tss > 0) {
         intensity = tss > 200 ? 3 : tss > 100 ? 2 : tss > 30 ? 1 : 0;
-      } else if(durMins > 0) {
-        // Estimation depuis la durée de la séance planifiée
-        intensity = durMins > 180 ? 3 : durMins > 90 ? 2 : durMins > 30 ? 1 : 0;
       } else {
-        intensity = 0;
+        // Déduit depuis le nom de la séance Athletica
+        const nameLower = (ev.name || '').toLowerCase();
+        if(nameLower.includes('ftp') || nameLower.includes('threshold') || nameLower.includes('vo2') || nameLower.includes('interval') || nameLower.includes('race')) {
+          intensity = 3; // Intense
+        } else if(nameLower.includes('tempo') || nameLower.includes('se ') || nameLower.includes('speed') || nameLower.includes('brick')) {
+          intensity = 2; // Modéré
+        } else if(nameLower.includes('aerobic') || nameLower.includes('steady') || nameLower.includes('endurance') || nameLower.includes('z2') || nameLower.includes('easy') || nameLower.includes('swim time') || nameLower.includes('base')) {
+          intensity = 1; // Léger
+        } else {
+          intensity = 1; // Par défaut : Léger si séance existe
+        }
       }
 
       const startTime = ev.start_date_local.split('T')[1]?.substring(0,5) || '07:00';

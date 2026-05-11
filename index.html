@@ -808,44 +808,61 @@ button,input,select,textarea{font-family:inherit}
       </div>
     </div>
 
+
     <!-- Nutrition pendant l'effort -->
     <div class="card" id="effort-nutrition-card">
       <div class="card-title">⚡ Nutrition pendant l'effort
         <button class="btn btn-sm" style="margin-left:auto;font-size:11px" onclick="toggleEffortNutritionEdit()">Modifier</button>
       </div>
       <div id="effort-nutrition-view">
-        <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Ces apports sont déduits de ta dépense séance pour calculer tes besoins nets journaliers.</div>
-        <div class="g2">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Apports déduits de ta dépense séance · calculés automatiquement selon la durée (ISSN/ACSM)</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
           <div>
-            <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">🚴 Vélo / Brick</div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Gels / heure</span><span id="en-bike-gels">2</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Bidons iso / heure</span><span id="en-bike-bidons">1</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0"><span style="color:var(--text2)">Barres / heure</span><span id="en-bike-barres">0</span></div>
+            <div style="font-size:10px;font-weight:700;color:#1D4ED8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">🏊 Natation</div>
+            <div style="font-size:12px;color:var(--text2);padding:3px 0">Gels/h : <strong id="en-swim-gels">0</strong></div>
+            <div style="font-size:12px;color:var(--text2);padding:3px 0">Bidons/h : <strong id="en-swim-bidons">0</strong></div>
+            <div style="font-size:12px;color:var(--text2);padding:3px 0">Barres/h : <strong id="en-swim-barres">0</strong></div>
+            <div style="font-size:10px;color:var(--text3);margin-top:4px;font-style:italic">Eau seule &lt;1h · bidon si &gt;1h</div>
           </div>
           <div>
-            <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">🏃 Course à pied</div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Gels / heure</span><span id="en-run-gels">1</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Bidons iso / heure</span><span id="en-run-bidons">1</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0"><span style="color:var(--text2)">Barres / heure</span><span id="en-run-barres">0</span></div>
+            <div style="font-size:10px;font-weight:700;color:#B45309;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">🚴 Vélo / Brick</div>
+            <div style="font-size:12px;color:var(--text2);padding:3px 0">Gels/h : <strong id="en-bike-gels">2</strong></div>
+            <div style="font-size:12px;color:var(--text2);padding:3px 0">Bidons/h : <strong id="en-bike-bidons">1</strong></div>
+            <div style="font-size:12px;color:var(--text2);padding:3px 0">Barres/h : <strong id="en-bike-barres">0</strong></div>
+            <div style="font-size:10px;color:var(--text3);margin-top:4px;font-style:italic">Eau seule &lt;1h · gels+iso si &gt;1h</div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:700;color:#B91C1C;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">🏃 Course</div>
+            <div style="font-size:12px;color:var(--text2);padding:3px 0">Gels/h : <strong id="en-run-gels">1</strong></div>
+            <div style="font-size:12px;color:var(--text2);padding:3px 0">Bidons/h : <strong id="en-run-bidons">1</strong></div>
+            <div style="font-size:12px;color:var(--text2);padding:3px 0">Barres/h : <strong id="en-run-barres">0</strong></div>
+            <div style="font-size:10px;color:var(--text3);margin-top:4px;font-style:italic">Eau seule &lt;45min · gel+eau si &gt;45min</div>
           </div>
         </div>
         <div style="margin-top:10px;padding:8px;background:var(--indigo-l);border-radius:var(--r-sm);font-size:11px;color:#3730A3">
-          📊 Gel = 100 kcal · Bidon iso 500ml = 150 kcal · Barre = 200 kcal
+          📊 Gel = 100 kcal (25g glucides) · Bidon iso 500ml = 150 kcal (35g glucides) · Barre = 200 kcal · Ces apports sont automatiquement nuls si la séance est courte (&lt;45min natation/course, &lt;60min vélo)
         </div>
       </div>
       <div id="effort-nutrition-edit" style="display:none">
-        <div class="g2" style="margin-bottom:12px">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:12px">Modifie selon tes habitudes réelles. Les valeurs par défaut suivent les recommandations ISSN/ACSM.</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px">
           <div>
-            <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🚴 Vélo / Brick</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:12px;color:var(--text2);width:120px">Gels / heure</span><input type="number" min="0" max="5" id="en-inp-bike-gels" value="2" style="width:50px;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:12px;color:var(--text2);width:120px">Bidons iso / heure</span><input type="number" min="0" max="5" id="en-inp-bike-bidons" value="1" style="width:50px;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-            <div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--text2);width:120px">Barres / heure</span><input type="number" min="0" max="3" id="en-inp-bike-barres" value="0" style="width:50px;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
+            <div style="font-size:10px;font-weight:700;color:#1D4ED8;margin-bottom:8px">🏊 Natation</div>
+            <div style="margin-bottom:5px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Gels/h</div><input type="number" min="0" max="5" id="en-inp-swim-gels" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
+            <div style="margin-bottom:5px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Bidons/h</div><input type="number" min="0" max="5" id="en-inp-swim-bidons" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
+            <div><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Barres/h</div><input type="number" min="0" max="3" id="en-inp-swim-barres" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
           </div>
           <div>
-            <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🏃 Course à pied</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:12px;color:var(--text2);width:120px">Gels / heure</span><input type="number" min="0" max="5" id="en-inp-run-gels" value="1" style="width:50px;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:12px;color:var(--text2);width:120px">Bidons iso / heure</span><input type="number" min="0" max="5" id="en-inp-run-bidons" value="1" style="width:50px;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-            <div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--text2);width:120px">Barres / heure</span><input type="number" min="0" max="3" id="en-inp-run-barres" value="0" style="width:50px;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
+            <div style="font-size:10px;font-weight:700;color:#B45309;margin-bottom:8px">🚴 Vélo / Brick</div>
+            <div style="margin-bottom:5px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Gels/h</div><input type="number" min="0" max="5" id="en-inp-bike-gels" value="2" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
+            <div style="margin-bottom:5px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Bidons/h</div><input type="number" min="0" max="5" id="en-inp-bike-bidons" value="1" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
+            <div><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Barres/h</div><input type="number" min="0" max="3" id="en-inp-bike-barres" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:700;color:#B91C1C;margin-bottom:8px">🏃 Course</div>
+            <div style="margin-bottom:5px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Gels/h</div><input type="number" min="0" max="5" id="en-inp-run-gels" value="1" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
+            <div style="margin-bottom:5px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Bidons/h</div><input type="number" min="0" max="5" id="en-inp-run-bidons" value="1" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
+            <div><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Barres/h</div><input type="number" min="0" max="3" id="en-inp-run-barres" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
           </div>
         </div>
         <div style="display:flex;gap:8px;justify-content:flex-end">
@@ -1682,17 +1699,6 @@ function renderTrainingList(){
               <span style="font-size:11px;color:var(--text2)">${t.dur} · ${t.dist}</span>
             </div>
             <div style="font-size:11px;color:var(--text3);margin-top:2px">${d.name} ${d.date}${t.startTime ? ' · ' + t.startTime : ''}</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-top:6px" onclick="event.stopPropagation()">
-              <span style="font-size:10px;color:var(--text3);white-space:nowrap">Load</span>
-              <input type="number" min="0" max="400" value="${tLoad||''}" placeholder="ex: 45"
-                style="width:60px;font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"
-                onchange="setTrainingLoad(${di},${ti},this.value)">
-              ${tLoad > 0 ? `
-              <div style="flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden">
-                <div style="height:100%;width:${loadPct}%;background:${loadColor};border-radius:3px"></div>
-              </div>
-              <span style="font-size:10px;font-weight:600;color:${loadColor};white-space:nowrap">${tLoad} · ${loadLabel}</span>` : ''}
-            </div>
           </div>
           <div style="text-align:right;flex-shrink:0">
             <div style="font-size:14px;font-weight:700">${d.kcal.toLocaleString('fr')}</div>
@@ -2765,14 +2771,13 @@ async function generateAIAlternatives(mealName, mealKcal, dayKcal) {
 }
 
 // ══ NUTRITION PENDANT L'EFFORT ══
-// Valeurs par défaut (modifiables dans le profil)
 let EFFORT_NUTRITION = {
+  swim: { gels: 0, bidons: 0, barres: 0 },
   bike: { gels: 2, bidons: 1, barres: 0 },
-  run:  { gels: 1, bidons: 1, barres: 0 },
-  swim: { gels: 0, bidons: 0, barres: 0 }
+  run:  { gels: 1, bidons: 1, barres: 0 }
 };
 
-// MET par sport et zone (ACSM tables)
+// MET par sport et zone (ACSM)
 const MET_TABLE = {
   swim: { 1:6, 2:7, 3:9, 4:11, 5:13 },
   bike: { 1:5, 2:6, 3:9, 4:12, 5:14 },
@@ -2780,8 +2785,10 @@ const MET_TABLE = {
   gym:  { 1:3, 2:4, 3:6, 4:8,  5:10 }
 };
 
-// Kcal par unité d'apport effort
 const EFFORT_KCAL = { gel: 100, bidon: 150, barre: 200 };
+
+// Seuils de durée (minutes) en dessous desquels on ne prend rien pendant l'effort
+const EFFORT_MIN_DUR = { swim: 60, bike: 60, run: 45, gym: 999 };
 
 function toggleEffortNutritionEdit() {
   const v = document.getElementById('effort-nutrition-view');
@@ -2790,6 +2797,9 @@ function toggleEffortNutritionEdit() {
   v.style.display = editing ? 'block' : 'none';
   e.style.display = editing ? 'none' : 'block';
   if(!editing) {
+    document.getElementById('en-inp-swim-gels').value   = EFFORT_NUTRITION.swim.gels;
+    document.getElementById('en-inp-swim-bidons').value = EFFORT_NUTRITION.swim.bidons;
+    document.getElementById('en-inp-swim-barres').value = EFFORT_NUTRITION.swim.barres;
     document.getElementById('en-inp-bike-gels').value   = EFFORT_NUTRITION.bike.gels;
     document.getElementById('en-inp-bike-bidons').value = EFFORT_NUTRITION.bike.bidons;
     document.getElementById('en-inp-bike-barres').value = EFFORT_NUTRITION.bike.barres;
@@ -2800,6 +2810,9 @@ function toggleEffortNutritionEdit() {
 }
 
 async function saveEffortNutrition() {
+  EFFORT_NUTRITION.swim.gels   = parseInt(document.getElementById('en-inp-swim-gels').value)||0;
+  EFFORT_NUTRITION.swim.bidons = parseInt(document.getElementById('en-inp-swim-bidons').value)||0;
+  EFFORT_NUTRITION.swim.barres = parseInt(document.getElementById('en-inp-swim-barres').value)||0;
   EFFORT_NUTRITION.bike.gels   = parseInt(document.getElementById('en-inp-bike-gels').value)||0;
   EFFORT_NUTRITION.bike.bidons = parseInt(document.getElementById('en-inp-bike-bidons').value)||0;
   EFFORT_NUTRITION.bike.barres = parseInt(document.getElementById('en-inp-bike-barres').value)||0;
@@ -2807,32 +2820,22 @@ async function saveEffortNutrition() {
   EFFORT_NUTRITION.run.bidons  = parseInt(document.getElementById('en-inp-run-bidons').value)||0;
   EFFORT_NUTRITION.run.barres  = parseInt(document.getElementById('en-inp-run-barres').value)||0;
 
-  // Mise à jour affichage
-  document.getElementById('en-bike-gels').textContent   = EFFORT_NUTRITION.bike.gels;
-  document.getElementById('en-bike-bidons').textContent = EFFORT_NUTRITION.bike.bidons;
-  document.getElementById('en-bike-barres').textContent = EFFORT_NUTRITION.bike.barres;
-  document.getElementById('en-run-gels').textContent    = EFFORT_NUTRITION.run.gels;
-  document.getElementById('en-run-bidons').textContent  = EFFORT_NUTRITION.run.bidons;
-  document.getElementById('en-run-barres').textContent  = EFFORT_NUTRITION.run.barres;
+  ['swim','bike','run'].forEach(s => {
+    document.getElementById(`en-${s}-gels`).textContent   = EFFORT_NUTRITION[s].gels;
+    document.getElementById(`en-${s}-bidons`).textContent = EFFORT_NUTRITION[s].bidons;
+    document.getElementById(`en-${s}-barres`).textContent = EFFORT_NUTRITION[s].barres;
+  });
 
   toggleEffortNutritionEdit();
-
-  // Sauvegarde en Supabase
-  if(currentUser) {
-    await sb.from('profiles').update({ effort_nutrition: EFFORT_NUTRITION }).eq('id', currentUser.id);
-  }
-
-  // Recalcule les calories de la semaine
+  if(currentUser) await sb.from('profiles').update({ effort_nutrition: EFFORT_NUTRITION }).eq('id', currentUser.id);
   recalcWeekKcal();
   showToast('✅ Nutrition effort enregistrée', '#059669');
 }
 
-// Calcul ACSM des calories nettes par séance
 function calcSessionKcal(training, zone, weightKg) {
   const sport = training.sport || 'bike';
-  const met = MET_TABLE[sport]?.[zone] || MET_TABLE[sport]?.[2] || 7;
+  const met = MET_TABLE[sport]?.[zone] || 7;
 
-  // Durée en minutes
   const durMins = (() => {
     if(!training.dur || training.dur === '—') return 60;
     const h = training.dur.match(/(\d+)h(\d+)?/);
@@ -2843,18 +2846,22 @@ function calcSessionKcal(training, zone, weightKg) {
   })();
   const durH = durMins / 60;
 
-  // Dépense brute (ACSM)
+  // Dépense brute ACSM
   const depenseBrute = Math.round(met * weightKg * durH);
 
-  // Apports pendant effort
-  const en = EFFORT_NUTRITION[sport] || EFFORT_NUTRITION.bike;
-  const apportsEffort = Math.round(durH * (
-    en.gels   * EFFORT_KCAL.gel +
-    en.bidons * EFFORT_KCAL.bidon +
-    en.barres * EFFORT_KCAL.barre
-  ));
+  // Apports pendant effort — 0 si séance courte
+  const minDur = EFFORT_MIN_DUR[sport] || 60;
+  let apportsEffort = 0;
+  if(durMins >= minDur) {
+    const en = EFFORT_NUTRITION[sport] || { gels:0, bidons:0, barres:0 };
+    apportsEffort = Math.round(durH * (
+      en.gels   * EFFORT_KCAL.gel +
+      en.bidons * EFFORT_KCAL.bidon +
+      en.barres * EFFORT_KCAL.barre
+    ));
+  }
 
-  return { depenseBrute, apportsEffort, net: depenseBrute - apportsEffort };
+  return { depenseBrute, apportsEffort, net: depenseBrute - apportsEffort, durMins };
 }
 
 function recalcWeekKcal() {
@@ -2862,25 +2869,29 @@ function recalcWeekKcal() {
   const bmr = parseInt((bmrEl?.textContent||'1400').replace(/\s/g,''))||1400;
   const weightEl = document.getElementById('prof-weight');
   const weight = parseInt((weightEl?.textContent||'60').replace(/\D/g,''))||60;
-  const baseKcal = Math.round(bmr * 1.3); // activité quotidienne de base
+  const baseKcal = Math.round(bmr * 1.3);
 
-  DAYS.forEach((d, di) => {
+  DAYS.forEach(d => {
     if(!d.trainings.length) {
-      d.kcal = Math.round(bmr * 1.2); // Repos
+      d.kcal = Math.round(bmr * 1.2);
       d.intensity = 0;
+      d.rest = true;
       return;
     }
     let totalNet = 0;
     d.trainings.forEach(t => {
-      // Zone déduite du load (si disponible) ou par défaut Z2
-      const load = t.load || 0;
-      const zone = load < 20 ? 1 : load < 40 ? 2 : load < 70 ? 3 : load < 100 ? 4 : 5;
+      // Zone estimée depuis le nom de séance
+      const name = (t.type||'').toLowerCase();
+      const zone = name.includes('ftp')||name.includes('threshold')||name.includes('vo2') ? 4
+                 : name.includes('tempo')||name.includes('speed')||name.includes('se ') ? 3
+                 : 2; // Z2 par défaut (aérobie)
       t._zone = zone;
       const { net } = calcSessionKcal(t, zone, weight);
       totalNet += net;
     });
     d.kcal = Math.round(baseKcal + totalNet);
-    d.intensity = d.kcal > bmr*1.7 ? 3 : d.kcal > bmr*1.45 ? 2 : 1;
+    d.intensity = totalNet > bmr*0.6 ? 3 : totalNet > bmr*0.3 ? 2 : 1;
+    d.rest = false;
   });
 
   renderDayStrip();

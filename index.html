@@ -2655,16 +2655,38 @@ async function generateAIPlan(profile) {
 }
 
 function applyAIPlan(plan) {
-  // plan = array of {day, kcal, meals: [...]}
   if(!Array.isArray(plan)) return;
 
   plan.forEach((dayPlan, i) => {
     if(!DAYS[i]) return;
-    DAYS[i].kcal = dayPlan.kcal || DAYS[i].kcal;
-    // Store AI meals in a separate object (override MEALS static data)
-    if(dayPlan.meals && dayPlan.meals.length) {
+
+    const targetKcal = DAYS[i].kcal; // Notre cible calculée
+    const meals = dayPlan.meals || [];
+
+    if(meals.length > 0) {
+      // Calcule le total Claude
+      const claudeTotal = meals.reduce((s, m) => s + (m.kcal || 0), 0);
+      const diff = claudeTotal - targetKcal;
+
+      // Si écart > 30 kcal, ajuste le dernier repas principal (dîner)
+      if(Math.abs(diff) > 30) {
+        // Trouve le dernier repas non-collation
+        const mainMeals = meals.filter(m => !m.preTraining && !m.postTraining && !m.effort);
+        if(mainMeals.length > 0) {
+          const lastMain = mainMeals[mainMeals.length - 1];
+          lastMain.kcal = Math.max(200, lastMain.kcal - diff);
+          // Ajuste les macros proportionnellement
+          const ratio = lastMain.kcal / (lastMain.kcal + diff);
+          if(lastMain.macros) {
+            lastMain.macros.g = Math.round((lastMain.macros.g || 0) * ratio);
+            lastMain.macros.p = Math.round((lastMain.macros.p || 0) * ratio);
+            lastMain.macros.l = Math.round((lastMain.macros.l || 0) * ratio);
+          }
+        }
+      }
+
       window.AI_MEALS = window.AI_MEALS || {};
-      window.AI_MEALS[i] = dayPlan.meals.map(m => ({
+      window.AI_MEALS[i] = meals.map(m => ({
         emoji: m.emoji || '🍽️',
         bg: m.bg || '#F1F0EC',
         name: m.name,

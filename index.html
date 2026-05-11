@@ -1965,7 +1965,8 @@ async function syncFromIntervals(){
 
     // Parse ICU events into DAYS structure
     const events = data.result || [];
-    console.log('ICU events reçus:', events.length, events.map(e => e.start_date_local + ' ' + e.name));
+    console.log('ICU events reçus:', events.length);
+    if(events[0]) console.log('Premier event (tous les champs):', JSON.stringify(events[0], null, 2));
     DAYS = buildEmptyWeek(currentWeekOffset);
 
     // Map sport types

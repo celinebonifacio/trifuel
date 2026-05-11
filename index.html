@@ -2687,7 +2687,7 @@ async function generateAIPlan(profile) {
       return;
     }
 
-    applyAIPlan(data.result);
+    await applyAIPlan(data.result);
     showToast('✅ Plan de la semaine généré par Claude !', '#059669');
 
   } catch(err) {
@@ -2750,14 +2750,15 @@ async function applyAIPlan(plan) {
 
   // Sauvegarde le plan en Supabase
   if(currentUser) {
+    console.log('Sauvegarde AI_MEALS:', JSON.stringify(window.AI_MEALS).substring(0, 200));
     const { error } = await sb.from('profiles')
       .update({ ai_meal_plan: window.AI_MEALS })
       .eq('id', currentUser.id);
     if(error) {
       console.error('Erreur sauvegarde plan:', error);
-      showToast('⚠️ Plan genere mais non sauvegarde : ' + error.message, '#F59E0B');
+      showToast('⚠️ Non sauvegarde : ' + error.message, '#F59E0B');
     } else {
-      showToast('✅ Plan de la semaine genere et sauvegarde !', '#059669');
+      showToast('✅ Plan sauvegarde !', '#059669');
     }
   }
 }

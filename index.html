@@ -1567,16 +1567,29 @@ function renderTrainingList(){
     const loadLabel = load === 0 ? '' : load < 30 ? 'Très léger' : load < 60 ? 'Modéré' : load < 100 ? 'Intense' : 'Très intense';
 
     const loadInput = d.trainings.length ? `
-      <div style="margin-top:8px;display:flex;align-items:center;gap:8px" onclick="event.stopPropagation()">
-        <span style="font-size:10px;color:var(--text3);white-space:nowrap">Load Athletica</span>
-        <input type="number" min="0" max="400" value="${load||''}" placeholder="ex: 45"
-          style="width:60px;font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"
-          onchange="setDayLoad(${di}, this.value)">
-        ${load > 0 ? `
-        <div style="flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden">
-          <div style="height:100%;width:${loadPct}%;background:${loadColor};border-radius:3px;transition:width 0.4s"></div>
-        </div>
-        <span style="font-size:10px;font-weight:600;color:${loadColor};white-space:nowrap">${load} · ${loadLabel}</span>` : ''}
+      <div style="margin-top:8px" onclick="event.stopPropagation()">
+        ${d.trainings.map((t,ti) => {
+          const tLoad = t.load || 0;
+          const loadPct = Math.min(tLoad, 150) / 150 * 100;
+          const loadColor = tLoad < 30 ? 'var(--green)' : tLoad < 60 ? 'var(--orange)' : tLoad < 100 ? 'var(--red)' : '#7C3AED';
+          const loadLabel = tLoad === 0 ? '' : tLoad < 30 ? 'Très léger' : tLoad < 60 ? 'Modéré' : tLoad < 100 ? 'Intense' : 'Très intense';
+          const sm2 = SPORT_META[t.sport]||SPORT_META.rest;
+          return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:10px;color:var(--text3);white-space:nowrap;min-width:60px">${sm2.emoji} Load</span>
+            <input type="number" min="0" max="400" value="${tLoad||''}" placeholder="ex: 45"
+              style="width:60px;font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"
+              onchange="setTrainingLoad(${di},${ti},this.value)">
+            ${tLoad > 0 ? `
+            <div style="flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:${loadPct}%;background:${loadColor};border-radius:3px;transition:width 0.4s"></div>
+            </div>
+            <span style="font-size:10px;font-weight:600;color:${loadColor};white-space:nowrap">${tLoad} · ${loadLabel}</span>` : ''}
+          </div>`;
+        }).join('')}
+        ${d.trainings.length > 1 && d.trainings.some(t => t.load > 0) ? `
+        <div style="font-size:10px;color:var(--text2);margin-top:2px">
+          Total load : <strong>${d.trainings.reduce((s,t)=>s+(t.load||0),0)}</strong>
+        </div>` : ''}
       </div>` : '';
 
     return `<div class="train-card" onclick="openSessionDetail(${di})">
@@ -1615,24 +1628,25 @@ function renderTrainingList(){
   }).join('');
 }
 
-function setDayLoad(di, value) {
+function setTrainingLoad(di, ti, value) {
   const load = parseInt(value) || 0;
-  DAYS[di].load = load;
+  DAYS[di].trainings[ti].load = load;
 
-  // Intensité depuis load Athletica
+  // Total load du jour = somme de toutes les séances
+  const totalLoad = DAYS[di].trainings.reduce((s,t) => s + (t.load||0), 0);
+  DAYS[di].load = totalLoad;
+
+  // Intensité depuis load total
   let intensity;
-  if(load === 0)      intensity = 0;
-  else if(load < 30)  intensity = 1; // Très léger
-  else if(load < 60)  intensity = 2; // Modéré
-  else if(load < 100) intensity = 3; // Intense
-  else                intensity = 3; // Très intense
-
-  // Calories calculées depuis le BMR du profil utilisateur
-  const kcal = getKcalForIntensity(intensity, load);
+  if(totalLoad === 0)      intensity = 0;
+  else if(totalLoad < 30)  intensity = 1;
+  else if(totalLoad < 60)  intensity = 2;
+  else                     intensity = 3;
 
   DAYS[di].intensity = intensity;
-  DAYS[di].kcal = kcal;
-  DAYS[di].rest = load === 0;
+  DAYS[di].kcal = getKcalForIntensity(intensity, totalLoad);
+  DAYS[di].rest = totalLoad === 0;
+
   renderTrainingList();
   renderDayStrip();
   renderWeeklySummary();

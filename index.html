@@ -1847,7 +1847,7 @@ function renderTrainingList(){
           <div style="flex:1;min-width:0">
             <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
               <span style="font-size:13px;font-weight:600">${t.type}</span>
-              <span class="${sm.tagClass} sport-tag">${iLabels[d.intensity]}</span>
+              <span class="${sm.tagClass} sport-tag" style="cursor:pointer" title="Cliquer pour modifier" onclick="event.stopPropagation();editIntensity(${di},'celine')">${iLabels[d.intensity]} ✎</span>
               <span style="font-size:11px;color:var(--text2)">${t.dur} · ${t.dist}</span>
             </div>
             <div style="font-size:11px;color:var(--text3);margin-top:2px">${d.name} ${d.date}${t.startTime ? ' · ' + t.startTime : ''}</div>
@@ -2234,6 +2234,50 @@ function populateAfDay() {
   sel.innerHTML = DAYS.map((d,i) => `<option value="${i}">${d.name} ${d.date}</option>`).join('');
 }
 
+function editIntensity(di, member) {
+  const isCeline = member === 'celine';
+  const days = isCeline ? DAYS : DAYS_SAMIR;
+  const d = days[di];
+  const iLabels = ['Repos','Léger','Modéré','Intense'];
+  const current = d.intensity;
+
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:400;display:flex;align-items:center;justify-content:center;padding:1rem';
+  modal.innerHTML = `<div style="background:var(--surface);border-radius:var(--r);padding:1.25rem;max-width:320px;width:100%;box-shadow:var(--shadow-md)">
+    <div style="font-size:14px;font-weight:700;margin-bottom:12px">⚡ Modifier l'intensité · ${d.name} ${d.date}</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${iLabels.map((label, i) => `
+        <button onclick="setIntensityManual(${di},'${member}',${i});this.closest('[style*=fixed]').remove()"
+          style="padding:10px 14px;border-radius:var(--r-sm);border:2px solid ${i===current?'var(--indigo)':'var(--border2)'};background:${i===current?'var(--indigo-l)':'var(--surface)'};color:${i===current?'var(--indigo)':'var(--text)'};font-size:13px;font-weight:${i===current?'700':'500'};cursor:pointer;text-align:left;font-family:inherit">
+          ${['😴','🟢','🟡','🔴'][i]} ${label}${i===current?' ← actuel':''}
+        </button>`).join('')}
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px">
+      <button class="btn btn-sm" onclick="this.closest('[style*=fixed]').remove()">Annuler</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if(e.target === modal) modal.remove(); });
+}
+
+function setIntensityManual(di, member, intensity) {
+  const isCeline = member === 'celine';
+  const days = isCeline ? DAYS : DAYS_SAMIR;
+  days[di].intensity = intensity;
+  days[di].rest = intensity === 0;
+  days[di].kcal = [1900, 2200, 2600, 3200][intensity];
+  if(isCeline) {
+    renderTrainingList();
+    renderDayStrip();
+    renderWeeklySummary();
+    if(selectedDay === di) renderDayDetail();
+  } else {
+    renderTrainingListSamir();
+  }
+  showToast(`✅ Intensité mise à jour : ${['Repos','Léger','Modéré','Intense'][intensity]}`, '#6366F1');
+}
+
+// ══ ICU — gestion Céline ET Samir ══
 function renderTrainingListSamir() {
   const iLabels = ['Repos','Léger','Modéré','Intense'];
   const el = document.getElementById('training-list-samir');
@@ -2255,7 +2299,7 @@ function renderTrainingListSamir() {
           <div style="flex:1;min-width:0">
             <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
               <span style="font-size:13px;font-weight:600">${t.type}</span>
-              <span class="${sm.tagClass} sport-tag">${iLabels[d.intensity]}</span>
+              <span class="${sm.tagClass} sport-tag" style="cursor:pointer" title="Cliquer pour modifier" onclick="editIntensity(${di},'samir')">${iLabels[d.intensity]} ✎</span>
               <span style="font-size:11px;color:var(--text2)">${t.dur} · ${t.dist}</span>
             </div>
             <div style="font-size:11px;color:var(--text3);margin-top:2px">${d.name} ${d.date}${t.startTime ? ' · ' + t.startTime : ''}</div>
@@ -2271,7 +2315,7 @@ function renderTrainingListSamir() {
   el.innerHTML = html;
 }
 
-// ══ ICU — gestion Céline ET Samir ══
+// ══ ICU — setup modal ══
 function showIcuSetup(member) {
   const isCeline = member === 'celine';
   const modal = document.createElement('div');

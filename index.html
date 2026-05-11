@@ -2639,30 +2639,53 @@ function getMealsForDay(dayIdx) {
       preTraining: true
     });
 
-    // Post-séance : durée + 30 min
+    // Durée en minutes
     const durMinsVal = (() => {
       if(!t.dur || t.dur === '—') return 60;
-      const match = t.dur.match(/(\d+)h(\d+)?min?|(\d+)min/);
-      if(!match) return 60;
-      if(match[1]) return parseInt(match[1])*60 + parseInt(match[2]||0);
-      return parseInt(match[3]||60);
+      // Formats : "1h30", "1h30min", "39min", "45min", "1h"
+      const hMatch = t.dur.match(/(\d+)h(\d+)?/);
+      const mMatch = t.dur.match(/(\d+)min/);
+      if(hMatch) return parseInt(hMatch[1])*60 + parseInt(hMatch[2]||0);
+      if(mMatch) return parseInt(mMatch[1]);
+      return 60;
     })();
     const postTotalMins = tH * 60 + tM + durMinsVal + 30;
     const postH = Math.floor(postTotalMins / 60);
     const postM = postTotalMins % 60;
     const postTime = `${postH}h${postM > 0 ? String(postM).padStart(2,'0') : '00'}`;
 
-    extraMeals.push({
-      emoji: '💪', bg: '#DBEAFE',
-      name: `Récup post-${sm.label||t.sport}`,
-      time: postTime,
-      _sortMins: postTotalMins,
-      dur: '2 min',
-      kcal: 200,
-      desc: `Shake protéines + banane · 30 min après la fin`,
-      macros: {g:30, p:20, l:5},
-      postTraining: true
-    });
+    // Mutualisation : si post-séance tombe dans les 90 min avant le déjeuner (12h-13h30)
+    // ou 90 min avant le dîner (19h-20h), on ne crée pas de collation séparée
+    const dejMins = (() => {
+      const el = document.getElementById('t-dej');
+      if(!el) return 12*60+30;
+      const parts = el.textContent.trim().replace('h',':').split(':');
+      return parseInt(parts[0]||12)*60 + parseInt(parts[1]||30);
+    })();
+    const dinerMins = (() => {
+      const el = document.getElementById('t-diner');
+      if(!el) return 19*60+30;
+      const parts = el.textContent.trim().replace('h',':').split(':');
+      return parseInt(parts[0]||19)*60 + parseInt(parts[1]||30);
+    })();
+
+    const nearDej   = postTotalMins >= dejMins - 90 && postTotalMins <= dejMins + 30;
+    const nearDiner = postTotalMins >= dinerMins - 90 && postTotalMins <= dinerMins + 30;
+
+    if(!nearDej && !nearDiner) {
+      extraMeals.push({
+        emoji: '💪', bg: '#DBEAFE',
+        name: `Récup post-${sm.label||t.type}`,
+        time: postTime,
+        _sortMins: postTotalMins,
+        dur: '2 min',
+        kcal: 200,
+        desc: `Shake protéines + banane · 30 min après la fin`,
+        macros: {g:30, p:20, l:5},
+        postTraining: true
+      });
+    }
+    // Si proche d'un repas → on marque le déjeuner/dîner avec un badge récup (géré dans l'affichage)
   });
 
   // Donne une heure numérique à chaque repas de base pour le tri

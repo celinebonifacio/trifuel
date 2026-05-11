@@ -878,6 +878,63 @@ button,input,select,textarea{font-family:inherit}
       </div>
     </div>
 
+    <!-- Membre 2 -->
+    <div class="card" id="member2-card">
+      <div class="card-title">👤 Profil Samir (Membre 2)
+        <button class="btn btn-sm" style="margin-left:auto;font-size:11px" onclick="toggleMember2Edit()">Modifier</button>
+      </div>
+      <div id="member2-view">
+        <div class="g2">
+          <div>
+            <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Informations</div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Prénom</span><span id="m2-name">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Âge</span><span id="m2-age">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Taille</span><span id="m2-height">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Poids</span><span id="m2-weight">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Objectif course</span><span id="m2-goal-race">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Niveau</span><span id="m2-level">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Régime</span><span id="m2-regime">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0"><span style="color:var(--text2)">Allergies</span><span id="m2-allergies">—</span></div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Besoins caloriques</div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">BMR</span><span id="m2-bmr" style="font-weight:600">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Jour repos</span><span id="m2-kcal-rest" style="font-weight:600">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Entraînement léger</span><span id="m2-kcal-light" style="font-weight:600">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0"><span style="color:var(--text2)">Grosse séance</span><span id="m2-kcal-hard" style="font-weight:600;color:var(--green)">—</span></div>
+            <div style="margin-top:12px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Intervals.icu</div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Clé API</span><span id="m2-icu-key" style="font-size:11px;color:var(--text3)">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0"><span style="color:var(--text2)">ID Athlète</span><span id="m2-icu-id">—</span></div>
+          </div>
+        </div>
+      </div>
+      <div id="member2-edit" style="display:none">
+        <div class="g2" style="margin-bottom:10px">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div><div class="form-label">Prénom</div><input class="form-input" id="m2-inp-name" placeholder="Samir" style="font-size:12px;padding:6px 8px"></div>
+            <div><div class="form-label">Âge</div><input type="number" class="form-input" id="m2-inp-age" placeholder="36" style="font-size:12px;padding:6px 8px"></div>
+            <div><div class="form-label">Taille (cm)</div><input type="number" class="form-input" id="m2-inp-height" placeholder="180" style="font-size:12px;padding:6px 8px"></div>
+            <div><div class="form-label">Poids (kg)</div><input type="number" class="form-input" id="m2-inp-weight" placeholder="83" step="0.1" style="font-size:12px;padding:6px 8px"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div><div class="form-label">Objectif course</div><select class="form-input" id="m2-inp-goal-race" style="font-size:12px;padding:6px 8px"><option>Ironman 70.3</option><option>Ironman 140.6</option><option>Sprint/Olympique</option><option>Performance générale</option></select></div>
+            <div><div class="form-label">Niveau</div><select class="form-input" id="m2-inp-level" style="font-size:12px;padding:6px 8px"><option>Débutant</option><option selected>Intermédiaire</option><option>Avancé</option><option>Élite</option></select></div>
+            <div><div class="form-label">Régime</div><select class="form-input" id="m2-inp-regime" style="font-size:12px;padding:6px 8px"><option selected>Omnivore</option><option>Végétarien</option><option>Vegan</option><option>Sans gluten</option></select></div>
+            <div><div class="form-label">Allergies</div><input class="form-input" id="m2-inp-allergies" placeholder="aucune" style="font-size:12px;padding:6px 8px"></div>
+          </div>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Intervals.icu (optionnel)</div>
+        <div class="g2" style="margin-bottom:12px">
+          <div><div class="form-label">Clé API</div><input class="form-input" id="m2-inp-icu-key" placeholder="ex: 71mcfp2l..." style="font-size:12px;padding:6px 8px;font-family:monospace"></div>
+          <div><div class="form-label">ID Athlète</div><input class="form-input" id="m2-inp-icu-id" placeholder="ex: i578841" style="font-size:12px;padding:6px 8px;font-family:monospace"></div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn btn-sm" onclick="toggleMember2Edit()">Annuler</button>
+          <button class="btn btn-sm btn-primary" onclick="saveMember2()">✓ Enregistrer</button>
+        </div>
+      </div>
+    </div>
+
     <button class="btn" onclick="document.getElementById('ob-overlay').classList.remove('hidden');obStep=1;renderOb()">✏️ Modifier le profil</button>
   </div>
 
@@ -2485,6 +2542,11 @@ async function enterApp(user, nameOverride) {
 
   // Load body measures and ICU
   loadBodyMeasures();
+  // Load member 2 profile
+  if(profile) {
+    member2Profile = profile;
+    applyMember2ToUI(profile);
+  }
   await initIcu();
 }
 
@@ -3134,6 +3196,87 @@ async function loadAIMealPlan() {
     renderDayDetail();
     renderWeeklySummary();
     showToast('📅 Plan alimentaire rechargé', '#6366F1');
+  }
+}
+
+// ══ MEMBRE 2 (SAMIR) ══
+let member2Profile = {};
+
+function toggleMember2Edit() {
+  const v = document.getElementById('member2-view');
+  const e = document.getElementById('member2-edit');
+  const editing = e.style.display !== 'none';
+  v.style.display = editing ? 'block' : 'none';
+  e.style.display = editing ? 'none' : 'block';
+  if(!editing) {
+    document.getElementById('m2-inp-name').value      = member2Profile.member2_name || '';
+    document.getElementById('m2-inp-age').value       = member2Profile.member2_age || '';
+    document.getElementById('m2-inp-height').value    = member2Profile.member2_height_cm || '';
+    document.getElementById('m2-inp-weight').value    = member2Profile.member2_weight_kg || '';
+    document.getElementById('m2-inp-goal-race').value = member2Profile.member2_goal_race || 'Ironman 70.3';
+    document.getElementById('m2-inp-level').value     = member2Profile.member2_level || 'Intermédiaire';
+    document.getElementById('m2-inp-regime').value    = member2Profile.member2_regime || 'Omnivore';
+    document.getElementById('m2-inp-allergies').value = member2Profile.member2_allergies || '';
+    document.getElementById('m2-inp-icu-key').value   = member2Profile.member2_icu_api_key || '';
+    document.getElementById('m2-inp-icu-id').value    = member2Profile.member2_icu_athlete_id || '';
+  }
+}
+
+async function saveMember2() {
+  const name      = document.getElementById('m2-inp-name').value.trim();
+  const age       = parseInt(document.getElementById('m2-inp-age').value) || 0;
+  const height_cm = parseInt(document.getElementById('m2-inp-height').value) || 0;
+  const weight_kg = parseFloat(document.getElementById('m2-inp-weight').value) || 0;
+  const goal_race = document.getElementById('m2-inp-goal-race').value;
+  const level     = document.getElementById('m2-inp-level').value;
+  const regime    = document.getElementById('m2-inp-regime').value;
+  const allergies = document.getElementById('m2-inp-allergies').value.trim();
+  const icu_key   = document.getElementById('m2-inp-icu-key').value.trim();
+  const icu_id    = document.getElementById('m2-inp-icu-id').value.trim();
+
+  const updates = {
+    member2_name: name,
+    member2_age: age,
+    member2_height_cm: height_cm,
+    member2_weight_kg: weight_kg,
+    member2_goal_race: goal_race,
+    member2_level: level,
+    member2_regime: regime,
+    member2_allergies: allergies,
+    member2_icu_api_key: icu_key || null,
+    member2_icu_athlete_id: icu_id || null,
+  };
+
+  if(!currentUser) { showToast('❌ Non connecté', '#EF4444'); return; }
+  const { error } = await sb.from('profiles').update(updates).eq('id', currentUser.id);
+  if(error) { showToast('❌ Erreur : ' + error.message, '#EF4444'); return; }
+
+  member2Profile = { ...member2Profile, ...updates };
+  applyMember2ToUI(member2Profile);
+  toggleMember2Edit();
+  showToast('✅ Profil de ' + (name||'Membre 2') + ' enregistré !', '#059669');
+}
+
+function applyMember2ToUI(p) {
+  const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val || '—'; };
+  set('m2-name',      p.member2_name);
+  set('m2-age',       p.member2_age ? p.member2_age + ' ans' : null);
+  set('m2-height',    p.member2_height_cm ? p.member2_height_cm + ' cm' : null);
+  set('m2-weight',    p.member2_weight_kg ? p.member2_weight_kg + ' kg' : null);
+  set('m2-goal-race', p.member2_goal_race);
+  set('m2-level',     p.member2_level);
+  set('m2-regime',    p.member2_regime);
+  set('m2-allergies', p.member2_allergies || 'Aucune');
+  set('m2-icu-key',   p.member2_icu_api_key ? '••••••••' + p.member2_icu_api_key.slice(-4) : null);
+  set('m2-icu-id',    p.member2_icu_athlete_id);
+
+  // BMR homme : 10×poids + 6.25×taille - 5×âge + 5
+  if(p.member2_weight_kg && p.member2_height_cm && p.member2_age) {
+    const bmr = Math.round(10*p.member2_weight_kg + 6.25*p.member2_height_cm - 5*p.member2_age + 5);
+    set('m2-bmr',       bmr.toLocaleString('fr') + ' kcal');
+    set('m2-kcal-rest', Math.round(bmr*1.2).toLocaleString('fr') + ' kcal');
+    set('m2-kcal-light',Math.round(bmr*1.55+300).toLocaleString('fr') + ' kcal');
+    set('m2-kcal-hard', Math.round(bmr*1.95+500).toLocaleString('fr') + '+ kcal');
   }
 }
 

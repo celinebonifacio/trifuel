@@ -1651,6 +1651,47 @@ function setTrainingLoad(di, ti, value) {
   renderDayStrip();
   renderWeeklySummary();
   if(selectedDay === di) renderDayDetail();
+
+  // Sauvegarde les loads de la semaine en Supabase
+  saveWeekLoads();
+}
+
+async function saveWeekLoads() {
+  if(!currentUser) return;
+  // Stocke les loads indexés par date (ex: "2026-05-11": [{load:45},{load:0}])
+  const loads = {};
+  DAYS.forEach(d => {
+    if(d.trainings.some(t => t.load > 0)) {
+      loads[d.date] = d.trainings.map(t => ({ load: t.load || 0 }));
+    }
+  });
+  await sb.from('profiles').update({ week_loads: loads }).eq('id', currentUser.id);
+}
+
+async function loadWeekLoads() {
+  if(!currentUser) return;
+  const { data } = await sb.from('profiles').select('week_loads').eq('id', currentUser.id).single();
+  if(!data?.week_loads) return;
+  const loads = data.week_loads;
+  DAYS.forEach(d => {
+    if(loads[d.date]) {
+      loads[d.date].forEach((l, ti) => {
+        if(d.trainings[ti]) d.trainings[ti].load = l.load || 0;
+      });
+      const totalLoad = d.trainings.reduce((s,t) => s + (t.load||0), 0);
+      d.load = totalLoad;
+      if(totalLoad > 0) {
+        let intensity = totalLoad < 30 ? 1 : totalLoad < 60 ? 2 : 3;
+        d.intensity = intensity;
+        d.kcal = getKcalForIntensity(intensity, totalLoad);
+        d.rest = false;
+      }
+    }
+  });
+  renderTrainingList();
+  renderDayStrip();
+  renderWeeklySummary();
+  if(document.getElementById('day-detail')) renderDayDetail();
 }
 
 function getKcalForIntensity(intensity, load) {
@@ -2128,6 +2169,9 @@ async function syncFromIntervals(){
 
     const nbEvents = events.length;
     showToast(`✅ ${nbEvents} séance${nbEvents > 1 ? 's' : ''} importée${nbEvents > 1 ? 's' : ''} depuis Intervals.icu`, '#059669');
+
+    // Recharge les loads sauvegardés pour cette semaine
+    await loadWeekLoads();
 
   } catch(err) {
     showToast('❌ Erreur sync : ' + err.message, '#EF4444');

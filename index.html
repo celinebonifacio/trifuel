@@ -478,8 +478,6 @@ button,input,select,textarea{font-family:inherit}
           <button class="btn btn-sm" style="border:none;border-radius:0;padding:6px 10px" onclick="changeWeek(1)">→</button>
         </div>
         <button class="btn btn-sm" onclick="showPage('shopping')">🛒 Courses</button>
-        <button class="btn btn-sm" style="background:linear-gradient(135deg,#6366F1,#8B5CF6);color:white;border:none;font-weight:600" onclick="triggerAIPlanGeneration('celine')">✨ Plan Céline</button>
-        <button class="btn btn-sm" style="background:linear-gradient(135deg,#059669,#10B981);color:white;border:none;font-weight:600" id="btn-gen-samir" onclick="triggerAIPlanGeneration('samir')">✨ Plan Samir</button>
       </div>
     </div>
 
@@ -1364,6 +1362,9 @@ function renderDayDetailCeline(){
       <div style="font-size:13px;font-weight:700;color:#1E1B4B">Céline · ${d.name} ${d.date}</div>
       <div style="margin-left:auto;font-size:11px;color:#4338CA;font-weight:600">${d.kcal.toLocaleString('fr')} kcal · ${iLabels[d.intensity]}</div>
     </div>
+    <div style="margin-bottom:12px">
+      <button onclick="triggerAIPlanGeneration('celine')" style="width:100%;padding:8px;background:linear-gradient(135deg,#6366F1,#8B5CF6);color:white;border:none;border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✨ Générer mon plan alimentaire</button>
+    </div>
     <div style="font-size:10px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">🏋️ Séances</div>
     ${trainHtml}
     <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
@@ -1410,8 +1411,10 @@ function renderDayDetailSamir(){
       <div style="font-size:13px;font-weight:700;color:#065F46">${name} · ${d.name} ${d.date}</div>
       <div style="margin-left:auto;font-size:11px;color:${color};font-weight:600">${d.kcal.toLocaleString('fr')} kcal · ${iLabels[d.intensity]}</div>
     </div>
+    <div style="margin-bottom:12px">
+      <button onclick="triggerAIPlanGeneration('samir')" style="width:100%;padding:8px;background:linear-gradient(135deg,#059669,#10B981);color:white;border:none;border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✨ Générer le plan de ${name}</button>
+    </div>
     <div style="font-size:10px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">🏋️ Séances</div>
-    ${trainHtml}
     <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
       <div style="font-size:10px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🔥 Bilan énergétique</div>
       ${macroHtml}

@@ -2590,7 +2590,8 @@ async function generateAIPlan(profile) {
     startTime: d.trainings.map(t => t.startTime || '—').join(' + '),
     sessions: d.trainings.map(t => ({
       type: t.type, sport: t.sport, dur: t.dur,
-      startTime: t.startTime || '—', load: t.load || 0
+      startTime: t.startTime || '—',
+      zone: t._zone || 2
     }))
   }));
 
@@ -2865,6 +2866,15 @@ function calcSessionKcal(training, zone, weightKg) {
   return { depenseBrute, apportsEffort, net: depenseBrute - apportsEffort, durMins };
 }
 
+function getZoneFromName(name) {
+  const n = (name || '').toLowerCase();
+  if(n.includes('hiit') || n.includes('sprint') || n.includes('anaerobic') || n.includes('vo2')) return 5;
+  if(n.includes('ftp') || n.includes('threshold') || n.includes('se ') || n.includes('interval') || n.includes('race')) return 4;
+  if(n.includes('tempo') || n.includes('sweet spot') || n.includes('brick') || n.includes('sweetspot')) return 3;
+  if(n.includes('aerobic') || n.includes('steady') || n.includes('endurance') || n.includes('easy') || n.includes('base') || n.includes('z2') || n.includes('swim time')) return 2;
+  return 2; // Z2 par défaut
+}
+
 function recalcWeekKcal() {
   const bmrEl = document.getElementById('prof-bmr');
   const bmr = parseInt((bmrEl?.textContent||'1400').replace(/\s/g,''))||1400;
@@ -2881,17 +2891,15 @@ function recalcWeekKcal() {
     }
     let totalNet = 0;
     d.trainings.forEach(t => {
-      // Zone estimée depuis le nom de séance
-      const name = (t.type||'').toLowerCase();
-      const zone = name.includes('ftp')||name.includes('threshold')||name.includes('vo2') ? 4
-                 : name.includes('tempo')||name.includes('speed')||name.includes('se ') ? 3
-                 : 2; // Z2 par défaut (aérobie)
+      const zone = getZoneFromName(t.type);
       t._zone = zone;
       const { net } = calcSessionKcal(t, zone, weight);
       totalNet += net;
     });
     d.kcal = Math.round(baseKcal + totalNet);
-    d.intensity = totalNet > bmr*0.6 ? 3 : totalNet > bmr*0.3 ? 2 : 1;
+    // Intensité affichée basée sur la zone max des séances du jour
+    const maxZone = Math.max(...d.trainings.map(t => t._zone || 2));
+    d.intensity = maxZone >= 5 ? 3 : maxZone >= 4 ? 3 : maxZone >= 3 ? 2 : 1;
     d.rest = false;
   });
 

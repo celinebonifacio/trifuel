@@ -2313,6 +2313,8 @@ async function syncFromIntervals(){
     await loadWeekLoads();
     // Recalcule les calories avec la formule ACSM
     recalcWeekKcal();
+    // Recharge le plan alimentaire IA sauvegardé
+    await loadAIMealPlan();
 
   } catch(err) {
     showToast('❌ Erreur sync : ' + err.message, '#EF4444');
@@ -2745,6 +2747,11 @@ function applyAIPlan(plan) {
   renderDayStrip();
   renderDayDetail();
   renderWeeklySummary();
+
+  // Sauvegarde le plan en Supabase
+  if(currentUser) {
+    sb.from('profiles').update({ ai_meal_plan: window.AI_MEALS }).eq('id', currentUser.id);
+  }
 }
 
 // Override getMealsForDay to use AI meals when available
@@ -3108,6 +3115,17 @@ async function getChatProfile() {
   const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
   const bmr = parseInt((document.getElementById('prof-bmr')?.textContent||'1400').replace(/\s/g,''))||1400;
   return { ...(data||{}), bmr };
+}
+
+async function loadAIMealPlan() {
+  if(!currentUser) return;
+  const { data } = await sb.from('profiles').select('ai_meal_plan').eq('id', currentUser.id).single();
+  if(data?.ai_meal_plan && Object.keys(data.ai_meal_plan).length > 0) {
+    window.AI_MEALS = data.ai_meal_plan;
+    renderDayDetail();
+    renderWeeklySummary();
+    showToast('📅 Plan alimentaire rechargé', '#6366F1');
+  }
 }
 
 async function initAuth() {

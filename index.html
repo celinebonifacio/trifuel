@@ -764,6 +764,61 @@ button,input,select,textarea{font-family:inherit}
         </div>
       </div>
     </div>
+
+    <!-- Objectifs & régime éditable -->
+    <div class="card">
+      <div class="card-title">🎯 Objectifs & régime
+        <button class="btn btn-sm" style="margin-left:auto;font-size:11px" onclick="toggleGoalsEdit()">Modifier</button>
+      </div>
+      <div id="goals-view">
+        <div style="display:flex;flex-direction:column">
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Objectif nutritionnel</span><span id="prof-goal-view" style="font-weight:600;color:var(--indigo)">—</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Régime alimentaire</span><span id="prof-regime-view">—</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Volume d'entraînement</span><span id="prof-days-view">—</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0"><span style="color:var(--text2)">Allergies</span><span id="prof-allergies-view">—</span></div>
+        </div>
+      </div>
+      <div id="goals-edit" style="display:none">
+        <div class="g2" style="margin-bottom:10px">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div><div class="form-label">Objectif nutritionnel</div>
+              <select class="form-input" id="goals-inp-goal" style="font-size:12px;padding:6px 8px">
+                <option>Performance max</option>
+                <option>Performance + composition</option>
+                <option>Perte de poids</option>
+                <option>Récupération</option>
+              </select>
+            </div>
+            <div><div class="form-label">Régime alimentaire</div>
+              <select class="form-input" id="goals-inp-regime" style="font-size:12px;padding:6px 8px">
+                <option>Omnivore</option>
+                <option>Végétarien</option>
+                <option>Vegan</option>
+                <option>Sans gluten</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div><div class="form-label">Volume d'entraînement</div>
+              <select class="form-input" id="goals-inp-days" style="font-size:12px;padding:6px 8px">
+                <option>3-4 jours</option>
+                <option>5 jours</option>
+                <option>6 jours</option>
+                <option>6–7 jours</option>
+                <option>7 jours</option>
+              </select>
+            </div>
+            <div><div class="form-label">Allergies / intolérances</div>
+              <input class="form-input" id="goals-inp-allergies" placeholder="lactose, arachides..." style="font-size:12px;padding:6px 8px">
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn btn-sm" onclick="toggleGoalsEdit()">Annuler</button>
+          <button class="btn btn-sm btn-primary" onclick="saveGoals()">✓ Enregistrer</button>
+        </div>
+      </div>
+    </div>
     <!-- Timing card -->
     <div class="card" id="timing-card">
       <div class="card-title">⏰ Horaires habituels
@@ -2589,6 +2644,13 @@ function applyProfileToUI(profile, name, initials) {
     set('prof-kcal-hard', Math.round(bmr*1.9+400).toLocaleString('fr') + '+ kcal');
   }
 
+  // Objectifs & régime
+  const set2 = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val || '—'; };
+  set2('prof-goal-view',      profile.goal_nutrition || 'Performance + composition');
+  set2('prof-regime-view',    profile.regime || 'Omnivore');
+  set2('prof-days-view',      (profile.days || '6–7 jours') + '/semaine');
+  set2('prof-allergies-view', profile.allergies || 'Aucune');
+
   // Horaires depuis Supabase
   if(profile.time_lever)  { set('t-lever', profile.time_lever); }
   if(profile.time_ptidej) { set('t-ptidej', profile.time_ptidej); }
@@ -3199,7 +3261,55 @@ async function loadAIMealPlan() {
   }
 }
 
-// ══ MEMBRE 2 (SAMIR) ══
+// ══ OBJECTIFS & RÉGIME ══
+function toggleGoalsEdit() {
+  const v = document.getElementById('goals-view');
+  const e = document.getElementById('goals-edit');
+  const editing = e.style.display !== 'none';
+  v.style.display = editing ? 'block' : 'none';
+  e.style.display = editing ? 'none' : 'block';
+  if(!editing) {
+    const goalEl = document.getElementById('prof-goal-view');
+    const regimeEl = document.getElementById('prof-regime-view');
+    const daysEl = document.getElementById('prof-days-view');
+    const allergiesEl = document.getElementById('prof-allergies-view');
+    const sel = (id, val) => { const el = document.getElementById(id); if(el && val && val !== '—') el.value = val; };
+    sel('goals-inp-goal',      goalEl?.textContent);
+    sel('goals-inp-regime',    regimeEl?.textContent);
+    sel('goals-inp-days',      daysEl?.textContent?.replace('/semaine','').trim());
+    const inp = document.getElementById('goals-inp-allergies');
+    if(inp) inp.value = allergiesEl?.textContent === 'Aucune' ? '' : (allergiesEl?.textContent || '');
+  }
+}
+
+async function saveGoals() {
+  const goal     = document.getElementById('goals-inp-goal').value;
+  const regime   = document.getElementById('goals-inp-regime').value;
+  const days     = document.getElementById('goals-inp-days').value;
+  const allergies = document.getElementById('goals-inp-allergies').value.trim();
+
+  if(!currentUser) return;
+  const { error } = await sb.from('profiles')
+    .update({ goal_nutrition: goal, regime, days, allergies })
+    .eq('id', currentUser.id);
+  if(error) { showToast('❌ ' + error.message, '#EF4444'); return; }
+
+  // Update display
+  document.getElementById('prof-goal-view').textContent   = goal;
+  document.getElementById('prof-regime-view').textContent = regime;
+  document.getElementById('prof-days-view').textContent   = days + '/semaine';
+  document.getElementById('prof-allergies-view').textContent = allergies || 'Aucune';
+  // Update badges
+  const badgeDays   = document.getElementById('prof-badge-days');
+  const badgeRegime = document.getElementById('prof-badge-regime');
+  const badgeGoal   = document.getElementById('prof-badge-goal');
+  if(badgeDays)   badgeDays.textContent   = days + '/semaine';
+  if(badgeRegime) badgeRegime.textContent = regime;
+  if(badgeGoal)   badgeGoal.textContent   = goal;
+
+  toggleGoalsEdit();
+  showToast('✅ Objectifs enregistrés', '#059669');
+}
 let member2Profile = {};
 
 function toggleMember2Edit() {

@@ -1286,7 +1286,8 @@ function saveTrainingTime(id,di,ti){
   const newTime=document.getElementById('inp-'+id).value;
   if(newTime&&DAYS[di].trainings[ti]){
     DAYS[di].trainings[ti].startTime=newTime.replace(':','h');
-    showToast('⏰ Heure mise à jour — le plan alimentaire est recalculé','#6366F1');
+    saveWeekLoads(); // Sauvegarde l'heure dans Supabase
+    showToast('⏰ Heure enregistrée','#6366F1');
     renderDayDetail();
   }
 }
@@ -1650,11 +1651,13 @@ function setTrainingLoad(di, ti, value) {
 
 async function saveWeekLoads() {
   if(!currentUser) return;
-  // Stocke les loads indexés par date (ex: "2026-05-11": [{load:45},{load:0}])
   const loads = {};
   DAYS.forEach(d => {
-    if(d.trainings.some(t => t.load > 0)) {
-      loads[d.date] = d.trainings.map(t => ({ load: t.load || 0 }));
+    if(d.trainings.some(t => (t.load||0) > 0 || t.startTime)) {
+      loads[d.date] = d.trainings.map(t => ({ 
+        load: t.load || 0,
+        startTime: t.startTime || null
+      }));
     }
   });
   await sb.from('profiles').update({ week_loads: loads }).eq('id', currentUser.id);
@@ -1668,12 +1671,15 @@ async function loadWeekLoads() {
   DAYS.forEach(d => {
     if(loads[d.date]) {
       loads[d.date].forEach((l, ti) => {
-        if(d.trainings[ti]) d.trainings[ti].load = l.load || 0;
+        if(d.trainings[ti]) {
+          d.trainings[ti].load = l.load || 0;
+          if(l.startTime) d.trainings[ti].startTime = l.startTime;
+        }
       });
       const totalLoad = d.trainings.reduce((s,t) => s + (t.load||0), 0);
       d.load = totalLoad;
       if(totalLoad > 0) {
-        let intensity = totalLoad < 30 ? 1 : totalLoad < 60 ? 2 : 3;
+        const intensity = totalLoad < 30 ? 1 : totalLoad < 60 ? 2 : 3;
         d.intensity = intensity;
         d.kcal = getKcalForIntensity(intensity, totalLoad);
         d.rest = false;

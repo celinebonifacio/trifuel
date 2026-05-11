@@ -732,47 +732,45 @@ button,input,select,textarea{font-family:inherit}
   <!-- ── PAGE PROFIL ── -->
   <div class="page" id="page-profile">
     <div class="page-header">
-      <div>
-        <div class="page-title">Profil Famille</div>
-        <div class="page-sub">Céline & Samir · Ironman 70.3</div>
-      </div>
+      <div><div class="page-title">Profil Famille</div><div class="page-sub">Céline & Samir · Ironman 70.3</div></div>
     </div>
 
     <div class="g2" style="align-items:start">
 
       <!-- ══ CÉLINE ══ -->
-      <div class="card" style="border-top:3px solid #6366F1">
-
-        <!-- Header -->
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
-          <div style="width:52px;height:52px;border-radius:50%;background:#EDE9FE;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#5B21B6;flex-shrink:0" id="prof-avatar">CÉ</div>
-          <div style="flex:1">
-            <div style="font-size:16px;font-weight:700" id="prof-name">Céline</div>
-            <div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap">
-              <span class="badge badge-indigo" id="prof-badge-race">Ironman 70.3</span>
-              <span class="badge badge-green" id="prof-badge-level">Intermédiaire</span>
-              <span class="badge badge-orange" id="prof-badge-goal">Perf + compo</span>
-              <span class="badge badge-gray" id="prof-badge-regime">Omnivore</span>
-              <span class="badge badge-gray" id="prof-badge-allergies" style="display:none"></span>
+      <div>
+        <!-- Header Céline -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:14px 16px;background:linear-gradient(135deg,#1E1B4B,#4338CA);border-radius:var(--r)">
+          <div style="width:48px;height:48px;border-radius:50%;background:#EDE9FE;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#5B21B6;flex-shrink:0" id="prof-avatar">CÉ</div>
+          <div>
+            <div style="font-size:16px;font-weight:700;color:white" id="prof-name">Céline</div>
+            <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">
+              <span class="badge" style="background:rgba(255,255,255,0.2);color:white;font-size:10px" id="prof-badge-race">—</span>
+              <span class="badge" style="background:rgba(255,255,255,0.2);color:white;font-size:10px" id="prof-badge-level">—</span>
+              <span class="badge" style="background:rgba(255,255,255,0.2);color:white;font-size:10px" id="prof-badge-goal">—</span>
+              <span class="badge" style="background:rgba(255,255,255,0.2);color:white;font-size:10px" id="prof-badge-regime">—</span>
             </div>
           </div>
         </div>
 
-        <!-- Section : Informations personnelles -->
-        <div style="margin-bottom:1rem">
-          <div style="font-size:10px;font-weight:700;color:var(--indigo);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">👤 Informations personnelles</div>
-          <div style="display:flex;flex-direction:column">
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Âge</span><span id="prof-age">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Taille</span><span id="prof-height">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Poids</span><span id="prof-weight">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Objectif course</span><span id="prof-goal-race">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Niveau</span><span id="prof-level-view">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Régime</span><span id="prof-regime-view">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Allergies</span><span id="prof-allergies-view">Aucune</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Objectif nutrition</span><span id="prof-goal-view" style="color:var(--indigo);font-weight:600">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0"><span style="color:var(--text2)">Volume entraînement</span><span id="prof-days-view">—</span></div>
+        <!-- Infos Céline -->
+        <div class="card">
+          <div class="card-title">👤 Informations personnelles
+            <button class="btn btn-sm" style="margin-left:auto;font-size:11px" onclick="toggleGoalsEdit()">Modifier</button>
           </div>
-          <button class="btn btn-sm" style="margin-top:10px;width:100%;justify-content:center" onclick="toggleGoalsEdit()">✏️ Modifier mes informations</button>
+          <div id="goals-view">
+            <div style="display:flex;flex-direction:column">
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Âge</span><span id="prof-age">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Taille</span><span id="prof-height">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Poids</span><span id="prof-weight">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Objectif course</span><span id="prof-goal-race">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Niveau</span><span id="prof-level-view">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Régime</span><span id="prof-regime-view">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Allergies</span><span id="prof-allergies-view">Aucune</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Objectif nutrition</span><span id="prof-goal-view" style="color:var(--indigo);font-weight:600">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0"><span style="color:var(--text2)">Volume entraînement</span><span id="prof-days-view">—</span></div>
+            </div>
+          </div>
           <div id="goals-edit" style="display:none;margin-top:10px">
             <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
               <div><div class="form-label">Objectif course</div><select class="form-input" id="goals-inp-race" style="font-size:12px;padding:6px 8px"><option>Ironman 70.3</option><option>Ironman 140.6</option><option>Sprint/Olympique</option><option>Performance générale</option></select></div>
@@ -789,42 +787,38 @@ button,input,select,textarea{font-family:inherit}
           </div>
         </div>
 
-        <!-- Section : Besoins caloriques -->
-        <div style="margin-bottom:1rem;padding-top:1rem;border-top:1px solid var(--border)">
-          <div style="font-size:10px;font-weight:700;color:var(--indigo);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🔥 Besoins caloriques</div>
+        <!-- Besoins caloriques Céline -->
+        <div class="card">
+          <div class="card-title">🔥 Besoins caloriques</div>
           <div style="display:flex;flex-direction:column">
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">BMR (métabolisme base)</span><span id="prof-bmr">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Jour repos</span><span style="font-weight:600" id="prof-kcal-rest">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Entraînement léger</span><span style="font-weight:600" id="prof-kcal-light">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Entraînement modéré</span><span style="font-weight:600" id="prof-kcal-mod">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0"><span style="color:var(--text2)">Grosse séance</span><span style="font-weight:600;color:var(--green)" id="prof-kcal-hard">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">BMR</span><span id="prof-bmr">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Repos</span><span style="font-weight:600" id="prof-kcal-rest">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Léger</span><span style="font-weight:600" id="prof-kcal-light">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Modéré</span><span style="font-weight:600" id="prof-kcal-mod">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0"><span style="color:var(--text2)">Intense</span><span style="font-weight:600;color:var(--green)" id="prof-kcal-hard">—</span></div>
           </div>
         </div>
 
-        <!-- Section : Intervals.icu -->
-        <div style="margin-bottom:1rem;padding-top:1rem;border-top:1px solid var(--border)">
-          <div style="font-size:10px;font-weight:700;color:var(--indigo);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🔄 Intervals.icu</div>
+        <!-- ICU Céline -->
+        <div class="card">
+          <div class="card-title">🔄 Intervals.icu</div>
           <div style="display:flex;flex-direction:column">
             <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Clé API</span><span id="prof-icu-key-view" style="font-size:11px;color:var(--text3)">—</span></div>
             <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0"><span style="color:var(--text2)">ID Athlète</span><span id="prof-icu-id-view">—</span></div>
           </div>
         </div>
 
-        <!-- Section : Horaires -->
-        <div style="margin-bottom:1rem;padding-top:1rem;border-top:1px solid var(--border)">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <div style="font-size:10px;font-weight:700;color:var(--indigo);text-transform:uppercase;letter-spacing:0.5px">⏰ Horaires</div>
-            <button class="btn btn-sm" style="font-size:11px;padding:2px 8px" onclick="toggleTimingEdit()">Modifier</button>
+        <!-- Horaires Céline -->
+        <div class="card" id="timing-card">
+          <div class="card-title">⏰ Horaires
+            <button class="btn btn-sm" style="margin-left:auto;font-size:11px" onclick="toggleTimingEdit()">Modifier</button>
           </div>
           <div id="timing-view">
             <div style="display:flex;flex-direction:column">
               <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">🌅 Lever</span><span id="t-lever">6h00</span></div>
               <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">☀️ Petit-déj</span><span id="t-ptidej">7h30</span></div>
               <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">🍽️ Déjeuner</span><span id="t-dej">13h00</span></div>
-              <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">🌙 Dîner</span><span id="t-diner">19h30</span></div>
-              <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Plage matin</span><span id="t-matin">7h30–9h00</span></div>
-              <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Plage midi</span><span id="t-midi">12h00–13h30</span></div>
-              <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0"><span style="color:var(--text2)">Plage soir</span><span id="t-soir">17h30–19h00</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0"><span style="color:var(--text2)">🌙 Dîner</span><span id="t-diner">19h30</span></div>
             </div>
           </div>
           <div id="timing-edit" style="display:none;margin-top:10px">
@@ -833,9 +827,10 @@ button,input,select,textarea{font-family:inherit}
               <div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--text2);width:80px">☀️ Petit-déj</span><input type="time" value="07:30" id="te-ptidej" class="form-input" style="flex:1;font-size:12px;padding:5px 8px"></div>
               <div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--text2);width:80px">🍽️ Déjeuner</span><input type="time" value="13:00" id="te-dej" class="form-input" style="flex:1;font-size:12px;padding:5px 8px"></div>
               <div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--text2);width:80px">🌙 Dîner</span><input type="time" value="19:30" id="te-diner" class="form-input" style="flex:1;font-size:12px;padding:5px 8px"></div>
-              <div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;color:var(--text2);width:55px">Matin</span><input type="time" value="07:30" id="te-m1" class="form-input" style="flex:1;font-size:12px;padding:5px 8px"><input type="time" value="09:00" id="te-m2" class="form-input" style="flex:1;font-size:12px;padding:5px 8px"></div>
-              <div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;color:var(--text2);width:55px">Midi</span><input type="time" value="12:00" id="te-mi1" class="form-input" style="flex:1;font-size:12px;padding:5px 8px"><input type="time" value="13:30" id="te-mi2" class="form-input" style="flex:1;font-size:12px;padding:5px 8px"></div>
-              <div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;color:var(--text2);width:55px">Soir</span><input type="time" value="17:30" id="te-s1" class="form-input" style="flex:1;font-size:12px;padding:5px 8px"><input type="time" value="19:00" id="te-s2" class="form-input" style="flex:1;font-size:12px;padding:5px 8px"></div>
+              <!-- Plages cachées mais gardées pour le calcul -->
+              <input type="hidden" id="te-m1" value="07:30"><input type="hidden" id="te-m2" value="09:00">
+              <input type="hidden" id="te-mi1" value="12:00"><input type="hidden" id="te-mi2" value="13:30">
+              <input type="hidden" id="te-s1" value="17:30"><input type="hidden" id="te-s2" value="19:00">
             </div>
             <div style="display:flex;gap:8px;justify-content:flex-end">
               <button class="btn btn-sm" onclick="toggleTimingEdit()">Annuler</button>
@@ -844,95 +839,63 @@ button,input,select,textarea{font-family:inherit}
           </div>
         </div>
 
-        <!-- Section : Nutrition effort -->
-        <div style="padding-top:1rem;border-top:1px solid var(--border)">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <div style="font-size:10px;font-weight:700;color:var(--indigo);text-transform:uppercase;letter-spacing:0.5px">⚡ Nutrition effort</div>
-            <button class="btn btn-sm" style="font-size:11px;padding:2px 8px" onclick="toggleEffortNutritionEdit()">Modifier</button>
+        <!-- Nutrition effort Céline -->
+        <div class="card" id="effort-nutrition-card">
+          <div class="card-title">⚡ Nutrition pendant l'effort
+            <button class="btn btn-sm" style="margin-left:auto;font-size:11px" onclick="toggleEffortNutritionEdit()">Modifier</button>
           </div>
           <div id="effort-nutrition-view">
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-              <div>
-                <div style="font-size:10px;font-weight:700;color:#1D4ED8;margin-bottom:4px">🏊 Nage</div>
-                <div style="font-size:12px;color:var(--text2)">Gels/h : <strong id="en-swim-gels">0</strong></div>
-                <div style="font-size:12px;color:var(--text2)">Bidons/h : <strong id="en-swim-bidons">0</strong></div>
-                <div style="font-size:12px;color:var(--text2)">Barres/h : <strong id="en-swim-barres">0</strong></div>
-              </div>
-              <div>
-                <div style="font-size:10px;font-weight:700;color:#B45309;margin-bottom:4px">🚴 Vélo</div>
-                <div style="font-size:12px;color:var(--text2)">Gels/h : <strong id="en-bike-gels">2</strong></div>
-                <div style="font-size:12px;color:var(--text2)">Bidons/h : <strong id="en-bike-bidons">1</strong></div>
-                <div style="font-size:12px;color:var(--text2)">Barres/h : <strong id="en-bike-barres">0</strong></div>
-              </div>
-              <div>
-                <div style="font-size:10px;font-weight:700;color:#B91C1C;margin-bottom:4px">🏃 Course</div>
-                <div style="font-size:12px;color:var(--text2)">Gels/h : <strong id="en-run-gels">1</strong></div>
-                <div style="font-size:12px;color:var(--text2)">Bidons/h : <strong id="en-run-bidons">1</strong></div>
-                <div style="font-size:12px;color:var(--text2)">Barres/h : <strong id="en-run-barres">0</strong></div>
-              </div>
+              <div><div style="font-size:10px;font-weight:700;color:#1D4ED8;margin-bottom:4px">🏊 Nage</div><div style="font-size:12px;color:var(--text2)">Gels/h : <strong id="en-swim-gels">0</strong></div><div style="font-size:12px;color:var(--text2)">Bidons/h : <strong id="en-swim-bidons">0</strong></div><div style="font-size:12px;color:var(--text2)">Barres/h : <strong id="en-swim-barres">0</strong></div></div>
+              <div><div style="font-size:10px;font-weight:700;color:#B45309;margin-bottom:4px">🚴 Vélo</div><div style="font-size:12px;color:var(--text2)">Gels/h : <strong id="en-bike-gels">2</strong></div><div style="font-size:12px;color:var(--text2)">Bidons/h : <strong id="en-bike-bidons">1</strong></div><div style="font-size:12px;color:var(--text2)">Barres/h : <strong id="en-bike-barres">0</strong></div></div>
+              <div><div style="font-size:10px;font-weight:700;color:#B91C1C;margin-bottom:4px">🏃 Course</div><div style="font-size:12px;color:var(--text2)">Gels/h : <strong id="en-run-gels">1</strong></div><div style="font-size:12px;color:var(--text2)">Bidons/h : <strong id="en-run-bidons">1</strong></div><div style="font-size:12px;color:var(--text2)">Barres/h : <strong id="en-run-barres">0</strong></div></div>
             </div>
           </div>
           <div id="effort-nutrition-edit" style="display:none;margin-top:10px">
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px">
-              <div>
-                <div style="font-size:10px;font-weight:700;color:#1D4ED8;margin-bottom:6px">🏊 Nage</div>
-                <div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Gels/h</div><input type="number" min="0" max="5" id="en-inp-swim-gels" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-                <div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Bidons/h</div><input type="number" min="0" max="5" id="en-inp-swim-bidons" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-                <div><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Barres/h</div><input type="number" min="0" max="3" id="en-inp-swim-barres" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-              </div>
-              <div>
-                <div style="font-size:10px;font-weight:700;color:#B45309;margin-bottom:6px">🚴 Vélo</div>
-                <div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Gels/h</div><input type="number" min="0" max="5" id="en-inp-bike-gels" value="2" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-                <div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Bidons/h</div><input type="number" min="0" max="5" id="en-inp-bike-bidons" value="1" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-                <div><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Barres/h</div><input type="number" min="0" max="3" id="en-inp-bike-barres" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-              </div>
-              <div>
-                <div style="font-size:10px;font-weight:700;color:#B91C1C;margin-bottom:6px">🏃 Course</div>
-                <div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Gels/h</div><input type="number" min="0" max="5" id="en-inp-run-gels" value="1" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-                <div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Bidons/h</div><input type="number" min="0" max="5" id="en-inp-run-bidons" value="1" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-                <div><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Barres/h</div><input type="number" min="0" max="3" id="en-inp-run-barres" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-              </div>
+              <div><div style="font-size:10px;font-weight:700;color:#1D4ED8;margin-bottom:6px">🏊 Nage</div><div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Gels/h</div><input type="number" min="0" max="5" id="en-inp-swim-gels" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div><div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Bidons/h</div><input type="number" min="0" max="5" id="en-inp-swim-bidons" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div><div><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Barres/h</div><input type="number" min="0" max="3" id="en-inp-swim-barres" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div></div>
+              <div><div style="font-size:10px;font-weight:700;color:#B45309;margin-bottom:6px">🚴 Vélo</div><div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Gels/h</div><input type="number" min="0" max="5" id="en-inp-bike-gels" value="2" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div><div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Bidons/h</div><input type="number" min="0" max="5" id="en-inp-bike-bidons" value="1" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div><div><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Barres/h</div><input type="number" min="0" max="3" id="en-inp-bike-barres" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div></div>
+              <div><div style="font-size:10px;font-weight:700;color:#B91C1C;margin-bottom:6px">🏃 Course</div><div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Gels/h</div><input type="number" min="0" max="5" id="en-inp-run-gels" value="1" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div><div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Bidons/h</div><input type="number" min="0" max="5" id="en-inp-run-bidons" value="1" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div><div><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Barres/h</div><input type="number" min="0" max="3" id="en-inp-run-barres" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div></div>
             </div>
-            <div style="display:flex;gap:8px;justify-content:flex-end">
-              <button class="btn btn-sm" onclick="toggleEffortNutritionEdit()">Annuler</button>
-              <button class="btn btn-sm btn-primary" onclick="saveEffortNutrition()">✓ Enregistrer</button>
-            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-sm" onclick="toggleEffortNutritionEdit()">Annuler</button><button class="btn btn-sm btn-primary" onclick="saveEffortNutrition()">✓ Enregistrer</button></div>
           </div>
         </div>
-
-      </div><!-- end card Céline -->
+      </div><!-- fin col Céline -->
 
       <!-- ══ SAMIR ══ -->
-      <div class="card" style="border-top:3px solid #059669">
-
-        <!-- Header -->
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
-          <div style="width:52px;height:52px;border-radius:50%;background:#D1FAE5;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#065F46;flex-shrink:0" id="m2-avatar">SA</div>
-          <div style="flex:1">
-            <div style="font-size:16px;font-weight:700" id="m2-header-name">Samir</div>
-            <div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap">
-              <span class="badge badge-green" id="m2-badge-race">—</span>
-              <span class="badge badge-indigo" id="m2-badge-level">—</span>
-              <span class="badge badge-orange" id="m2-badge-regime">—</span>
-              <span class="badge badge-gray" id="m2-badge-allergies" style="display:none"></span>
+      <div>
+        <!-- Header Samir -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:14px 16px;background:linear-gradient(135deg,#065F46,#059669);border-radius:var(--r)">
+          <div style="width:48px;height:48px;border-radius:50%;background:#D1FAE5;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#065F46;flex-shrink:0" id="m2-avatar">SA</div>
+          <div>
+            <div style="font-size:16px;font-weight:700;color:white" id="m2-header-name">Samir</div>
+            <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">
+              <span class="badge" style="background:rgba(255,255,255,0.2);color:white;font-size:10px" id="m2-badge-race">—</span>
+              <span class="badge" style="background:rgba(255,255,255,0.2);color:white;font-size:10px" id="m2-badge-level">—</span>
+              <span class="badge" style="background:rgba(255,255,255,0.2);color:white;font-size:10px" id="m2-badge-regime">—</span>
             </div>
           </div>
         </div>
 
-        <!-- Section : Informations personnelles -->
-        <div style="margin-bottom:1rem">
-          <div style="font-size:10px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">👤 Informations personnelles</div>
-          <div style="display:flex;flex-direction:column">
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Prénom</span><span id="m2-name">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Âge</span><span id="m2-age">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Taille</span><span id="m2-height">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Poids</span><span id="m2-weight">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Objectif course</span><span id="m2-goal-race">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Niveau</span><span id="m2-level">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Régime</span><span id="m2-regime">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0"><span style="color:var(--text2)">Allergies</span><span id="m2-allergies">—</span></div>
+        <!-- Infos Samir -->
+        <div class="card" id="member2-card">
+          <div class="card-title">👤 Informations personnelles
+            <button class="btn btn-sm" style="margin-left:auto;font-size:11px" onclick="toggleMember2Edit()">Modifier</button>
           </div>
-          <button class="btn btn-sm" style="margin-top:10px;width:100%;justify-content:center" onclick="toggleMember2Edit()">✏️ Modifier infos Samir</button>
+          <div id="member2-view">
+            <div style="display:flex;flex-direction:column">
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Prénom</span><span id="m2-name">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Âge</span><span id="m2-age">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Taille</span><span id="m2-height">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Poids</span><span id="m2-weight">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Objectif course</span><span id="m2-goal-race">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Niveau</span><span id="m2-level">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Régime</span><span id="m2-regime">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Allergies</span><span id="m2-allergies">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Objectif nutrition</span><span id="m2-goal-view" style="color:var(--green);font-weight:600">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0"><span style="color:var(--text2)">Volume entraînement</span><span id="m2-days-view">—</span></div>
+            </div>
+          </div>
           <div id="member2-edit" style="display:none;margin-top:10px">
             <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
               <div><div class="form-label">Prénom</div><input class="form-input" id="m2-inp-name" placeholder="Samir" style="font-size:12px;padding:6px 8px"></div>
@@ -941,7 +904,9 @@ button,input,select,textarea{font-family:inherit}
               <div><div class="form-label">Poids (kg)</div><input type="number" class="form-input" id="m2-inp-weight" placeholder="83" step="0.1" style="font-size:12px;padding:6px 8px"></div>
               <div><div class="form-label">Objectif course</div><select class="form-input" id="m2-inp-goal-race" style="font-size:12px;padding:6px 8px"><option>Ironman 70.3</option><option>Ironman 140.6</option><option>Sprint/Olympique</option><option>Performance générale</option></select></div>
               <div><div class="form-label">Niveau</div><select class="form-input" id="m2-inp-level" style="font-size:12px;padding:6px 8px"><option>Débutant</option><option selected>Intermédiaire</option><option>Avancé</option><option>Élite</option></select></div>
+              <div><div class="form-label">Objectif nutrition</div><select class="form-input" id="m2-inp-goal" style="font-size:12px;padding:6px 8px"><option>Performance max</option><option>Performance + composition</option><option>Perte de poids</option><option>Récupération</option></select></div>
               <div><div class="form-label">Régime</div><select class="form-input" id="m2-inp-regime" style="font-size:12px;padding:6px 8px"><option selected>Omnivore</option><option>Végétarien</option><option>Vegan</option><option>Sans gluten</option></select></div>
+              <div><div class="form-label">Volume entraînement</div><select class="form-input" id="m2-inp-days" style="font-size:12px;padding:6px 8px"><option>3-4 jours</option><option>5 jours</option><option>6 jours</option><option>6–7 jours</option><option>7 jours</option></select></div>
               <div><div class="form-label">Allergies</div><input class="form-input" id="m2-inp-allergies" placeholder="aucune" style="font-size:12px;padding:6px 8px"></div>
             </div>
             <div style="display:flex;gap:8px;justify-content:flex-end">
@@ -951,43 +916,40 @@ button,input,select,textarea{font-family:inherit}
           </div>
         </div>
 
-        <!-- Section : Besoins caloriques Samir -->
-        <div style="margin-bottom:1rem;padding-top:1rem;border-top:1px solid var(--border)">
-          <div style="font-size:10px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🔥 Besoins caloriques</div>
+        <!-- Besoins caloriques Samir -->
+        <div class="card">
+          <div class="card-title">🔥 Besoins caloriques</div>
           <div style="display:flex;flex-direction:column">
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">BMR (métabolisme base)</span><span id="m2-bmr" style="font-weight:600">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Jour repos</span><span id="m2-kcal-rest" style="font-weight:600">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Entraînement léger</span><span id="m2-kcal-light" style="font-weight:600">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Entraînement modéré</span><span id="m2-kcal-mod" style="font-weight:600">—</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0"><span style="color:var(--text2)">Grosse séance</span><span id="m2-kcal-hard" style="font-weight:600;color:var(--green)">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">BMR</span><span id="m2-bmr" style="font-weight:600">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Repos</span><span id="m2-kcal-rest" style="font-weight:600">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Léger</span><span id="m2-kcal-light" style="font-weight:600">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Modéré</span><span id="m2-kcal-mod" style="font-weight:600">—</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0"><span style="color:var(--text2)">Intense</span><span id="m2-kcal-hard" style="font-weight:600;color:var(--green)">—</span></div>
           </div>
         </div>
 
-        <!-- Section : Intervals.icu Samir -->
-        <div style="margin-bottom:1rem;padding-top:1rem;border-top:1px solid var(--border)">
-          <div style="font-size:10px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🔄 Intervals.icu</div>
+        <!-- ICU Samir -->
+        <div class="card">
+          <div class="card-title">🔄 Intervals.icu
+            <button class="btn btn-sm" style="margin-left:auto;font-size:11px" onclick="toggleMember2IcuEdit()">Modifier</button>
+          </div>
           <div style="display:flex;flex-direction:column">
             <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Clé API</span><span id="m2-icu-key" style="font-size:11px;color:var(--text3)">—</span></div>
             <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0"><span style="color:var(--text2)">ID Athlète</span><span id="m2-icu-id">—</span></div>
           </div>
-          <button class="btn btn-sm" style="margin-top:10px;width:100%;justify-content:center" onclick="toggleMember2IcuEdit()">✏️ Modifier clé ICU</button>
           <div id="m2-icu-edit" style="display:none;margin-top:10px">
             <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
               <div><div class="form-label">Clé API</div><input class="form-input" id="m2-inp-icu-key" placeholder="ex: 71mcfp2l..." style="font-size:12px;padding:6px 8px;font-family:monospace"></div>
               <div><div class="form-label">ID Athlète</div><input class="form-input" id="m2-inp-icu-id" placeholder="ex: i578841" style="font-size:12px;padding:6px 8px;font-family:monospace"></div>
             </div>
-            <div style="display:flex;gap:8px;justify-content:flex-end">
-              <button class="btn btn-sm" onclick="toggleMember2IcuEdit()">Annuler</button>
-              <button class="btn btn-sm btn-primary" onclick="saveMember2Icu()">✓ Enregistrer</button>
-            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-sm" onclick="toggleMember2IcuEdit()">Annuler</button><button class="btn btn-sm btn-primary" onclick="saveMember2Icu()">✓ Enregistrer</button></div>
           </div>
         </div>
 
-        <!-- Section : Horaires Samir -->
-        <div style="margin-bottom:1rem;padding-top:1rem;border-top:1px solid var(--border)">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <div style="font-size:10px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:0.5px">⏰ Horaires</div>
-            <button class="btn btn-sm" style="font-size:11px;padding:2px 8px" onclick="toggleM2TimingEdit()">Modifier</button>
+        <!-- Horaires Samir -->
+        <div class="card">
+          <div class="card-title">⏰ Horaires
+            <button class="btn btn-sm" style="margin-left:auto;font-size:11px" onclick="toggleM2TimingEdit()">Modifier</button>
           </div>
           <div id="m2-timing-view">
             <div style="display:flex;flex-direction:column">
@@ -1004,68 +966,34 @@ button,input,select,textarea{font-family:inherit}
               <div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--text2);width:80px">🍽️ Déjeuner</span><input type="time" id="m2-te-dej" class="form-input" style="flex:1;font-size:12px;padding:5px 8px"></div>
               <div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--text2);width:80px">🌙 Dîner</span><input type="time" id="m2-te-diner" class="form-input" style="flex:1;font-size:12px;padding:5px 8px"></div>
             </div>
-            <div style="display:flex;gap:8px;justify-content:flex-end">
-              <button class="btn btn-sm" onclick="toggleM2TimingEdit()">Annuler</button>
-              <button class="btn btn-sm btn-primary" onclick="saveM2Timings()">✓ Enregistrer</button>
-            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-sm" onclick="toggleM2TimingEdit()">Annuler</button><button class="btn btn-sm btn-primary" onclick="saveM2Timings()">✓ Enregistrer</button></div>
           </div>
         </div>
 
-        <!-- Section : Nutrition effort Samir -->
-        <div style="padding-top:1rem;border-top:1px solid var(--border)">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <div style="font-size:10px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:0.5px">⚡ Nutrition effort</div>
-            <button class="btn btn-sm" style="font-size:11px;padding:2px 8px" onclick="toggleM2EffortEdit()">Modifier</button>
+        <!-- Nutrition effort Samir -->
+        <div class="card">
+          <div class="card-title">⚡ Nutrition pendant l'effort
+            <button class="btn btn-sm" style="margin-left:auto;font-size:11px" onclick="toggleM2EffortEdit()">Modifier</button>
           </div>
           <div id="m2-effort-view">
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-              <div>
-                <div style="font-size:10px;font-weight:700;color:#1D4ED8;margin-bottom:4px">🏊 Nage</div>
-                <div style="font-size:12px;color:var(--text2)">Gels/h : <strong id="m2-en-swim-gels">0</strong></div>
-                <div style="font-size:12px;color:var(--text2)">Bidons/h : <strong id="m2-en-swim-bidons">0</strong></div>
-              </div>
-              <div>
-                <div style="font-size:10px;font-weight:700;color:#B45309;margin-bottom:4px">🚴 Vélo</div>
-                <div style="font-size:12px;color:var(--text2)">Gels/h : <strong id="m2-en-bike-gels">2</strong></div>
-                <div style="font-size:12px;color:var(--text2)">Bidons/h : <strong id="m2-en-bike-bidons">1</strong></div>
-              </div>
-              <div>
-                <div style="font-size:10px;font-weight:700;color:#B91C1C;margin-bottom:4px">🏃 Course</div>
-                <div style="font-size:12px;color:var(--text2)">Gels/h : <strong id="m2-en-run-gels">1</strong></div>
-                <div style="font-size:12px;color:var(--text2)">Bidons/h : <strong id="m2-en-run-bidons">1</strong></div>
-              </div>
+              <div><div style="font-size:10px;font-weight:700;color:#1D4ED8;margin-bottom:4px">🏊 Nage</div><div style="font-size:12px;color:var(--text2)">Gels/h : <strong id="m2-en-swim-gels">0</strong></div><div style="font-size:12px;color:var(--text2)">Bidons/h : <strong id="m2-en-swim-bidons">0</strong></div><div style="font-size:12px;color:var(--text2)">Barres/h : <strong id="m2-en-swim-barres">0</strong></div></div>
+              <div><div style="font-size:10px;font-weight:700;color:#B45309;margin-bottom:4px">🚴 Vélo</div><div style="font-size:12px;color:var(--text2)">Gels/h : <strong id="m2-en-bike-gels">2</strong></div><div style="font-size:12px;color:var(--text2)">Bidons/h : <strong id="m2-en-bike-bidons">1</strong></div><div style="font-size:12px;color:var(--text2)">Barres/h : <strong id="m2-en-bike-barres">0</strong></div></div>
+              <div><div style="font-size:10px;font-weight:700;color:#B91C1C;margin-bottom:4px">🏃 Course</div><div style="font-size:12px;color:var(--text2)">Gels/h : <strong id="m2-en-run-gels">1</strong></div><div style="font-size:12px;color:var(--text2)">Bidons/h : <strong id="m2-en-run-bidons">1</strong></div><div style="font-size:12px;color:var(--text2)">Barres/h : <strong id="m2-en-run-barres">0</strong></div></div>
             </div>
           </div>
           <div id="m2-effort-edit" style="display:none;margin-top:10px">
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px">
-              <div>
-                <div style="font-size:10px;font-weight:700;color:#1D4ED8;margin-bottom:6px">🏊 Nage</div>
-                <div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Gels/h</div><input type="number" min="0" max="5" id="m2-en-inp-swim-gels" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-                <div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Bidons/h</div><input type="number" min="0" max="5" id="m2-en-inp-swim-bidons" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-                <div><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Barres/h</div><input type="number" min="0" max="3" id="m2-en-inp-swim-barres" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-              </div>
-              <div>
-                <div style="font-size:10px;font-weight:700;color:#B45309;margin-bottom:6px">🚴 Vélo</div>
-                <div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Gels/h</div><input type="number" min="0" max="5" id="m2-en-inp-bike-gels" value="2" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-                <div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Bidons/h</div><input type="number" min="0" max="5" id="m2-en-inp-bike-bidons" value="1" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-                <div><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Barres/h</div><input type="number" min="0" max="3" id="m2-en-inp-bike-barres" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-              </div>
-              <div>
-                <div style="font-size:10px;font-weight:700;color:#B91C1C;margin-bottom:6px">🏃 Course</div>
-                <div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Gels/h</div><input type="number" min="0" max="5" id="m2-en-inp-run-gels" value="1" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-                <div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Bidons/h</div><input type="number" min="0" max="5" id="m2-en-inp-run-bidons" value="1" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-                <div><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Barres/h</div><input type="number" min="0" max="3" id="m2-en-inp-run-barres" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div>
-              </div>
+              <div><div style="font-size:10px;font-weight:700;color:#1D4ED8;margin-bottom:6px">🏊 Nage</div><div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Gels/h</div><input type="number" min="0" max="5" id="m2-en-inp-swim-gels" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div><div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Bidons/h</div><input type="number" min="0" max="5" id="m2-en-inp-swim-bidons" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div><div><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Barres/h</div><input type="number" min="0" max="3" id="m2-en-inp-swim-barres" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div></div>
+              <div><div style="font-size:10px;font-weight:700;color:#B45309;margin-bottom:6px">🚴 Vélo</div><div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Gels/h</div><input type="number" min="0" max="5" id="m2-en-inp-bike-gels" value="2" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div><div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Bidons/h</div><input type="number" min="0" max="5" id="m2-en-inp-bike-bidons" value="1" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div><div><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Barres/h</div><input type="number" min="0" max="3" id="m2-en-inp-bike-barres" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div></div>
+              <div><div style="font-size:10px;font-weight:700;color:#B91C1C;margin-bottom:6px">🏃 Course</div><div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Gels/h</div><input type="number" min="0" max="5" id="m2-en-inp-run-gels" value="1" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div><div style="margin-bottom:4px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Bidons/h</div><input type="number" min="0" max="5" id="m2-en-inp-run-bidons" value="1" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div><div><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Barres/h</div><input type="number" min="0" max="3" id="m2-en-inp-run-barres" value="0" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"></div></div>
             </div>
-            <div style="display:flex;gap:8px;justify-content:flex-end">
-              <button class="btn btn-sm" onclick="toggleM2EffortEdit()">Annuler</button>
-              <button class="btn btn-sm btn-primary" onclick="saveM2Effort()">✓ Enregistrer</button>
-            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-sm" onclick="toggleM2EffortEdit()">Annuler</button><button class="btn btn-sm btn-primary" onclick="saveM2Effort()">✓ Enregistrer</button></div>
           </div>
         </div>
+      </div><!-- fin col Samir -->
 
-      </div><!-- end card Samir -->
-    </div><!-- end g2 -->
+    </div><!-- fin g2 -->
   </div>
 
   </div><!-- end content-wrap -->
@@ -2262,14 +2190,11 @@ function saveTimings(){
     time_midi:   g('te-mi1')+'-'+g('te-mi2'),
     time_soir:   g('te-s1')+'-'+g('te-s2')
   };
-  // Update display
+  // Update display — seulement les 4 repas principaux dans le profil
   document.getElementById('t-lever').textContent    = timings.time_lever;
   document.getElementById('t-ptidej').textContent   = timings.time_ptidej;
   document.getElementById('t-dej').textContent      = timings.time_dej;
   document.getElementById('t-diner').textContent    = timings.time_diner;
-  document.getElementById('t-matin').textContent    = timings.time_matin.replace('-','–');
-  document.getElementById('t-midi').textContent     = timings.time_midi.replace('-','–');
-  document.getElementById('t-soir').textContent     = timings.time_soir.replace('-','–');
   toggleTimingEdit();
   // Save to Supabase
   if(currentUser) {
@@ -2681,69 +2606,68 @@ async function enterApp(user, nameOverride) {
 }
 
 function applyProfileToUI(profile, name, initials) {
-  const set = (id, val) => { const el = document.getElementById(id); if(el && val) el.textContent = val; };
+  const set = (id, val) => { const el = document.getElementById(id); if(el && val !== undefined && val !== null) el.textContent = val; };
 
   // Avatar + nom
   set('prof-avatar', initials);
   set('prof-name', name);
-  set('prof-sub', `Triathlète · ${profile.goal_race||''} · ${profile.level||''}`);
 
-  // Badges
-  set('prof-badge-days', (profile.days||'6–7j') + '/semaine');
-  set('prof-badge-regime', profile.regime||'Omnivore');
-  set('prof-badge-goal', profile.goal_nutrition||'Performance + composition');
-
-  // Informations
-  if(profile.age)       set('prof-age',     profile.age + ' ans');
-  if(profile.height_cm) set('prof-height',  profile.height_cm + ' cm');
-  if(profile.weight_kg) set('prof-weight',  profile.weight_kg + ' kg');
-  if(profile.partner)   set('prof-partner', profile.partner);
-
-  // Sidebar
+  // Sidebar → toujours "Famille TriFuel"
   document.querySelectorAll('.user-name').forEach(el => el.textContent = name);
   document.querySelectorAll('.user-av').forEach(el => el.textContent = initials);
-  document.querySelectorAll('.user-role').forEach(el =>
-    el.textContent = (profile.goal_race||'') + ' · ' + (profile.level||''));
+  document.querySelectorAll('.user-role').forEach(el => el.textContent = 'Famille TriFuel');
 
   // Planning subtitle
   const planSub = document.getElementById('plan-week-sub');
   if(planSub) planSub.textContent = (profile.goal_race||'Ironman') + ' · Phase Build · ' + name;
+
+  // Informations personnelles
+  if(profile.age)       set('prof-age',       profile.age + ' ans');
+  if(profile.height_cm) set('prof-height',    profile.height_cm + ' cm');
+  if(profile.weight_kg) set('prof-weight',    profile.weight_kg + ' kg');
+  if(profile.goal_race) set('prof-goal-race', profile.goal_race);
+  if(profile.level)     set('prof-level-view', profile.level);
+  set('prof-regime-view',    profile.regime    || 'Omnivore');
+  set('prof-allergies-view', profile.allergies || 'Aucune');
+  set('prof-goal-view',      profile.goal_nutrition || 'Performance + composition');
+  set('prof-days-view',      (profile.days || '6–7 jours') + '/semaine');
+
+  // Badges
+  set('prof-badge-race',    profile.goal_race);
+  set('prof-badge-level',   profile.level);
+  set('prof-badge-goal',    profile.goal_nutrition || 'Performance + composition');
+  set('prof-badge-regime',  profile.regime || 'Omnivore');
+  const allergBadge = document.getElementById('prof-badge-allergies');
+  if(allergBadge) { allergBadge.textContent = profile.allergies||''; allergBadge.style.display = profile.allergies ? '' : 'none'; }
+
+  // Intervals.icu
+  set('prof-icu-key-view', profile.icu_api_key ? '••••' + profile.icu_api_key.slice(-4) : '—');
+  set('prof-icu-id-view',  profile.icu_athlete_id || '—');
 
   // Besoins caloriques — Mifflin-St Jeor femme
   if(profile.weight_kg && profile.height_cm && profile.age) {
     const bmr = Math.round(10*profile.weight_kg + 6.25*profile.height_cm - 5*profile.age - 161);
     set('prof-bmr',       bmr.toLocaleString('fr') + ' kcal');
     set('prof-kcal-rest', Math.round(bmr*1.2).toLocaleString('fr') + ' kcal');
-    set('prof-kcal-light',Math.round(bmr*1.5+200).toLocaleString('fr') + ' kcal');
-    set('prof-kcal-mod',  Math.round(bmr*1.7+300).toLocaleString('fr') + ' kcal');
-    set('prof-kcal-hard', Math.round(bmr*1.9+400).toLocaleString('fr') + '+ kcal');
+    set('prof-kcal-light',Math.round(bmr*1.55+300).toLocaleString('fr') + ' kcal');
+    set('prof-kcal-mod',  Math.round(bmr*1.75+400).toLocaleString('fr') + ' kcal');
+    set('prof-kcal-hard', Math.round(bmr*1.95+500).toLocaleString('fr') + '+ kcal');
   }
 
-  // Objectifs & régime
-  const set2 = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val || '—'; };
-  set2('prof-goal-view',      profile.goal_nutrition || 'Performance + composition');
-  set2('prof-regime-view',    profile.regime || 'Omnivore');
-  set2('prof-days-view',      (profile.days || '6–7 jours') + '/semaine');
-  set2('prof-allergies-view', profile.allergies || 'Aucune');
-
   // Horaires depuis Supabase
-  if(profile.time_lever)  { set('t-lever', profile.time_lever); }
-  if(profile.time_ptidej) { set('t-ptidej', profile.time_ptidej); }
-  if(profile.time_dej)    { set('t-dej', profile.time_dej); }
-  if(profile.time_diner)  { set('t-diner', profile.time_diner); }
-  if(profile.time_matin)  { set('t-matin', profile.time_matin.replace('-','–')); }
-  if(profile.time_midi)   { set('t-midi', profile.time_midi.replace('-','–')); }
-  if(profile.time_soir)   { set('t-soir', profile.time_soir.replace('-','–')); }
+  if(profile.time_lever)  set('t-lever',  profile.time_lever);
+  if(profile.time_ptidej) set('t-ptidej', profile.time_ptidej);
+  if(profile.time_dej)    set('t-dej',    profile.time_dej);
+  if(profile.time_diner)  set('t-diner',  profile.time_diner);
 
   // Nutrition effort depuis Supabase
   if(profile.effort_nutrition) {
     EFFORT_NUTRITION = profile.effort_nutrition;
-    set('en-bike-gels',   EFFORT_NUTRITION.bike?.gels ?? 2);
-    set('en-bike-bidons', EFFORT_NUTRITION.bike?.bidons ?? 1);
-    set('en-bike-barres', EFFORT_NUTRITION.bike?.barres ?? 0);
-    set('en-run-gels',    EFFORT_NUTRITION.run?.gels ?? 1);
-    set('en-run-bidons',  EFFORT_NUTRITION.run?.bidons ?? 1);
-    set('en-run-barres',  EFFORT_NUTRITION.run?.barres ?? 0);
+    ['swim','bike','run'].forEach(s => {
+      set(`en-${s}-gels`,   EFFORT_NUTRITION[s]?.gels   ?? (s==='swim'?0:s==='bike'?2:1));
+      set(`en-${s}-bidons`, EFFORT_NUTRITION[s]?.bidons ?? (s==='swim'?0:1));
+      set(`en-${s}-barres`, EFFORT_NUTRITION[s]?.barres ?? 0);
+    });
   }
 }
 
@@ -3481,22 +3405,19 @@ async function saveMember2Effort() {
   showToast('✅ Nutrition effort Samir enregistrée', '#059669');
 }
 function toggleGoalsEdit() {
-  const v = document.getElementById('goals-view');
   const e = document.getElementById('goals-edit');
-  const editing = e.style.display !== 'none';
-  v.style.display = editing ? 'block' : 'none';
-  e.style.display = editing ? 'none' : 'block';
-  if(!editing) {
-    const goalEl = document.getElementById('prof-goal-view');
-    const regimeEl = document.getElementById('prof-regime-view');
-    const daysEl = document.getElementById('prof-days-view');
-    const allergiesEl = document.getElementById('prof-allergies-view');
-    const sel = (id, val) => { const el = document.getElementById(id); if(el && val && val !== '—') el.value = val; };
-    sel('goals-inp-goal',      goalEl?.textContent);
-    sel('goals-inp-regime',    regimeEl?.textContent);
-    sel('goals-inp-days',      daysEl?.textContent?.replace('/semaine','').trim());
+  const isOpen = e.style.display !== 'none';
+  e.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen) {
+    const sel = (id, val) => { const el=document.getElementById(id); if(el&&val&&val!=='—') el.value=val; };
+    sel('goals-inp-race',      document.getElementById('prof-goal-race')?.textContent);
+    sel('goals-inp-level',     document.getElementById('prof-level-view')?.textContent);
+    sel('goals-inp-goal',      document.getElementById('prof-goal-view')?.textContent);
+    sel('goals-inp-regime',    document.getElementById('prof-regime-view')?.textContent);
+    sel('goals-inp-days',      document.getElementById('prof-days-view')?.textContent?.replace('/semaine','').trim());
     const inp = document.getElementById('goals-inp-allergies');
-    if(inp) inp.value = allergiesEl?.textContent === 'Aucune' ? '' : (allergiesEl?.textContent || '');
+    const allergVal = document.getElementById('prof-allergies-view')?.textContent;
+    if(inp) inp.value = allergVal === 'Aucune' ? '' : (allergVal || '');
   }
 }
 
@@ -3536,7 +3457,26 @@ async function saveGoals() {
   toggleGoalsEdit();
   showToast('✅ Profil mis à jour', '#059669');
 }
-// ══ SAMIR — HORAIRES, ICU, NUTRITION EFFORT ══
+function toggleCelineIcuEdit() {
+  const e = document.getElementById('celine-icu-edit');
+  e.style.display = e.style.display === 'none' ? 'block' : 'none';
+  if(e.style.display !== 'none') {
+    document.getElementById('celine-inp-icu-key').value = '';
+    document.getElementById('celine-inp-icu-id').value  = '';
+  }
+}
+
+async function saveCelineIcu() {
+  const key = document.getElementById('celine-inp-icu-key').value.trim();
+  const id  = document.getElementById('celine-inp-icu-id').value.trim();
+  if(!currentUser) return;
+  const {error} = await sb.from('profiles').update({icu_api_key:key||null, icu_athlete_id:id||null}).eq('id',currentUser.id);
+  if(error){showToast('❌ '+error.message,'#EF4444');return;}
+  document.getElementById('prof-icu-key-view').textContent = key ? '••••'+key.slice(-4) : '—';
+  document.getElementById('prof-icu-id-view').textContent  = id || '—';
+  toggleCelineIcuEdit();
+  showToast('✅ Clé ICU Céline enregistrée','#059669');
+}
 let MEMBER2_EFFORT = { swim:{gels:0,bidons:0,barres:0}, bike:{gels:2,bidons:1,barres:0}, run:{gels:1,bidons:1,barres:0} };
 
 function toggleM2TimingEdit() {
@@ -3617,22 +3557,19 @@ async function saveM2Effort() {
 let member2Profile = {};
 
 function toggleMember2Edit() {
-  const v = document.getElementById('member2-view');
   const e = document.getElementById('member2-edit');
-  const editing = e.style.display !== 'none';
-  v.style.display = editing ? 'block' : 'none';
-  e.style.display = editing ? 'none' : 'block';
-  if(!editing) {
-    document.getElementById('m2-inp-name').value      = member2Profile.member2_name || '';
-    document.getElementById('m2-inp-age').value       = member2Profile.member2_age || '';
-    document.getElementById('m2-inp-height').value    = member2Profile.member2_height_cm || '';
-    document.getElementById('m2-inp-weight').value    = member2Profile.member2_weight_kg || '';
-    document.getElementById('m2-inp-goal-race').value = member2Profile.member2_goal_race || 'Ironman 70.3';
-    document.getElementById('m2-inp-level').value     = member2Profile.member2_level || 'Intermédiaire';
-    document.getElementById('m2-inp-regime').value    = member2Profile.member2_regime || 'Omnivore';
-    document.getElementById('m2-inp-allergies').value = member2Profile.member2_allergies || '';
-    document.getElementById('m2-inp-icu-key').value   = member2Profile.member2_icu_api_key || '';
-    document.getElementById('m2-inp-icu-id').value    = member2Profile.member2_icu_athlete_id || '';
+  const isOpen = e.style.display !== 'none';
+  e.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen) {
+    const sel = (id, val) => { const el=document.getElementById(id); if(el&&val&&val!=='—') el.value=val; };
+    sel('m2-inp-name',       member2Profile.member2_name);
+    sel('m2-inp-goal-race',  member2Profile.member2_goal_race);
+    sel('m2-inp-level',      member2Profile.member2_level);
+    sel('m2-inp-regime',     member2Profile.member2_regime);
+    const ageEl = document.getElementById('m2-inp-age'); if(ageEl) ageEl.value = member2Profile.member2_age||'';
+    const hEl   = document.getElementById('m2-inp-height'); if(hEl) hEl.value = member2Profile.member2_height_cm||'';
+    const wEl   = document.getElementById('m2-inp-weight'); if(wEl) wEl.value = member2Profile.member2_weight_kg||'';
+    const aEl   = document.getElementById('m2-inp-allergies'); if(aEl) aEl.value = member2Profile.member2_allergies||'';
   }
 }
 
@@ -3659,6 +3596,8 @@ async function saveMember2() {
     member2_allergies: allergies,
     member2_icu_api_key: icu_key || null,
     member2_icu_athlete_id: icu_id || null,
+    member2_goal_nutrition: document.getElementById('m2-inp-goal')?.value || null,
+    member2_days: document.getElementById('m2-inp-days')?.value || null,
   };
 
   if(!currentUser) { showToast('❌ Non connecté', '#EF4444'); return; }
@@ -3683,6 +3622,8 @@ function applyMember2ToUI(p) {
   set('m2-allergies', p.member2_allergies || 'Aucune');
   set('m2-icu-key',   p.member2_icu_api_key ? '••••' + p.member2_icu_api_key.slice(-4) : null);
   set('m2-icu-id',    p.member2_icu_athlete_id);
+  set('m2-goal-view', p.member2_goal_nutrition || '—');
+  set('m2-days-view', p.member2_days ? p.member2_days + '/semaine' : '—');
   // Header badges
   const badgeSet = (id, val) => { const el=document.getElementById(id); if(el){el.textContent=val||'—';el.style.display=val?'':'none';} };
   badgeSet('m2-badge-race',     p.member2_goal_race);

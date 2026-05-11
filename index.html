@@ -1929,13 +1929,23 @@ async function syncFromIntervals(){
       return;
     }
 
-    // Calculate date range for current week
+    // Utilise les dates réelles de DAYS (déjà calculées correctement par buildEmptyWeek)
+    // pour éviter les problèmes de fuseau horaire
+    const fmt = d => d.toISOString().split('T')[0];
     const today = new Date();
     const monday = new Date(today);
-    monday.setDate(today.getDate() - today.getDay() + 1 + currentWeekOffset * 7);
+    // Calcul robuste : part du lundi de la semaine locale
+    const dayOfWeek = today.getDay(); // 0=dim, 1=lun...
+    const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    monday.setDate(today.getDate() + daysToMonday + currentWeekOffset * 7);
+    monday.setHours(0, 0, 0, 0);
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
-    const fmt = d => d.toISOString().split('T')[0];
+    // Étend d'un jour de chaque côté pour éviter les décalages de fuseau
+    const startDate = new Date(monday);
+    startDate.setDate(monday.getDate() - 1);
+    const endDate = new Date(sunday);
+    endDate.setDate(sunday.getDate() + 1);
 
     // Call our proxy function
     const response = await fetch('/.netlify/functions/icu-proxy', {
@@ -1945,7 +1955,7 @@ async function syncFromIntervals(){
         icu_api_key: profile.icu_api_key,
         icu_athlete_id: profile.icu_athlete_id,
         action: 'get_events',
-        params: { start: fmt(monday), end: fmt(sunday) }
+        params: { start: fmt(startDate), end: fmt(endDate) }
       })
     });
 

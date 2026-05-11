@@ -1239,6 +1239,9 @@ function renderDayDetail(){
       const timeLabel = postTimeStr || 'après séance';
       trainingCtx=`<span style="font-size:10px;background:var(--green-l);color:var(--green-d);padding:1px 7px;border-radius:4px;font-weight:600">💪 Récupération · ${timeLabel}</span>`;
     }
+    if(m._recoveryEnriched) {
+      trainingCtx=`<span style="font-size:10px;background:var(--green-l);color:var(--green-d);padding:1px 7px;border-radius:4px;font-weight:600">${m._recoveryEmoji} Récup post-${m._recoverySport} incluse · +protéines & glucides</span>`;
+    }
     if(m.effort) trainingCtx=`<span style="font-size:10px;background:var(--red-l);color:var(--red-d);padding:1px 7px;border-radius:4px;font-weight:600">${sportEmoji} Pendant l'effort</span>`;
     return `<div class="meal-row" style="${override?'background:#FAFAFF;border-radius:var(--r-sm);margin:2px -4px;padding:12px 4px':''}">
       <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
@@ -2684,8 +2687,25 @@ function getMealsForDay(dayIdx) {
         macros: {g:30, p:20, l:5},
         postTraining: true
       });
+    } else {
+      // Enrichit le repas proche avec les apports récup
+      const targetName = nearDej ? 'Déjeuner' : 'Dîner';
+      baseMeals.forEach(m => {
+        if(m.name === targetName) {
+          m._recoveryEnriched = true;
+          m._recoverySport = sm.label || t.type;
+          m._recoveryEmoji = sm.emoji;
+          // Augmente les macros : +20g protéines, +30g glucides, +150 kcal
+          m.macros = { 
+            g: (m.macros.g||0) + 30, 
+            p: (m.macros.p||0) + 20, 
+            l: m.macros.l||0 
+          };
+          m.kcal = (m.kcal||0) + 150;
+          m.desc = m.desc + ' · +protéines & glucides récup';
+        }
+      });
     }
-    // Si proche d'un repas → on marque le déjeuner/dîner avec un badge récup (géré dans l'affichage)
   });
 
   // Donne une heure numérique à chaque repas de base pour le tri

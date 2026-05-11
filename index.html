@@ -1360,15 +1360,14 @@ function renderDayDetail(){
         <div style="font-size:9px;color:var(--text3);text-align:center;line-height:1.2;max-width:40px">${m.time}</div>
       </div>
       <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;cursor:pointer" onclick="toggleMealDetail('meal-detail-${selectedDay}-${m.name.replace(/\s/g,'')}')">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
           <span class="meal-title">${m.name}</span>
           <span style="font-size:10px;background:var(--surface2);color:var(--text2);padding:1px 6px;border-radius:4px;font-weight:500">⏱ ${disp.dur}</span>
           ${trainingCtx}
           ${overrideBadge}
-          <span style="font-size:10px;color:var(--indigo);margin-left:auto">▼ détail</span>
         </div>
-        <!-- Détail expandable avec quantités -->
-        <div id="meal-detail-${selectedDay}-${m.name.replace(/\s/g,'')}" style="display:none;margin-top:8px;padding:8px 10px;background:var(--surface2);border-radius:var(--r-sm);border-left:3px solid ${disp.bg||'var(--border2)'}">
+        <!-- Détail avec quantités toujours visible -->
+        <div style="margin-top:5px;padding:6px 8px;background:var(--surface2);border-radius:var(--r-sm);border-left:3px solid ${disp.bg||'var(--border2)'}">
           <div style="font-size:12px;color:var(--text);line-height:1.6">${formatMealDetail(disp.desc)}</div>
         </div>
         <div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap">

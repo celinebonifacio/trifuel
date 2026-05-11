@@ -1310,11 +1310,12 @@ function renderDayStrip(){
   strip.innerHTML=DAYS.map((d,i)=>{
     const sports=[...new Set(d.trainings.map(t=>t.sport))];
     const icons=sports.map(s=>SPORT_META[s]?.emoji||'').join('');
+    const dS = DAYS_SAMIR[i];
     return `<div class="day-pill ${d.rest?'rest':''} ${i===selectedDay?'active':''}" onclick="selectDay(${i})">
       <div class="dp-name">${d.name}</div>
       <div class="dp-kcal" style="font-size:11px">${icons||'😴'}</div>
-      <div class="dp-kcal">${d.kcal.toLocaleString('fr')}</div>
-      <div class="dp-sub">${d.rest?'Repos':iLabels[d.intensity]}</div>
+      <div style="font-size:10px;margin-top:2px;font-weight:600;color:${i===selectedDay?'rgba(255,255,255,0.9)':'#6366F1'}">CÉ ${d.kcal.toLocaleString('fr')}</div>
+      <div style="font-size:10px;font-weight:600;color:${i===selectedDay?'rgba(255,255,255,0.75)':'#059669'}">SA ${dS.kcal.toLocaleString('fr')}</div>
     </div>`;
   }).join('');
 }
@@ -1323,213 +1324,221 @@ function selectDay(i){selectedDay=i;renderDayStrip();renderDayDetail();}
 
 // ══ DAY DETAIL ══
 function renderDayDetail(){
-  const d=DAYS[selectedDay];
-  const meals=getMealsForDay(selectedDay);
-  const iLabels=['Repos','Léger','Modéré','Intense'];
+  const d = DAYS[selectedDay];
+  const dS = DAYS_SAMIR[selectedDay];
+  const iLabels = ['Repos','Léger','Modéré','Intense'];
 
-  // Macro rings totals — use overrides when they exist
-  const totG=meals.reduce((s,m)=>{const ov=mealOverrides[`${selectedDay}_${m.name}`];return s+((ov?ov.g:m.macros.g)||0);},0);
-  const totP=meals.reduce((s,m)=>{const ov=mealOverrides[`${selectedDay}_${m.name}`];return s+((ov?ov.p:m.macros.p)||0);},0);
-  const totL=meals.reduce((s,m)=>{const ov=mealOverrides[`${selectedDay}_${m.name}`];return s+((ov?ov.l:m.macros.l)||0);},0);
-  const totKcal=meals.reduce((s,m)=>{const ov=mealOverrides[`${selectedDay}_${m.name}`];return s+((ov?ov.kcal:m.kcal)||0);},0);
-  const effectiveKcal = totKcal || d.kcal;
-  const pctG=Math.round(totG*4*100/effectiveKcal);
-  const pctP=Math.round(totP*4*100/effectiveKcal);
-  const pctL=Math.round(totL*9*100/effectiveKcal);
-
-  function ring(val,max,color,label,unit,sub){
-    const pct=Math.min(val/max,1);
-    const r=28,c=2*Math.PI*r;
-    const dash=pct*c;
+  // ── Helper : macro rings ──
+  function ring(val,max,color,label,unit){
+    const pct=Math.min(val/max,1), r=24, c=2*Math.PI*r, dash=pct*c;
     return `<div class="macro-ring-wrap">
-      <div class="macro-ring">
-        <svg viewBox="0 0 72 72"><circle cx="36" cy="36" r="${r}" fill="none" stroke="#F3F4F6" stroke-width="7"/>
-        <circle cx="36" cy="36" r="${r}" fill="none" stroke="${color}" stroke-width="7" stroke-dasharray="${dash.toFixed(1)} ${c.toFixed(1)}" stroke-linecap="round"/></svg>
-        <div class="macro-ring-label"><div class="macro-ring-val" style="color:${color}">${val}</div><div class="macro-ring-unit">${unit}</div></div>
+      <div class="macro-ring" style="width:56px;height:56px">
+        <svg viewBox="0 0 72 72" width="56" height="56"><circle cx="36" cy="36" r="${r}" fill="none" stroke="#F3F4F6" stroke-width="8"/>
+        <circle cx="36" cy="36" r="${r}" fill="none" stroke="${color}" stroke-width="8" stroke-dasharray="${dash.toFixed(1)} ${c.toFixed(1)}" stroke-linecap="round" transform="rotate(-90 36 36)"/></svg>
+        <div class="macro-ring-label"><div class="macro-ring-val" style="color:${color};font-size:13px">${val}</div><div class="macro-ring-unit" style="font-size:9px">${unit}</div></div>
       </div>
-      <div class="macro-ring-name">${label}</div>
-      <div class="macro-ring-sub">${sub}%</div>
+      <div class="macro-ring-name" style="font-size:10px">${label}</div>
     </div>`;
   }
 
-  // Training block
-  let trainHtml='';
-  if(!d.trainings.length){
-    trainHtml='<div style="font-size:13px;color:var(--text3);padding:8px 0">😴 Jour de repos · Récupération active conseillée</div>';
-  } else {
-    trainHtml=d.trainings.map((t,ti)=>{
-      const sm=SPORT_META[t.sport]||SPORT_META.rest;
-
-      // Cherche le plan effort par sport (pas par nom de séance ICU)
-      const sportToEffortKey = { swim:'Natation', bike:'Vélo', run:'Course à pied', gym:null };
-      const effortKey = sportToEffortKey[t.sport];
-      const ep = effortKey ? EFFORT_PLANS[effortKey] : null;
-
+  // ── Helper : bloc séances ──
+  function buildTrainHtml(day, member) {
+    if(!day.trainings.length) return '<div style="font-size:12px;color:var(--text3);padding:6px 0">😴 Repos</div>';
+    return day.trainings.map((t,ti)=>{
+      const sm = SPORT_META[t.sport]||SPORT_META.rest;
+      const sportToEffortKey = {swim:'Natation',bike:'Vélo',run:'Course à pied',gym:null};
+      const ep = EFFORT_PLANS[sportToEffortKey[t.sport]];
       let effortHtml='';
       if(ep){
-        const effortColors={swim:['#DBEAFE','#BFDBFE','#1D4ED8'],bike:['#FEF3C7','#FDE68A','#B45309'],run:['#FEE2E2','#FECACA','#B91C1C']};
-        const ec=effortColors[ep.sport]||effortColors.bike;
-        effortHtml=`<div class="effort-box" style="background:${ec[0]};border:1px solid ${ec[1]}">
-          <div style="font-size:11px;font-weight:700;color:${ec[2]};margin-bottom:5px">${sm.emoji} Plan nutrition · ${sm.label} · ${t.dur}</div>
-          ${ep.items.map(it=>`<div class="effort-row" style="border-bottom-color:${ec[1]}"><span class="effort-t" style="color:${ec[2]}">${it.t}</span><span style="color:${ec[2]};opacity:0.85;font-size:11px;line-height:1.4">${it.v}</span></div>`).join('')}
+        const ec={swim:['#DBEAFE','#BFDBFE','#1D4ED8'],bike:['#FEF3C7','#FDE68A','#B45309'],run:['#FEE2E2','#FECACA','#B91C1C']}[ep.sport]||['#F3F4F6','#E5E7EB','#374151'];
+        effortHtml=`<div class="effort-box" style="background:${ec[0]};border:1px solid ${ec[1]};margin-top:6px">
+          <div style="font-size:10px;font-weight:700;color:${ec[2]};margin-bottom:4px">${sm.emoji} Nutrition effort · ${t.dur}</div>
+          ${ep.items.map(it=>`<div class="effort-row" style="border-bottom-color:${ec[1]}"><span class="effort-t" style="color:${ec[2]};font-size:10px">${it.t}</span><span style="color:${ec[2]};opacity:0.85;font-size:10px;line-height:1.3">${it.v}</span></div>`).join('')}
         </div>`;
       }
-      // Inline time editor
-      const timeId=`time-${selectedDay}-${ti}`;
-      const timeHtml=`<span class="meal-time-chip" id="chip-${timeId}" onclick="editTrainingTime('${timeId}','${t.startTime||'07:30'}',${selectedDay},${ti})">⏰ ${t.startTime||'?h??'}</span>
-        <div id="editor-${timeId}" style="display:none" class="time-edit-inline">
-          <input type="time" value="${(t.startTime||'07:30').replace('h',':')}" id="inp-${timeId}" class="">
-          <button class="btn btn-sm btn-primary" style="padding:2px 8px;font-size:10px" onclick="saveTrainingTime('${timeId}',${selectedDay},${ti})">✓</button>
-          <button class="btn btn-sm" style="padding:2px 8px;font-size:10px" onclick="cancelTimeEdit('${timeId}')">✕</button>
-        </div>`;
-      return `<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
-        <div style="width:42px;height:42px;border-radius:10px;background:${sm.bg};display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${sm.emoji}</div>
-        <div style="flex:1">
-          <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
-            <span style="font-size:13px;font-weight:600">${t.type}</span>
-            <span class="${sm.tagClass} sport-tag">${iLabels[d.intensity]}</span>
-            ${timeHtml}
-            <span style="font-size:12px;color:var(--text2)">${t.dur} · ${t.dist}</span>
+      // Time editor — only for Céline (member=celine)
+      let timeHtml = `<span style="font-size:10px;color:var(--text3)">⏰ ${t.startTime||'—'}</span>`;
+      if(member === 'celine') {
+        const timeId=`time-${selectedDay}-${ti}`;
+        timeHtml=`<span class="meal-time-chip" id="chip-${timeId}" onclick="editTrainingTime('${timeId}','${t.startTime||'07:30'}',${selectedDay},${ti})">⏰ ${t.startTime||'?h??'}</span>
+          <div id="editor-${timeId}" style="display:none" class="time-edit-inline">
+            <input type="time" value="${(t.startTime||'07:30').replace('h',':')}" id="inp-${timeId}">
+            <button class="btn btn-sm btn-primary" style="padding:2px 6px;font-size:10px" onclick="saveTrainingTime('${timeId}',${selectedDay},${ti})">✓</button>
+            <button class="btn btn-sm" style="padding:2px 6px;font-size:10px" onclick="cancelTimeEdit('${timeId}')">✕</button>
+          </div>`;
+      }
+      return `<div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div style="width:36px;height:36px;border-radius:8px;background:${sm.bg};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${sm.emoji}</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+            <span style="font-size:12px;font-weight:600">${t.type}</span>
+            <span class="${sm.tagClass} sport-tag" style="font-size:10px;padding:2px 6px">${iLabels[day.intensity]}</span>
           </div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px">${t.dur} · ${t.dist} · ${timeHtml}</div>
           ${effortHtml}
         </div>
       </div>`;
     }).join('');
   }
 
-  // ── Calcul dynamique des contextes repas selon heure réelle de séance ──
-  const firstTraining = d.trainings[0];
-
-  // Heure de séance : heure manuelle > plage profil matin
-  let trainingHour = null;
-  let trainingMin = 0;
-  if(firstTraining?.startTime && firstTraining.startTime !== '00h00') {
-    const parts = firstTraining.startTime.replace('h',':').split(':');
-    trainingHour = parseInt(parts[0]);
-    trainingMin = parseInt(parts[1]||0);
-  } else {
-    // Fallback : 1ère plage d'entraînement du profil
-    const matinEl = document.getElementById('t-matin');
-    if(matinEl) {
-      const matinStr = matinEl.textContent.split('–')[0].trim(); // "7h30"
-      const mp = matinStr.replace('h',':').split(':');
-      trainingHour = parseInt(mp[0]);
-      trainingMin = parseInt(mp[1]||0);
-    }
+  // ── Helper : plan repas pour un membre ──
+  function buildMealRows(dayIdx, member) {
+    const meals = member === 'celine' ? getMealsForDay(dayIdx) : getMealsForDaySamir(dayIdx);
+    return meals.map((m,mi)=>{
+      const key = `${dayIdx}_${member}_${m.name}`;
+      const override = mealOverrides[key];
+      const disp = override ? {...m,emoji:override.emoji,desc:override.desc,macros:{g:override.g,p:override.p,l:override.l},kcal:override.kcal,bg:override.bg} : m;
+      const overrideBadge = override ? `<span style="font-size:9px;background:var(--purple-l);color:var(--purple-d);padding:1px 5px;border-radius:4px">↻ ${override.name}</span>` : '';
+      let ctx='';
+      if(m.preTraining)  ctx=`<span style="font-size:9px;background:var(--orange-l);color:var(--orange-d);padding:1px 5px;border-radius:4px">⚡ Pré-séance</span>`;
+      if(m.postTraining) ctx=`<span style="font-size:9px;background:var(--green-l);color:var(--green-d);padding:1px 5px;border-radius:4px">💪 Récup</span>`;
+      if(m.effort)       ctx=`<span style="font-size:9px;background:var(--red-l);color:var(--red-d);padding:1px 5px;border-radius:4px">🔥 Effort</span>`;
+      return `<div class="meal-row">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0">
+          <div class="meal-emoji" style="background:${disp.bg};width:34px;height:34px;font-size:16px">${disp.emoji}</div>
+          <div style="font-size:9px;color:var(--text3);text-align:center;max-width:34px;line-height:1.2">${m.time}</div>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+            <span style="font-size:12px;font-weight:600">${m.name}</span>
+            ${ctx}${overrideBadge}
+          </div>
+          <div style="margin-top:4px;padding:5px 7px;background:var(--surface2);border-radius:6px;border-left:3px solid ${disp.bg||'var(--border2)'}">
+            <div style="font-size:11px;color:var(--text);line-height:1.5">${formatMealDetail(disp.desc)}</div>
+          </div>
+          <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">
+            <span class="mc mc-g">G${disp.macros.g}g</span>
+            <span class="mc mc-p">P${disp.macros.p}g</span>
+            <span class="mc mc-l">L${disp.macros.l}g</span>
+            <span style="font-size:10px;color:var(--text3)">${disp.kcal} kcal</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+          <button style="background:linear-gradient(135deg,#059669,#10B981);color:white;border:none;font-size:10px;padding:3px 7px;border-radius:5px;cursor:pointer;white-space:nowrap" onclick="openChatForMealMember(${dayIdx},${mi},'${member}')">💬</button>
+        </div>
+      </div>`;
+    }).join('');
   }
 
-  // Calcule l'heure pré-séance (90 min avant)
-  const preHour = trainingHour !== null ? Math.floor((trainingHour * 60 + trainingMin - 90) / 60) : null;
-  const preMin  = trainingHour !== null ? (trainingHour * 60 + trainingMin - 90) % 60 : 0;
-  const preTimeStr = preHour !== null ? `${preHour}h${preMin > 0 ? preMin : '00'}` : null;
-
-  // Post-séance
-  const firstDurMins = (() => {
-    if(!firstTraining?.dur || firstTraining.dur === '—') return 60;
-    const hMatch = firstTraining.dur.match(/(\d+)h(\d+)?/);
-    const mMatch = firstTraining.dur.match(/(\d+)min/);
-    if(hMatch) return parseInt(hMatch[1])*60 + parseInt(hMatch[2]||0);
-    if(mMatch) return parseInt(mMatch[1]);
-    return 60;
-  })();
-  const postTotalMins = trainingHour !== null ? trainingHour * 60 + trainingMin + firstDurMins + 30 : null;
-  const postHour = postTotalMins !== null ? Math.floor(postTotalMins / 60) : null;
-  const postMin  = postTotalMins !== null ? postTotalMins % 60 : 0;
-  const postTimeStr = postHour !== null ? `${postHour}h${postMin > 0 ? postMin : '00'}` : null;
-
-  const sportLabel = firstTraining ? (SPORT_META[firstTraining.sport]?.label || 'séance') : 'séance';
-  const sportEmoji = firstTraining ? (SPORT_META[firstTraining.sport]?.emoji || '⚡') : '⚡';
-
-  // Meal rows
-  const mealRowsHtml=meals.map(m=>{
-    const key=`${selectedDay}_${m.name}`;
-    const override=mealOverrides[key]; // user swapped this meal
-    const actual=actualMeals[key];
-    // Use override data if it exists
-    const disp = override ? {...m, emoji:override.emoji, name:m.name, desc:override.desc, macros:{g:override.g,p:override.p,l:override.l}, kcal:override.kcal, bg:override.bg, dur:override.dur} : m;
-    const overrideBadge = override ? `<span style="font-size:10px;background:var(--purple-l);color:var(--purple-d);padding:1px 7px;border-radius:4px;font-weight:600">↻ Modifié : ${override.name}</span>` : '';
-    const actualHtml=actual?`<div style="margin-top:6px;padding:6px 8px;background:var(--green-l);border-radius:var(--r-sm);font-size:11px;color:var(--green-d);border:1px solid #6EE7B7">
-      ✅ Réel : ${actual.desc} <span class="mc mc-actual">G${actual.g}g</span><span class="mc mc-actual">P${actual.p}g</span><span class="mc mc-actual">L${actual.l}g</span><span class="mc mc-actual">${actual.kcal} kcal</span>
-      <span style="color:var(--green-d);margin-left:4px;font-size:10px">vs prévu G${m.macros.g}g P${m.macros.p}g L${m.macros.l}g</span>
-    </div>`:'';
-    let trainingCtx='';
-    if(m.preTraining) {
-      const timeLabel = preTimeStr || (trainingHour !== null ? `${trainingHour}h00` : 'avant séance');
-      trainingCtx=`<span style="font-size:10px;background:var(--orange-l);color:var(--orange-d);padding:1px 7px;border-radius:4px;font-weight:600">${sportEmoji} Fuel pré-${sportLabel} · ${timeLabel}</span>`;
-    }
-    if(m.postTraining) {
-      const timeLabel = postTimeStr || 'après séance';
-      trainingCtx=`<span style="font-size:10px;background:var(--green-l);color:var(--green-d);padding:1px 7px;border-radius:4px;font-weight:600">💪 Récupération · ${timeLabel}</span>`;
-    }
-    if(m._recoveryEnriched) {
-      const loadInfo = m._recoveryLoad > 0 ? ` · load ${m._recoveryLoad}` : '';
-      trainingCtx=`<span style="font-size:10px;background:var(--green-l);color:var(--green-d);padding:1px 7px;border-radius:4px;font-weight:600">${m._recoveryEmoji} Récup post-${m._recoverySport} incluse${loadInfo} → Génère avec Claude pour macros précises</span>`;
-    }
-    if(m.effort) trainingCtx=`<span style="font-size:10px;background:var(--red-l);color:var(--red-d);padding:1px 7px;border-radius:4px;font-weight:600">${sportEmoji} Pendant l'effort</span>`;
-    return `<div class="meal-row" style="${override?'background:#FAFAFF;border-radius:var(--r-sm);margin:2px -4px;padding:12px 4px':''}">
-      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
-        <div class="meal-emoji" style="background:${disp.bg}">${disp.emoji}</div>
-        <div style="font-size:9px;color:var(--text3);text-align:center;line-height:1.2;max-width:40px">${m.time}</div>
-      </div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <span class="meal-title">${m.name}</span>
-          <span style="font-size:10px;background:var(--surface2);color:var(--text2);padding:1px 6px;border-radius:4px;font-weight:500">⏱ ${disp.dur}</span>
-          ${trainingCtx}
-          ${overrideBadge}
-        </div>
-        <!-- Détail avec quantités toujours visible -->
-        <div style="margin-top:5px;padding:6px 8px;background:var(--surface2);border-radius:var(--r-sm);border-left:3px solid ${disp.bg||'var(--border2)'}">
-          <div style="font-size:12px;color:var(--text);line-height:1.6">${formatMealDetail(disp.desc)}</div>
-        </div>
-        <div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap">
-          <span class="mc mc-g">G ${disp.macros.g}g</span>
-          <span class="mc mc-p">P ${disp.macros.p}g</span>
-          <span class="mc mc-l">L ${disp.macros.l}g</span>
-          <span style="font-size:10px;color:var(--text3);padding:2px 0">${disp.kcal} kcal</span>
-        </div>
-        ${actualHtml}
-      </div>
-      <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0;align-items:flex-end">
-        <button class="swap-btn" style="background:linear-gradient(135deg,#059669,#10B981);color:white;border:none;font-size:10px;padding:4px 8px;border-radius:6px;cursor:pointer;white-space:nowrap" onclick="openChatForMeal(${selectedDay}, ${meals.indexOf(m)})">💬 Changer</button>
-        <button class="actual-btn" onclick="openChatForRestaurantMeal(${selectedDay}, ${meals.indexOf(m)})">🍽️ Restaurant</button>
-      </div>
+  // ── Helper : bilan macro pour un membre ──
+  function buildMacroSummary(dayIdx, member, dayObj) {
+    const meals = member === 'celine' ? getMealsForDay(dayIdx) : getMealsForDaySamir(dayIdx);
+    const totG = meals.reduce((s,m)=>s+(m.macros.g||0),0);
+    const totP = meals.reduce((s,m)=>s+(m.macros.p||0),0);
+    const totL = meals.reduce((s,m)=>s+(m.macros.l||0),0);
+    const totK = meals.reduce((s,m)=>s+(m.kcal||0),0) || dayObj.kcal;
+    return `<div style="display:flex;justify-content:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+      ${ring(totG,400,'#F59E0B','Glucides','g')}
+      ${ring(totP,200,'#3B82F6','Protéines','g')}
+      ${ring(totL,100,'#8B5CF6','Lipides','g')}
+      ${ring(totK,4500,'#1E1B4B','kcal','kcal')}
+    </div>
+    <div style="text-align:center;font-size:11px;color:var(--text2);padding:5px 8px;background:var(--surface2);border-radius:6px">
+      Cible : <strong>${dayObj.kcal.toLocaleString('fr')} kcal</strong> · ${iLabels[dayObj.intensity]}
     </div>`;
-  }).join('');
+  }
 
-  document.getElementById('day-detail').innerHTML=`
-    <div class="g2">
-      <div class="card">
-        <div class="card-title">🏋️ Séances · ${d.name} ${d.date}</div>
-        ${trainHtml}
-      </div>
-      <div class="card">
-        <div class="card-title">🔥 Bilan énergétique</div>
-        <div style="display:flex;justify-content:center;gap:16px;margin-bottom:1rem;flex-wrap:wrap">
-          ${ring(totG,400,'#F59E0B','Glucides','g',pctG)}
-          ${ring(totP,150,'#3B82F6','Protéines','g',pctP)}
-          ${ring(totL,100,'#8B5CF6','Lipides','g',pctL)}
-          ${ring(effectiveKcal,4000,'#1E1B4B','Calories','kcal',100)}
-        </div>
-        <div style="background:var(--surface2);border-radius:var(--r-sm);padding:8px 10px;font-size:12px;color:var(--text2);text-align:center">
-          ${effectiveKcal!==d.kcal
-            ? `Réel : <strong style="color:var(--indigo)">${effectiveKcal.toLocaleString('fr')} kcal</strong> · Cible : ${d.kcal.toLocaleString('fr')} kcal · ${iLabels[d.intensity]}
-               <span style="font-size:10px;padding:1px 6px;border-radius:4px;background:${effectiveKcal>d.kcal?'var(--orange-l)':'var(--green-l)'};color:${effectiveKcal>d.kcal?'var(--orange-d)':'var(--green-d)'}">
-                 ${effectiveKcal>d.kcal?'+':''}${(effectiveKcal-d.kcal).toLocaleString('fr')} kcal
-               </span>`
-            : `Objectif du jour : <strong>${d.kcal.toLocaleString('fr')} kcal</strong> · ${iLabels[d.intensity]}`
-          }
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem;flex-wrap:wrap;gap:8px">
-        <div class="card-title" style="margin:0">🥗 Plan alimentaire · ${d.name} ${d.date}</div>
+  // ── Construit les 2 colonnes ──
+  const celineColor = '#6366F1';
+  const samirColor  = '#059669';
+
+  document.getElementById('day-detail').innerHTML = `
+    <!-- En-tête jour -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem;flex-wrap:wrap;gap:8px">
+      <div style="font-size:16px;font-weight:700">${d.name} ${d.date}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-sm btn-orange" onclick="openFridgeAdapt()">🥬 Adapter au frigo</button>
+        <button class="btn btn-sm" style="background:linear-gradient(135deg,#059669,#10B981);color:white;border:none" onclick="openAIChat()">💬 Coach IA</button>
       </div>
-      ${mealRowsHtml}
     </div>
-    <div id="meal-action-panel" style="display:none"></div>`;
+
+    <!-- 2 colonnes -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem;align-items:start">
+
+      <!-- ══ CÉLINE ══ -->
+      <div>
+        <!-- Header Céline -->
+        <div style="background:linear-gradient(135deg,#1E1B4B,#4338CA);border-radius:var(--r) var(--r) 0 0;padding:10px 14px;display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;border-radius:50%;background:#EDE9FE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#5B21B6;flex-shrink:0">CÉ</div>
+          <div style="font-size:13px;font-weight:700;color:white">Céline</div>
+          <div style="margin-left:auto;font-size:11px;color:rgba(255,255,255,0.7)">${d.kcal.toLocaleString('fr')} kcal · ${iLabels[d.intensity]}</div>
+        </div>
+        <!-- Séances Céline -->
+        <div class="card" style="border-radius:0;border-top:none;margin-bottom:0;border-bottom:none">
+          <div style="font-size:10px;font-weight:700;color:${celineColor};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">🏋️ Séances</div>
+          ${buildTrainHtml(d,'celine')}
+        </div>
+        <!-- Bilan macro Céline -->
+        <div class="card" style="border-radius:0;border-top:none;margin-bottom:0;border-bottom:none">
+          <div style="font-size:10px;font-weight:700;color:${celineColor};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🔥 Bilan énergétique</div>
+          ${buildMacroSummary(selectedDay,'celine',d)}
+        </div>
+        <!-- Plan repas Céline -->
+        <div class="card" style="border-radius:0 0 var(--r) var(--r);border-top:none">
+          <div style="font-size:10px;font-weight:700;color:${celineColor};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🥗 Plan alimentaire</div>
+          ${buildMealRows(selectedDay,'celine')}
+        </div>
+      </div>
+
+      <!-- ══ SAMIR ══ -->
+      <div>
+        <!-- Header Samir -->
+        <div style="background:linear-gradient(135deg,#065F46,#059669);border-radius:var(--r) var(--r) 0 0;padding:10px 14px;display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;border-radius:50%;background:#D1FAE5;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#065F46;flex-shrink:0" id="samir-av-day">SA</div>
+          <div style="font-size:13px;font-weight:700;color:white" id="samir-name-day">Samir</div>
+          <div style="margin-left:auto;font-size:11px;color:rgba(255,255,255,0.7)">${dS.kcal.toLocaleString('fr')} kcal · ${iLabels[dS.intensity]}</div>
+        </div>
+        <!-- Séances Samir -->
+        <div class="card" style="border-radius:0;border-top:none;margin-bottom:0;border-bottom:none">
+          <div style="font-size:10px;font-weight:700;color:${samirColor};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">🏋️ Séances</div>
+          ${buildTrainHtml(dS,'samir')}
+        </div>
+        <!-- Bilan macro Samir -->
+        <div class="card" style="border-radius:0;border-top:none;margin-bottom:0;border-bottom:none">
+          <div style="font-size:10px;font-weight:700;color:${samirColor};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🔥 Bilan énergétique</div>
+          ${buildMacroSummary(selectedDay,'samir',dS)}
+        </div>
+        <!-- Plan repas Samir -->
+        <div class="card" style="border-radius:0 0 var(--r) var(--r);border-top:none">
+          <div style="font-size:10px;font-weight:700;color:${samirColor};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🥗 Plan alimentaire</div>
+          ${buildMealRows(selectedDay,'samir')}
+        </div>
+      </div>
+
+    </div><!-- fin 2 colonnes -->
+    <div id="meal-action-panel" style="display:none;margin-top:.875rem"></div>`;
+}
+
+// ── getMealsForDaySamir : récupère le plan repas de Samir ──
+function getMealsForDaySamir(dayIdx) {
+  // Plan IA Samir
+  if(window.AI_MEALS_SAMIR && window.AI_MEALS_SAMIR[dayIdx]) return window.AI_MEALS_SAMIR[dayIdx];
+  // Fallback : plan Céline avec quantités ×1.4 (ratio BMR Samir/Céline ~1.42)
+  const celineMeals = getMealsForDay(dayIdx);
+  return celineMeals.map(m => ({
+    ...m,
+    kcal: Math.round(m.kcal * 1.4),
+    macros: {
+      g: Math.round((m.macros.g||0) * 1.4),
+      p: Math.round((m.macros.p||0) * 1.4),
+      l: Math.round((m.macros.l||0) * 1.35),
+    },
+    desc: m.desc // même ingrédients, Claude adaptera les quantités
+  }));
+}
+
+// ── Ouvre le chat pour un repas d'un membre spécifique ──
+function openChatForMealMember(dayIdx, mealIdx, member) {
+  openAIChat();
+  const meals = member === 'celine' ? getMealsForDay(dayIdx) : getMealsForDaySamir(dayIdx);
+  const m = meals[mealIdx];
+  if(!m) return;
+  const memberName = member === 'celine' ? 'Céline' : (member2Profile?.member2_name || 'Samir');
+  const input = document.getElementById('chat-input');
+  if(input) {
+    input.value = `Je veux changer le ${m.name} de ${memberName} (${m.kcal} kcal). Propose une alternative.`;
+    input.focus();
+  }
 }
 
 // ══ TRAINING TIME EDITOR (inline in planning) ══
@@ -3221,26 +3230,33 @@ function recalcWeekKcal() {
   const weight = parseInt((weightEl?.textContent||'60').replace(/\D/g,''))||60;
   const baseKcal = Math.round(bmr * 1.3);
 
+  // Céline
   DAYS.forEach(d => {
-    if(!d.trainings.length) {
-      d.kcal = Math.round(bmr * 1.2);
-      d.intensity = 0;
-      d.rest = true;
-      return;
-    }
-    let totalNet = 0;
-    d.trainings.forEach(t => {
-      const zone = getZoneFromName(t.type);
-      t._zone = zone;
-      const { net } = calcSessionKcal(t, zone, weight);
-      totalNet += net;
-    });
-    d.kcal = Math.round(baseKcal + totalNet);
-    // Intensité affichée basée sur la zone max des séances du jour
-    const maxZone = Math.max(...d.trainings.map(t => t._zone || 2));
-    d.intensity = maxZone >= 5 ? 3 : maxZone >= 4 ? 3 : maxZone >= 3 ? 2 : 1;
-    d.rest = false;
+    if(!d.trainings.length) { d.kcal=Math.round(bmr*1.2); d.intensity=0; d.rest=true; return; }
+    let totalNet=0;
+    d.trainings.forEach(t => { const zone=getZoneFromName(t.type); t._zone=zone; const {net}=calcSessionKcal(t,zone,weight); totalNet+=net; });
+    d.kcal=Math.round(baseKcal+totalNet);
+    const maxZone=Math.max(...d.trainings.map(t=>t._zone||2));
+    d.intensity=maxZone>=5?3:maxZone>=4?3:maxZone>=3?2:1;
+    d.rest=false;
   });
+
+  // Samir
+  const m2 = member2Profile;
+  if(m2?.member2_weight_kg && m2?.member2_height_cm && m2?.member2_age) {
+    const bmrS = Math.round(10*m2.member2_weight_kg + 6.25*m2.member2_height_cm - 5*m2.member2_age + 5);
+    const baseS = Math.round(bmrS * 1.3);
+    const weightS = m2.member2_weight_kg;
+    DAYS_SAMIR.forEach(d => {
+      if(!d.trainings.length) { d.kcal=Math.round(bmrS*1.2); d.intensity=0; d.rest=true; return; }
+      let totalNet=0;
+      d.trainings.forEach(t => { const zone=getZoneFromName(t.type); t._zone=zone; const {net}=calcSessionKcal(t,zone,weightS); totalNet+=net; });
+      d.kcal=Math.round(baseS+totalNet);
+      const maxZone=Math.max(...d.trainings.map(t=>t._zone||2));
+      d.intensity=maxZone>=5?3:maxZone>=4?3:maxZone>=3?2:1;
+      d.rest=false;
+    });
+  }
 
   renderDayStrip();
   renderWeeklySummary();

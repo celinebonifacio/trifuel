@@ -1240,7 +1240,8 @@ function renderDayDetail(){
       trainingCtx=`<span style="font-size:10px;background:var(--green-l);color:var(--green-d);padding:1px 7px;border-radius:4px;font-weight:600">💪 Récupération · ${timeLabel}</span>`;
     }
     if(m._recoveryEnriched) {
-      trainingCtx=`<span style="font-size:10px;background:var(--green-l);color:var(--green-d);padding:1px 7px;border-radius:4px;font-weight:600">${m._recoveryEmoji} Récup post-${m._recoverySport} incluse · +protéines & glucides</span>`;
+      const loadInfo = m._recoveryLoad > 0 ? ` · load ${m._recoveryLoad}` : '';
+      trainingCtx=`<span style="font-size:10px;background:var(--green-l);color:var(--green-d);padding:1px 7px;border-radius:4px;font-weight:600">${m._recoveryEmoji} Récup post-${m._recoverySport} incluse${loadInfo} → Génère avec Claude pour macros précises</span>`;
     }
     if(m.effort) trainingCtx=`<span style="font-size:10px;background:var(--red-l);color:var(--red-d);padding:1px 7px;border-radius:4px;font-weight:600">${sportEmoji} Pendant l'effort</span>`;
     return `<div class="meal-row" style="${override?'background:#FAFAFF;border-radius:var(--r-sm);margin:2px -4px;padding:12px 4px':''}">
@@ -2688,21 +2689,24 @@ function getMealsForDay(dayIdx) {
         postTraining: true
       });
     } else {
-      // Enrichit le repas proche avec les apports récup
+      // Enrichit le repas proche avec les apports récup proportionnels au load
       const targetName = nearDej ? 'Déjeuner' : 'Dîner';
+      const load = t.load || 0;
+      let recupP, recupG, recupKcal;
+      if(load < 30)       { recupP=10; recupG=15; recupKcal=80; }
+      else if(load < 60)  { recupP=20; recupG=30; recupKcal=150; }
+      else if(load < 100) { recupP=30; recupG=50; recupKcal=220; }
+      else                { recupP=40; recupG=70; recupKcal=300; }
+
       baseMeals.forEach(m => {
         if(m.name === targetName) {
           m._recoveryEnriched = true;
           m._recoverySport = sm.label || t.type;
           m._recoveryEmoji = sm.emoji;
-          // Augmente les macros : +20g protéines, +30g glucides, +150 kcal
-          m.macros = { 
-            g: (m.macros.g||0) + 30, 
-            p: (m.macros.p||0) + 20, 
-            l: m.macros.l||0 
-          };
-          m.kcal = (m.kcal||0) + 150;
-          m.desc = m.desc + ' · +protéines & glucides récup';
+          m._recoveryLoad = load;
+          m.macros = { g: (m.macros.g||0) + recupG, p: (m.macros.p||0) + recupP, l: m.macros.l||0 };
+          m.kcal = (m.kcal||0) + recupKcal;
+          m.desc = m.desc + ` · récup incluse (load ${load})`;
         }
       });
     }

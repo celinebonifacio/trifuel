@@ -1341,12 +1341,12 @@ function renderDayDetailCeline(){
   const color = '#6366F1';
 
   function ring(val,max,clr,label,unit){
-    const pct=Math.min(val/max,1), r=22, circ=2*Math.PI*r, dash=pct*circ;
-    return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px">
-      <div style="position:relative;width:52px;height:52px">
-        <svg viewBox="0 0 72 72" width="52" height="52" style="display:block"><circle cx="36" cy="36" r="${r}" fill="none" stroke="#F3F4F6" stroke-width="10"/>
-        <circle cx="36" cy="36" r="${r}" fill="none" stroke="${clr}" stroke-width="10" stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" stroke-linecap="round" transform="rotate(-90 36 36)"/></svg>
-        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1">
+    const pct=Math.min(val/max,1), r=28, circ=2*Math.PI*r, dash=pct*circ;
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+      <div style="position:relative;width:72px;height:72px">
+        <svg viewBox="0 0 72 72" width="72" height="72" style="display:block"><circle cx="36" cy="36" r="${r}" fill="none" stroke="#F3F4F6" stroke-width="7"/>
+        <circle cx="36" cy="36" r="${r}" fill="none" stroke="${clr}" stroke-width="7" stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" stroke-linecap="round" transform="rotate(-90 36 36)"/></svg>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1">
           <span style="font-size:11px;font-weight:700;color:${clr}">${val}</span>
           <span style="font-size:8px;color:var(--text3)">${unit}</span>
         </div>
@@ -1390,12 +1390,12 @@ function renderDayDetailSamir(){
   const name = member2Profile?.member2_name || 'Samir';
 
   function ring(val,max,clr,label,unit){
-    const pct=Math.min(val/max,1), r=22, circ=2*Math.PI*r, dash=pct*circ;
-    return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px">
-      <div style="position:relative;width:52px;height:52px">
-        <svg viewBox="0 0 72 72" width="52" height="52" style="display:block"><circle cx="36" cy="36" r="${r}" fill="none" stroke="#F3F4F6" stroke-width="10"/>
-        <circle cx="36" cy="36" r="${r}" fill="none" stroke="${clr}" stroke-width="10" stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" stroke-linecap="round" transform="rotate(-90 36 36)"/></svg>
-        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1">
+    const pct=Math.min(val/max,1), r=28, circ=2*Math.PI*r, dash=pct*circ;
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+      <div style="position:relative;width:72px;height:72px">
+        <svg viewBox="0 0 72 72" width="72" height="72" style="display:block"><circle cx="36" cy="36" r="${r}" fill="none" stroke="#F3F4F6" stroke-width="7"/>
+        <circle cx="36" cy="36" r="${r}" fill="none" stroke="${clr}" stroke-width="7" stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" stroke-linecap="round" transform="rotate(-90 36 36)"/></svg>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1">
           <span style="font-size:11px;font-weight:700;color:${clr}">${val}</span>
           <span style="font-size:8px;color:var(--text3)">${unit}</span>
         </div>
@@ -1517,14 +1517,15 @@ function buildMealRowsFn(dayIdx, member) {
       </div>
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
-          <span style="font-size:12px;font-weight:600">${m.name}</span>${ctx}
+          <span style="font-size:12px;font-weight:600">${m.name}</span>
+            <span style="font-size:11px;font-weight:700;color:var(--text)">${m.kcal} kcal</span>${ctx}
         </div>
         <div style="margin-top:4px;padding:5px 7px;background:var(--surface2);border-radius:6px;border-left:3px solid ${m.bg||'var(--border2)'}">
           <div style="font-size:11px;color:var(--text);line-height:1.5">${formatMealDetail(m.desc)}</div>
         </div>
         <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">
           <span class="mc mc-g">G${m.macros.g}g</span><span class="mc mc-p">P${m.macros.p}g</span>
-          <span class="mc mc-l">L${m.macros.l}g</span><span style="font-size:10px;color:var(--text3)">${m.kcal} kcal</span>
+          <span class="mc mc-l">L${m.macros.l}g</span>
         </div>
       </div>
       <button style="background:${member==='celine'?'linear-gradient(135deg,#6366F1,#8B5CF6)':'linear-gradient(135deg,#059669,#10B981)'};color:white;border:none;font-size:10px;padding:3px 7px;border-radius:5px;cursor:pointer;flex-shrink:0;align-self:flex-start;margin-top:2px" onclick="openChatForMealMember(${dayIdx},${mi},'${member}')">💬</button>

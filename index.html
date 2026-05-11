@@ -3776,23 +3776,36 @@ async function triggerAIPlanGeneration(member) {
       allergies: profile.allergies || 'aucune',
       bmr
     }, null, null, null, 'celine');
+
   } else {
+    // Samir : vérifications
     if(!profile.member2_name) { showToast('Remplis d\'abord le profil de Samir', '#F59E0B'); return; }
+    if(!window.AI_MEALS || Object.keys(window.AI_MEALS).length === 0) {
+      showToast('Génère d\'abord le plan de Céline — Samir reprendra les mêmes plats', '#F59E0B');
+      return;
+    }
+
     const bmr2 = profile.member2_weight_kg && profile.member2_height_cm && profile.member2_age
       ? Math.round(10*profile.member2_weight_kg + 6.25*profile.member2_height_cm - 5*profile.member2_age + 5) : 1780;
+
     const trainings2 = DAYS_SAMIR.map(d => ({
       day: d.name + ' ' + d.date,
       type: d.trainings.map(t => t.type).join(' + ') || 'Repos',
       kcal: d.kcal,
       sessions: d.trainings.map(t => ({ type: t.type, sport: t.sport, dur: t.dur, startTime: t.startTime || '—', zone: t._zone || 2 }))
     }));
+
+    // Passe le plan de Céline au Worker pour que Samir ait les mêmes plats
+    const celinePlan = Object.values(window.AI_MEALS);
+
     await generateAIPlan({
       name: profile.member2_name,
       goal_race: profile.member2_goal_race || profile.goal_race,
       weight_kg: profile.member2_weight_kg || 83,
       regime: profile.member2_regime || 'Omnivore',
       allergies: profile.member2_allergies || 'aucune',
-      bmr: bmr2
+      bmr: bmr2,
+      celinePlan  // plan de référence
     }, null, trainings2, profile.member2_effort_nutrition, 'samir');
   }
 }

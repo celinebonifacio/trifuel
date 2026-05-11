@@ -467,7 +467,7 @@ button,input,select,textarea{font-family:inherit}
     <div class="page-header">
       <div>
         <div class="page-title" id="plan-week-title">Semaine du 5 mai 2025</div>
-        <div class="page-sub" id="plan-week-sub">Ironman 140.6 · Phase Build · Céline</div>
+        <div class="page-sub" id="plan-week-sub">Ironman 70.3 · Céline & Samir</div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <div style="display:flex;align-items:center;gap:2px;border:1px solid var(--border2);border-radius:var(--r-sm);overflow:hidden">
@@ -476,42 +476,43 @@ button,input,select,textarea{font-family:inherit}
           <button class="btn btn-sm" style="border:none;border-radius:0;padding:6px 10px" onclick="changeWeek(1)" title="Semaine suivante">→</button>
         </div>
         <button class="btn btn-sm" onclick="showPage('shopping')">🛒 Courses</button>
-        <button class="btn btn-sm btn-primary" onclick="toggleFridgePlanModal()">🥬 Inventaire frigo</button>
         <button class="btn btn-sm" style="background:linear-gradient(135deg,#6366F1,#8B5CF6);color:white;border:none;font-weight:600" onclick="triggerAIPlanGeneration()">✨ Générer avec Claude</button>
-        <button class="btn btn-sm" style="background:linear-gradient(135deg,#059669,#10B981);color:white;border:none;font-weight:600" onclick="openAIChat()">💬 Coach IA</button>
       </div>
     </div>
 
-
-    <!-- Bilans semaine 2 colonnes -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem;margin-bottom:.875rem">
-      <!-- Bilan Céline -->
-      <div class="card" style="padding:.875rem 1.25rem;border-top:3px solid #6366F1">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">
-          <div style="font-size:11px;font-weight:700;color:#6366F1;text-transform:uppercase;letter-spacing:0.4px">📊 Semaine · Céline</div>
-          <div style="display:flex;gap:5px" id="week-badges-celine"></div>
+    <!-- Bilan semaine — 1 carte pleine largeur avec 2 colonnes internes -->
+    <div class="card" style="margin-bottom:.875rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <!-- Bilan Céline -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div style="font-size:11px;font-weight:700;color:#6366F1;text-transform:uppercase;letter-spacing:0.4px;border-left:3px solid #6366F1;padding-left:8px">📊 Semaine · Céline</div>
+            <div id="week-badges-celine"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px" id="week-metrics-celine"></div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:6px" id="week-metrics-celine"></div>
-      </div>
-      <!-- Bilan Samir -->
-      <div class="card" style="padding:.875rem 1.25rem;border-top:3px solid #059669">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">
-          <div style="font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:0.4px">📊 Semaine · <span id="samir-week-label">Samir</span></div>
-          <div style="display:flex;gap:5px" id="week-badges-samir"></div>
+        <!-- Séparateur -->
+        <div style="border-left:1px solid var(--border);padding-left:1rem">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div style="font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:0.4px;border-left:3px solid #059669;padding-left:8px">📊 Semaine · <span id="samir-week-label">Samir</span></div>
+            <div id="week-badges-samir"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px" id="week-metrics-samir"></div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:6px" id="week-metrics-samir"></div>
       </div>
     </div>
 
-    <!-- Strips jours 2 colonnes -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem;margin-bottom:.875rem">
-      <div class="card" style="padding:.625rem 1rem;border-top:3px solid #6366F1">
-        <div style="font-size:10px;font-weight:700;color:#6366F1;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px">Céline</div>
-        <div class="week-strip" id="day-strip"></div>
-      </div>
-      <div class="card" style="padding:.625rem 1rem;border-top:3px solid #059669">
-        <div style="font-size:10px;font-weight:700;color:#059669;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px" id="samir-strip-label">Samir</div>
-        <div class="week-strip" id="day-strip-samir"></div>
+    <!-- Strips jours — 1 carte pleine largeur avec 2 strips internes -->
+    <div class="card" style="margin-bottom:.875rem;padding:.875rem 1.25rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#6366F1;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px;border-left:3px solid #6366F1;padding-left:8px">Céline</div>
+          <div class="week-strip" id="day-strip"></div>
+        </div>
+        <div style="border-left:1px solid var(--border);padding-left:1rem">
+          <div style="font-size:10px;font-weight:700;color:#059669;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px;border-left:3px solid #059669;padding-left:8px" id="samir-strip-label">Samir</div>
+          <div class="week-strip" id="day-strip-samir"></div>
+        </div>
       </div>
     </div>
 
@@ -1457,37 +1458,35 @@ function renderDayDetail(){
   const samirColor  = '#059669';
 
   document.getElementById('day-detail').innerHTML = `
-    <!-- En-tête jour -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem;flex-wrap:wrap;gap:8px">
-      <div style="font-size:16px;font-weight:700">${d.name} ${d.date}</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        
+    <!-- Carte pleine largeur avec titre + 2 colonnes internes -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <!-- Titre jour -->
+      <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px">
+        <span style="font-size:14px;font-weight:700">${d.name} ${d.date}</span>
       </div>
-    </div>
-
-    <!-- 2 colonnes égales -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem">
+      <!-- 2 colonnes -->
+      <div style="display:grid;grid-template-columns:1fr 1fr">
 
       <!-- ══ CÉLINE ══ -->
-      <div style="display:flex;flex-direction:column;gap:0">
+      <div style="display:flex;flex-direction:column;border-right:1px solid var(--border)">
         <!-- Header Céline -->
-        <div style="background:linear-gradient(135deg,#1E1B4B,#4338CA);border-radius:var(--r) var(--r) 0 0;padding:10px 14px;display:flex;align-items:center;gap:8px">
-          <div style="width:28px;height:28px;border-radius:50%;background:#EDE9FE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#5B21B6;flex-shrink:0">CÉ</div>
-          <div style="font-size:13px;font-weight:700;color:white">Céline</div>
-          <div style="margin-left:auto;font-size:11px;color:rgba(255,255,255,0.7)">${d.kcal.toLocaleString('fr')} kcal · ${iLabels[d.intensity]}</div>
+        <div style="background:#EEF2FF;padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:2px solid #6366F1">
+          <div style="width:26px;height:26px;border-radius:50%;background:#6366F1;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;flex-shrink:0">CÉ</div>
+          <div style="font-size:13px;font-weight:700;color:#1E1B4B">Céline</div>
+          <div style="margin-left:auto;font-size:11px;color:#4338CA;font-weight:600">${d.kcal.toLocaleString('fr')} kcal · ${iLabels[d.intensity]}</div>
         </div>
         <!-- Séances Céline -->
-        <div class="card" style="border-radius:0;border-top:none;margin-bottom:0;border-bottom:none">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
           <div style="font-size:10px;font-weight:700;color:${celineColor};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">🏋️ Séances</div>
           ${buildTrainHtml(d,'celine')}
         </div>
         <!-- Bilan macro Céline -->
-        <div class="card" style="border-radius:0;border-top:none;margin-bottom:0;border-bottom:none">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
           <div style="font-size:10px;font-weight:700;color:${celineColor};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🔥 Bilan énergétique</div>
           ${buildMacroSummary(selectedDay,'celine',d)}
         </div>
         <!-- Plan repas Céline -->
-        <div class="card" style="border-radius:0 0 var(--r) var(--r);border-top:none">
+        <div style="padding:12px 16px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
             <div style="font-size:10px;font-weight:700;color:${celineColor};text-transform:uppercase;letter-spacing:0.5px">🥗 Plan alimentaire</div>
             <button style="background:linear-gradient(135deg,#6366F1,#8B5CF6);color:white;border:none;font-size:10px;padding:4px 8px;border-radius:5px;cursor:pointer;font-weight:600" onclick="openAIChatMember('celine')">💬 Coach Céline</button>
@@ -1497,25 +1496,25 @@ function renderDayDetail(){
       </div>
 
       <!-- ══ SAMIR ══ -->
-      <div style="display:flex;flex-direction:column;gap:0">
+      <div style="display:flex;flex-direction:column">
         <!-- Header Samir -->
-        <div style="background:linear-gradient(135deg,#065F46,#059669);border-radius:var(--r) var(--r) 0 0;padding:10px 14px;display:flex;align-items:center;gap:8px">
-          <div style="width:28px;height:28px;border-radius:50%;background:#D1FAE5;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#065F46;flex-shrink:0" id="samir-av-day">SA</div>
-          <div style="font-size:13px;font-weight:700;color:white" id="samir-name-day">Samir</div>
-          <div style="margin-left:auto;font-size:11px;color:rgba(255,255,255,0.7)">${dS.kcal.toLocaleString('fr')} kcal · ${iLabels[dS.intensity]}</div>
+        <div style="background:#ECFDF5;padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:2px solid #059669">
+          <div style="width:26px;height:26px;border-radius:50%;background:#059669;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;flex-shrink:0" id="samir-av-day">SA</div>
+          <div style="font-size:13px;font-weight:700;color:#065F46" id="samir-name-day">Samir</div>
+          <div style="margin-left:auto;font-size:11px;color:#059669;font-weight:600">${dS.kcal.toLocaleString('fr')} kcal · ${iLabels[dS.intensity]}</div>
         </div>
         <!-- Séances Samir -->
-        <div class="card" style="border-radius:0;border-top:none;margin-bottom:0;border-bottom:none">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
           <div style="font-size:10px;font-weight:700;color:${samirColor};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">🏋️ Séances</div>
           ${buildTrainHtml(dS,'samir')}
         </div>
         <!-- Bilan macro Samir -->
-        <div class="card" style="border-radius:0;border-top:none;margin-bottom:0;border-bottom:none">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
           <div style="font-size:10px;font-weight:700;color:${samirColor};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🔥 Bilan énergétique</div>
           ${buildMacroSummary(selectedDay,'samir',dS)}
         </div>
         <!-- Plan repas Samir -->
-        <div class="card" style="border-radius:0 0 var(--r) var(--r);border-top:none">
+        <div style="padding:12px 16px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
             <div style="font-size:10px;font-weight:700;color:${samirColor};text-transform:uppercase;letter-spacing:0.5px">🥗 Plan alimentaire</div>
             <button style="background:linear-gradient(135deg,#059669,#10B981);color:white;border:none;font-size:10px;padding:4px 8px;border-radius:5px;cursor:pointer;font-weight:600" onclick="openAIChatMember('samir')">💬 Coach Samir</button>
@@ -1524,7 +1523,8 @@ function renderDayDetail(){
         </div>
       </div>
 
-    </div><!-- fin 2 colonnes -->
+      </div><!-- fin 2 colonnes -->
+    </div><!-- fin carte -->
     <div id="meal-action-panel" style="display:none;margin-top:.875rem"></div>`;
 }
 

@@ -1183,11 +1183,38 @@ function renderDayDetail(){
   }
 
   // ── Calcul dynamique des contextes repas selon heure réelle de séance ──
-  // Trouve la première séance du jour et son heure
   const firstTraining = d.trainings[0];
-  const trainingHour = firstTraining?.startTime
-    ? parseInt((firstTraining.startTime.replace('h',':')).split(':')[0])
-    : null;
+
+  // Heure de séance : heure manuelle > plage profil matin
+  let trainingHour = null;
+  let trainingMin = 0;
+  if(firstTraining?.startTime && firstTraining.startTime !== '00h00') {
+    const parts = firstTraining.startTime.replace('h',':').split(':');
+    trainingHour = parseInt(parts[0]);
+    trainingMin = parseInt(parts[1]||0);
+  } else {
+    // Fallback : 1ère plage d'entraînement du profil
+    const matinEl = document.getElementById('t-matin');
+    if(matinEl) {
+      const matinStr = matinEl.textContent.split('–')[0].trim(); // "7h30"
+      const mp = matinStr.replace('h',':').split(':');
+      trainingHour = parseInt(mp[0]);
+      trainingMin = parseInt(mp[1]||0);
+    }
+  }
+
+  // Calcule l'heure pré-séance (90 min avant)
+  const preHour = trainingHour !== null ? Math.floor((trainingHour * 60 + trainingMin - 90) / 60) : null;
+  const preMin  = trainingHour !== null ? (trainingHour * 60 + trainingMin - 90) % 60 : 0;
+  const preTimeStr = preHour !== null ? `${preHour}h${preMin > 0 ? preMin : '00'}` : null;
+
+  // Calcule l'heure post-séance (durée + 30 min)
+  const durMins = firstTraining ? (parseInt(firstTraining.dur)||0) * 60 : 0;
+  const postTotalMins = trainingHour !== null ? trainingHour * 60 + trainingMin + durMins + 30 : null;
+  const postHour = postTotalMins !== null ? Math.floor(postTotalMins / 60) : null;
+  const postMin  = postTotalMins !== null ? postTotalMins % 60 : 0;
+  const postTimeStr = postHour !== null ? `${postHour}h${postMin > 0 ? postMin : '00'}` : null;
+
   const sportLabel = firstTraining ? (SPORT_META[firstTraining.sport]?.label || 'séance') : 'séance';
   const sportEmoji = firstTraining ? (SPORT_META[firstTraining.sport]?.emoji || '⚡') : '⚡';
 
@@ -1205,10 +1232,13 @@ function renderDayDetail(){
     </div>`:'';
     let trainingCtx='';
     if(m.preTraining) {
-      const timeLabel = trainingHour !== null ? `${trainingHour}h00` : 'séance';
+      const timeLabel = preTimeStr || (trainingHour !== null ? `${trainingHour}h00` : 'avant séance');
       trainingCtx=`<span style="font-size:10px;background:var(--orange-l);color:var(--orange-d);padding:1px 7px;border-radius:4px;font-weight:600">${sportEmoji} Fuel pré-${sportLabel} · ${timeLabel}</span>`;
     }
-    if(m.postTraining) trainingCtx=`<span style="font-size:10px;background:var(--green-l);color:var(--green-d);padding:1px 7px;border-radius:4px;font-weight:600">💪 Récupération ${sportLabel}</span>`;
+    if(m.postTraining) {
+      const timeLabel = postTimeStr || 'après séance';
+      trainingCtx=`<span style="font-size:10px;background:var(--green-l);color:var(--green-d);padding:1px 7px;border-radius:4px;font-weight:600">💪 Récupération · ${timeLabel}</span>`;
+    }
     if(m.effort) trainingCtx=`<span style="font-size:10px;background:var(--red-l);color:var(--red-d);padding:1px 7px;border-radius:4px;font-weight:600">${sportEmoji} Pendant l'effort</span>`;
     return `<div class="meal-row" style="${override?'background:#FAFAFF;border-radius:var(--r-sm);margin:2px -4px;padding:12px 4px':''}">
       <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
@@ -2461,7 +2491,15 @@ async function generateAIPlan(profile) {
     type: d.trainings.map(t => t.type).join(' + ') || 'Repos',
     dur: d.trainings.map(t => t.dur).join(' + ') || '—',
     intensity: ['Repos','Léger','Modéré','Intense'][d.intensity],
-    startTime: d.trainings[0]?.startTime || '—'
+    load: d.load || 0,
+    startTime: d.trainings.map(t => t.startTime || '—').join(' + '),
+    sessions: d.trainings.map(t => ({
+      type: t.type,
+      sport: t.sport,
+      dur: t.dur,
+      startTime: t.startTime || '—',
+      load: t.load || 0
+    }))
   }));
 
   const activeDays = trainings.filter(t => t.type !== 'Repos').length;

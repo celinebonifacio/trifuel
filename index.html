@@ -2595,139 +2595,64 @@ function applyAIPlan(plan) {
 function getMealsForDay(dayIdx) {
   if(window.AI_MEALS && window.AI_MEALS[dayIdx]) return window.AI_MEALS[dayIdx];
   const d = DAYS[dayIdx];
-
-  // Repas de base depuis le plan statique (sans les collations pré/post)
   const baseMeals = (MEALS[d.kcal] || MEALS[2200]).filter(m => !m.preTraining && !m.postTraining && !m.effort);
-
   if(!d.trainings.length) return baseMeals;
 
-  // Horaires profil (fallback)
-  const getProfileTime = (id) => {
-    const el = document.getElementById(id);
-    if(!el) return null;
-    const t = el.textContent.trim().replace('h',':');
-    const parts = t.split(':');
-    return { h: parseInt(parts[0]||0), m: parseInt(parts[1]||0) };
+  // Heure de séance : manuelle > plage matin du profil
+  const getMatinH = () => {
+    const el = document.getElementById('t-matin');
+    if(!el) return { h:7, m:30 };
+    const str = el.textContent.trim().split('–')[0].trim().replace('h',':');
+    const p = str.split(':');
+    return { h: parseInt(p[0]||7), m: parseInt(p[1]||30) };
   };
-  const matinPlage = getProfileTime('t-matin'); // "7h30–9h00" → prend le début
 
-  // Pour chaque séance, calcule pré/post
   const extraMeals = [];
   d.trainings.forEach(t => {
-    let tH = null, tM = 0;
+    let tH, tM = 0;
     if(t.startTime && t.startTime !== '00h00' && t.startTime !== '—') {
-      const parts = t.startTime.replace('h',':').split(':');
-      tH = parseInt(parts[0]); tM = parseInt(parts[1]||0);
-    } else if(matinPlage) {
-      tH = matinPlage.h; tM = matinPlage.m;
+      const p = t.startTime.replace('h',':').split(':');
+      tH = parseInt(p[0]); tM = parseInt(p[1]||0);
+    } else {
+      const matin = getMatinH();
+      tH = matin.h; tM = matin.m;
     }
-    if(tH === null) return;
-
     const sm = SPORT_META[t.sport] || SPORT_META.rest;
 
-    // Pré-séance : 90 min avant
-    const preTotalMins = tH * 60 + tM - 90;
-    const preH = Math.floor(preTotalMins / 60);
-    const preM = preTotalMins % 60;
-    const preTime = `${preH}h${preM > 0 ? String(preM).padStart(2,'0') : '00'}`;
-
+    // Pré : 90 min avant
+    const preMins = tH*60 + tM - 90;
+    const preTime = `${Math.floor(preMins/60)}h${preMins%60>0?String(preMins%60).padStart(2,'0'):'00'}`;
     extraMeals.push({
-      emoji: '⚡', bg: '#D1FAE5',
-      name: `Fuel pré-${sm.label||t.sport}`,
-      time: preTime,
-      _sortMins: preTotalMins,
-      dur: '2 min',
-      kcal: 180,
-      desc: `Banane + beurre amande · 90 min avant ${sm.label||'séance'} à ${t.startTime}`,
-      macros: {g:32, p:4, l:5},
-      preTraining: true
+      emoji:'⚡', bg:'#D1FAE5',
+      name:`Fuel pré-${sm.label||t.type}`,
+      time: preTime, _sortMins: preMins, dur:'2 min', kcal:180,
+      desc:`Banane + beurre amande · 90 min avant ${t.startTime||preTime}`,
+      macros:{g:32,p:4,l:5}, preTraining:true
     });
 
-    // Durée en minutes
-    const durMinsVal = (() => {
-      if(!t.dur || t.dur === '—') return 60;
-      // Formats : "1h30", "1h30min", "39min", "45min", "1h"
-      const hMatch = t.dur.match(/(\d+)h(\d+)?/);
-      const mMatch = t.dur.match(/(\d+)min/);
-      if(hMatch) return parseInt(hMatch[1])*60 + parseInt(hMatch[2]||0);
-      if(mMatch) return parseInt(mMatch[1]);
+    // Post : durée + 30 min
+    const durMins = (() => {
+      if(!t.dur||t.dur==='—') return 60;
+      const h = t.dur.match(/(\d+)h(\d+)?/);
+      const m = t.dur.match(/(\d+)min/);
+      if(h) return parseInt(h[1])*60+parseInt(h[2]||0);
+      if(m) return parseInt(m[1]);
       return 60;
     })();
-    const postTotalMins = tH * 60 + tM + durMinsVal + 30;
-    const postH = Math.floor(postTotalMins / 60);
-    const postM = postTotalMins % 60;
-    const postTime = `${postH}h${postM > 0 ? String(postM).padStart(2,'0') : '00'}`;
-
-    // Mutualisation : si post-séance tombe dans les 90 min avant le déjeuner (12h-13h30)
-    // ou 90 min avant le dîner (19h-20h), on ne crée pas de collation séparée
-    const dejMins = (() => {
-      const el = document.getElementById('t-dej');
-      if(!el) return 12*60+30;
-      const parts = el.textContent.trim().replace('h',':').split(':');
-      return parseInt(parts[0]||12)*60 + parseInt(parts[1]||30);
-    })();
-    const dinerMins = (() => {
-      const el = document.getElementById('t-diner');
-      if(!el) return 19*60+30;
-      const parts = el.textContent.trim().replace('h',':').split(':');
-      return parseInt(parts[0]||19)*60 + parseInt(parts[1]||30);
-    })();
-
-    const nearDej   = postTotalMins >= dejMins - 90 && postTotalMins <= dejMins + 30;
-    const nearDiner = postTotalMins >= dinerMins - 90 && postTotalMins <= dinerMins + 30;
-
-    if(!nearDej && !nearDiner) {
-      extraMeals.push({
-        emoji: '💪', bg: '#DBEAFE',
-        name: `Récup post-${sm.label||t.type}`,
-        time: postTime,
-        _sortMins: postTotalMins,
-        dur: '2 min',
-        kcal: 200,
-        desc: `Shake protéines + banane · 30 min après la fin`,
-        macros: {g:30, p:20, l:5},
-        postTraining: true
-      });
-    } else {
-      // Enrichit le repas proche avec les apports récup proportionnels au load
-      const targetName = nearDej ? 'Déjeuner' : 'Dîner';
-      const load = t.load || 0;
-      let recupP, recupG, recupKcal;
-      if(load < 30)       { recupP=10; recupG=15; recupKcal=80; }
-      else if(load < 60)  { recupP=20; recupG=30; recupKcal=150; }
-      else if(load < 100) { recupP=30; recupG=50; recupKcal=220; }
-      else                { recupP=40; recupG=70; recupKcal=300; }
-
-      baseMeals.forEach(m => {
-        if(m.name === targetName) {
-          m._recoveryEnriched = true;
-          m._recoverySport = sm.label || t.type;
-          m._recoveryEmoji = sm.emoji;
-          m._recoveryLoad = load;
-          m.macros = { g: (m.macros.g||0) + recupG, p: (m.macros.p||0) + recupP, l: m.macros.l||0 };
-          m.kcal = (m.kcal||0) + recupKcal;
-          m.desc = m.desc + ` · récup incluse (load ${load})`;
-        }
-      });
-    }
+    const postMins = tH*60 + tM + durMins + 30;
+    const postTime = `${Math.floor(postMins/60)}h${postMins%60>0?String(postMins%60).padStart(2,'0'):'00'}`;
+    extraMeals.push({
+      emoji:'💪', bg:'#DBEAFE',
+      name:`Récup post-${sm.label||t.type}`,
+      time: postTime, _sortMins: postMins, dur:'2 min', kcal:200,
+      desc:`Shake protéines + banane · 30 min après la fin`,
+      macros:{g:30,p:20,l:5}, postTraining:true
+    });
   });
 
-  // Donne une heure numérique à chaque repas de base pour le tri
-  const timeToMins = (timeStr) => {
-    if(!timeStr) return 999;
-    const parts = timeStr.replace('h',':').split(':');
-    return parseInt(parts[0]||0)*60 + parseInt(parts[1]||0);
-  };
-
-  const allMeals = [
-    ...baseMeals.map(m => ({ ...m, _sortMins: timeToMins(m.time) })),
-    ...extraMeals
-  ];
-
-  // Trie par heure
-  allMeals.sort((a,b) => (a._sortMins||0) - (b._sortMins||0));
-
-  return allMeals;
+  const toMins = s => { if(!s) return 999; const p=s.replace('h',':').split(':'); return parseInt(p[0]||0)*60+parseInt(p[1]||0); };
+  return [...baseMeals.map(m=>({...m,_sortMins:toMins(m.time)})), ...extraMeals]
+    .sort((a,b)=>(a._sortMins||0)-(b._sortMins||0));
 }
 
 async function generateAIAlternatives(mealName, mealKcal, dayKcal) {

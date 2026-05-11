@@ -2696,7 +2696,7 @@ async function generateAIPlan(profile) {
   }
 }
 
-function applyAIPlan(plan) {
+async function applyAIPlan(plan) {
   if(!Array.isArray(plan)) return;
 
   plan.forEach((dayPlan, i) => {
@@ -2750,7 +2750,15 @@ function applyAIPlan(plan) {
 
   // Sauvegarde le plan en Supabase
   if(currentUser) {
-    sb.from('profiles').update({ ai_meal_plan: window.AI_MEALS }).eq('id', currentUser.id);
+    const { error } = await sb.from('profiles')
+      .update({ ai_meal_plan: window.AI_MEALS })
+      .eq('id', currentUser.id);
+    if(error) {
+      console.error('Erreur sauvegarde plan:', error);
+      showToast('⚠️ Plan genere mais non sauvegarde : ' + error.message, '#F59E0B');
+    } else {
+      showToast('✅ Plan de la semaine genere et sauvegarde !', '#059669');
+    }
   }
 }
 

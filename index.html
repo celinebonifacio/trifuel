@@ -1790,8 +1790,29 @@ function renderWeightChart(){
 
 // ══ TIMING ══
 function toggleTimingEdit(){
-  const v=document.getElementById('timing-view');const e=document.getElementById('timing-edit');
-  const editing=e.style.display!=='none';v.style.display=editing?'block':'none';e.style.display=editing?'none':'block';
+  const v=document.getElementById('timing-view');
+  const e=document.getElementById('timing-edit');
+  const editing=e.style.display!=='none';
+  v.style.display=editing?'block':'none';
+  e.style.display=editing?'none':'block';
+  // Pré-remplit les inputs avec les valeurs affichées
+  if(!editing) {
+    const toTime = val => val ? val.replace('h',':') : '';
+    const setVal = (id, val) => { const el=document.getElementById(id); if(el&&val) el.value=toTime(val); };
+    setVal('te-lever',  document.getElementById('t-lever')?.textContent);
+    setVal('te-ptidej', document.getElementById('t-ptidej')?.textContent);
+    setVal('te-dej',    document.getElementById('t-dej')?.textContent);
+    setVal('te-diner',  document.getElementById('t-diner')?.textContent);
+    const matin = document.getElementById('t-matin')?.textContent?.split('–');
+    const midi  = document.getElementById('t-midi')?.textContent?.split('–');
+    const soir  = document.getElementById('t-soir')?.textContent?.split('–');
+    if(matin?.[0]) { const el=document.getElementById('te-m1'); if(el) el.value=toTime(matin[0].trim()); }
+    if(matin?.[1]) { const el=document.getElementById('te-m2'); if(el) el.value=toTime(matin[1].trim()); }
+    if(midi?.[0])  { const el=document.getElementById('te-mi1'); if(el) el.value=toTime(midi[0].trim()); }
+    if(midi?.[1])  { const el=document.getElementById('te-mi2'); if(el) el.value=toTime(midi[1].trim()); }
+    if(soir?.[0])  { const el=document.getElementById('te-s1'); if(el) el.value=toTime(soir[0].trim()); }
+    if(soir?.[1])  { const el=document.getElementById('te-s2'); if(el) el.value=toTime(soir[1].trim()); }
+  }
 }
 function saveTimings(){
   const g=id=>{const el=document.getElementById(id);return el?el.value.replace(':','h'):'';};

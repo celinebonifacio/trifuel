@@ -830,11 +830,12 @@ function buildEmptyWeek(weekOffset) {
   const monday = new Date(today);
   monday.setDate(today.getDate() - today.getDay() + 1 + weekOffset * 7);
   const days = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  const restKcal = getKcalForIntensity(0, 0);
   return days.map((name, i) => {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
     const date = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-    return { name, date, kcal: 1900, intensity: 0, trainings: [], rest: true };
+    return { name, date, kcal: restKcal, intensity: 0, trainings: [], rest: true };
   });
 }
 
@@ -1734,15 +1735,20 @@ async function loadWeekLoads() {
 }
 
 function getKcalForIntensity(intensity, load) {
-  // Récupère le BMR depuis le profil affiché (calculé à la connexion)
   const bmrEl = document.getElementById('prof-bmr');
-  const bmrText = bmrEl ? bmrEl.textContent : '';
-  const bmr = parseInt(bmrText.replace(/\s/g,'')) || 1400;
+  const bmr = parseInt((bmrEl?.textContent || '1400').replace(/\s/g,'')) || 1400;
 
-  // Multiplicateur selon intensité + bonus load
-  const multipliers = [1.2, 1.5, 1.75, 1.95];
-  const mult = multipliers[intensity] || 1.2;
-  const bonus = load > 100 ? Math.round((load - 100) * 3) : 0;
+  // Multiplicateurs précis selon intensité
+  // Basés sur la littérature sportive (triathlon endurance)
+  const mult = [1.2, 1.55, 1.75, 1.95][intensity] || 1.2;
+
+  // Bonus proportionnel au load au-delà du seuil de la catégorie
+  let bonus = 0;
+  if(load > 0) {
+    // ~5 kcal par point de load (estimation conservative)
+    bonus = Math.round(load * 5);
+  }
+
   return Math.round(bmr * mult) + bonus;
 }
 

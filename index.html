@@ -1695,7 +1695,7 @@ let currentWeekOffset = 0; // 0 = current week, -1 = last week, +1 = next week
 const WEEK_LABELS = ['Semaine précédente','Semaine actuelle','Semaine suivante'];
 const WEEK_DATES  = ['28 avr – 4 mai 2025','5 mai – 11 mai 2025','12 mai – 18 mai 2025'];
 
-function changeWeek(dir){
+async function changeWeek(dir){
   currentWeekOffset = Math.max(-4, Math.min(4, currentWeekOffset + dir));
   DAYS = buildEmptyWeek(currentWeekOffset);
   window.AI_MEALS = {};
@@ -1705,7 +1705,9 @@ function changeWeek(dir){
   renderTrainingList();
   // Re-sync ICU for the new week if connected
   if(document.getElementById('icu-connected-celine')?.style.display !== 'none') {
-    syncFromIntervals('celine');
+    const { celineLoaded } = await loadWeekSessions();
+    if(!celineLoaded) syncFromIntervals('celine');
+    else { recalcWeekKcal(); await loadAIMealPlan(); }
   }
 }
 function goToCurrentWeek(){
@@ -2447,6 +2449,9 @@ async function syncFromIntervals(member) {
     const now = new Date().toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
     if(lastSyncEl) lastSyncEl.textContent = 'Dernière sync : ' + now;
 
+    // ── Sauvegarde les séances en Supabase ──
+    await saveWeekSessions(member, days);
+
     if(isCeline) {
       renderDayStrip(); renderDayDetail(); renderTrainingList(); renderWeeklySummary();
       await loadWeekLoads();
@@ -2463,6 +2468,75 @@ async function syncFromIntervals(member) {
   if(btn) { btn.textContent = '↻ Synchroniser'; btn.disabled = false; }
 }
 
+// ══ PERSISTANCE SÉANCES ICU ══
+async function saveWeekSessions(member, days) {
+  if(!currentUser) return;
+  // On stocke par clé = offset semaine pour gérer plusieurs semaines
+  const key = `w${currentWeekOffset}`;
+  const isCeline = !member || member === 'celine';
+
+  // Charge les données existantes pour ne pas écraser les autres semaines
+  const col = isCeline ? 'week_sessions' : 'member2_week_sessions';
+  const { data } = await sb.from('profiles').select(col).eq('id', currentUser.id).single();
+  const existing = data?.[col] || {};
+
+  // Sérialise la semaine courante
+  existing[key] = days.map(d => ({
+    name: d.name, date: d.date, intensity: d.intensity, kcal: d.kcal, rest: d.rest,
+    trainings: d.trainings.map(t => ({
+      type: t.type, sport: t.sport, dur: t.dur, dist: t.dist,
+      startTime: t.startTime, tss: t.tss || 0, hard: t.hard || false, icuId: t.icuId
+    }))
+  }));
+
+  await sb.from('profiles').update({ [col]: existing }).eq('id', currentUser.id);
+}
+
+async function loadWeekSessions() {
+  if(!currentUser) return;
+  const { data } = await sb.from('profiles').select('week_sessions,member2_week_sessions').eq('id', currentUser.id).single();
+
+  let celineLoaded = false, samirLoaded = false;
+
+  // Céline
+  if(data?.week_sessions) {
+    const key = `w${currentWeekOffset}`;
+    const saved = data.week_sessions[key];
+    if(saved?.length) {
+      DAYS = saved.map(d => ({
+        ...d,
+        trainings: d.trainings || [],
+        load: d.trainings?.reduce((s,t) => s+(t.tss||0), 0) || 0
+      }));
+      celineLoaded = true;
+    }
+  }
+
+  // Samir
+  if(data?.member2_week_sessions) {
+    const key = `w${currentWeekOffset}`;
+    const saved = data.member2_week_sessions[key];
+    if(saved?.length) {
+      DAYS_SAMIR = saved.map(d => ({
+        ...d,
+        trainings: d.trainings || [],
+        load: d.trainings?.reduce((s,t) => s+(t.tss||0), 0) || 0
+      }));
+      samirLoaded = true;
+    }
+  }
+
+  if(celineLoaded) {
+    renderDayStrip(); renderDayDetail(); renderTrainingList(); renderWeeklySummary();
+    recalcWeekKcal();
+  }
+  if(samirLoaded && activeTrainTab === 'samir') {
+    renderTrainingListSamir();
+  }
+
+  return { celineLoaded, samirLoaded };
+}
+
 async function disconnectIcu(member) {
   if(!confirm(`Déconnecter Intervals.icu pour ${member === 'celine' ? 'Céline' : 'Samir'} ?`)) return;
   const isCeline = member === 'celine';
@@ -2472,12 +2546,15 @@ async function disconnectIcu(member) {
   document.getElementById(`icu-banner-${member}`).style.display = 'flex';
 }
 
-async function initIcu() {
+async function initIcu(sessionsAlreadyLoaded) {
   if(!currentUser) return;
   const { data } = await sb.from('profiles').select('icu_api_key,member2_icu_api_key').eq('id', currentUser.id).single();
   if(data?.icu_api_key) {
     showIcuConnected('celine');
-    await syncFromIntervals('celine');
+    // Ne re-synchronise pas si les séances sont déjà chargées depuis Supabase
+    if(!sessionsAlreadyLoaded) {
+      await syncFromIntervals('celine');
+    }
   } else {
     showIcuSetupPrompt();
   }
@@ -2614,7 +2691,10 @@ async function enterApp(user, nameOverride) {
     member2Profile = profile;
     applyMember2ToUI(profile);
   }
-  await initIcu();
+  // Charge les séances sauvegardées avant initIcu pour éviter double sync
+  const { celineLoaded } = await loadWeekSessions();
+  await loadAIMealPlan();
+  await initIcu(celineLoaded);
 }
 
 function applyProfileToUI(profile, name, initials) {

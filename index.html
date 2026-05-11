@@ -1974,8 +1974,12 @@ async function syncFromIntervals(){
 
     events.forEach(ev => {
       if(!ev.start_date_local) return;
-      const evDate = new Date(ev.start_date_local);
-      const dayIdx = (evDate.getDay() + 6) % 7; // 0=Mon
+      // Parse date from string directly to avoid timezone issues
+      // start_date_local format: "2026-05-11T07:00:00" or "2026-05-11"
+      const datePart = ev.start_date_local.split('T')[0]; // "2026-05-11"
+      const [year, month, day] = datePart.split('-').map(Number);
+      const evDate = new Date(year, month - 1, day); // local date, no timezone shift
+      const dayIdx = (evDate.getDay() + 6) % 7; // 0=Mon, 6=Sun
       if(dayIdx < 0 || dayIdx > 6) return;
 
       const sportInfo = sportMap[ev.type] || { type: ev.type || 'Entraînement', sport: 'gym' };
@@ -2335,7 +2339,7 @@ async function generateAIPlan(profile) {
   loader.innerHTML = `
     <div style="font-size:24px;margin-bottom:8px">🤖</div>
     <div style="font-size:14px;font-weight:600;color:#3730A3" id="ai-loader-text">Claude génère ton plan...</div>
-    <div style="font-size:12px;color:#4338CA;margin-top:4px">${activeDays} séances détectées · génération en cours</div>
+    <div style="font-size:12px;color:#4338CA;margin-top:4px">${activeDays} séances détectées · génération 7 jours en cours</div>
     <div style="margin-top:12px;height:4px;background:#C7D2FE;border-radius:2px;overflow:hidden">
       <div id="ai-progress-bar" style="height:100%;width:5%;background:var(--indigo);border-radius:2px;transition:width 0.5s"></div>
     </div>`;

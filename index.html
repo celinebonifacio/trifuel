@@ -1558,74 +1558,64 @@ function renderWeeklySummary(){
 function renderTrainingList(){
   const iLabels=['Repos','Léger','Modéré','Intense'];
   const el=document.getElementById('training-list');
-  el.innerHTML=DAYS.map((d,di)=>{
-    const sm=d.rest?SPORT_META.rest:SPORT_META[d.trainings[0]?.sport]||SPORT_META.rest;
-    const allSports=[...new Set(d.trainings.map(t=>t.sport))];
-    const load = d.load || 0;
-    const loadPct = Math.min(load, 150) / 150 * 100;
-    const loadColor = load < 30 ? 'var(--green)' : load < 60 ? 'var(--orange)' : load < 100 ? 'var(--red)' : '#7C3AED';
-    const loadLabel = load === 0 ? '' : load < 30 ? 'Très léger' : load < 60 ? 'Modéré' : load < 100 ? 'Intense' : 'Très intense';
+  
+  let html = '';
+  DAYS.forEach((d, di) => {
+    if(!d.trainings.length) {
+      // Jour repos
+      html += `<div class="train-card" style="opacity:0.6">
+        <div class="train-sport-icon" style="background:#F3F4F6">😴</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:var(--text2)">Repos</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">${d.name} ${d.date}</div>
+        </div>
+        <div style="font-size:12px;color:var(--text3)">${d.kcal.toLocaleString('fr')} kcal</div>
+      </div>`;
+    } else {
+      // Une carte par séance
+      d.trainings.forEach((t, ti) => {
+        const sm = SPORT_META[t.sport] || SPORT_META.rest;
+        const tLoad = t.load || 0;
+        const loadPct = Math.min(tLoad, 150) / 150 * 100;
+        const loadColor = tLoad < 30 ? 'var(--green)' : tLoad < 60 ? 'var(--orange)' : tLoad < 100 ? 'var(--red)' : '#7C3AED';
+        const loadLabel = tLoad === 0 ? '' : tLoad < 30 ? 'Très léger' : tLoad < 60 ? 'Modéré' : tLoad < 100 ? 'Intense' : 'Très intense';
 
-    const loadInput = d.trainings.length ? `
-      <div style="margin-top:8px" onclick="event.stopPropagation()">
-        ${d.trainings.map((t,ti) => {
-          const tLoad = t.load || 0;
-          const loadPct = Math.min(tLoad, 150) / 150 * 100;
-          const loadColor = tLoad < 30 ? 'var(--green)' : tLoad < 60 ? 'var(--orange)' : tLoad < 100 ? 'var(--red)' : '#7C3AED';
-          const loadLabel = tLoad === 0 ? '' : tLoad < 30 ? 'Très léger' : tLoad < 60 ? 'Modéré' : tLoad < 100 ? 'Intense' : 'Très intense';
-          const sm2 = SPORT_META[t.sport]||SPORT_META.rest;
-          return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-            <span style="font-size:10px;color:var(--text3);white-space:nowrap;min-width:60px">${sm2.emoji} Load</span>
-            <input type="number" min="0" max="400" value="${tLoad||''}" placeholder="ex: 45"
-              style="width:60px;font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"
-              onchange="setTrainingLoad(${di},${ti},this.value)">
-            ${tLoad > 0 ? `
-            <div style="flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden">
-              <div style="height:100%;width:${loadPct}%;background:${loadColor};border-radius:3px;transition:width 0.4s"></div>
+        html += `<div class="train-card" onclick="selectDay(${di})">
+          <div class="train-sport-icon" style="background:${sm.bg}">${sm.emoji}</div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+              <span style="font-size:13px;font-weight:600">${t.type}</span>
+              <span class="${sm.tagClass} sport-tag">${iLabels[d.intensity]}</span>
+              <span style="font-size:11px;color:var(--text2)">${t.dur} · ${t.dist}</span>
             </div>
-            <span style="font-size:10px;font-weight:600;color:${loadColor};white-space:nowrap">${tLoad} · ${loadLabel}</span>` : ''}
-          </div>`;
-        }).join('')}
-        ${d.trainings.length > 1 && d.trainings.some(t => t.load > 0) ? `
-        <div style="font-size:10px;color:var(--text2);margin-top:2px">
-          Total load : <strong>${d.trainings.reduce((s,t)=>s+(t.load||0),0)}</strong>
-        </div>` : ''}
-      </div>` : '';
-
-    return `<div class="train-card" onclick="openSessionDetail(${di})">
-      <div class="train-sport-icon" style="background:${sm.bg}">
-        ${allSports.length?allSports.map(s=>SPORT_META[s]?.emoji||'').join(''):'😴'}
-      </div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
-          <span style="font-size:13px;font-weight:600">${d.trainings.length?d.trainings.map(t=>t.type).join(' + '):'Repos'}</span>
-          ${d.trainings.length?`<span class="${sm.tagClass} sport-tag">${iLabels[d.intensity]}</span>`:''}
-          ${d.trainings.length?`<span style="font-size:11px;color:var(--text2)">${d.trainings.map(t=>t.dur).join(' + ')}</span>`:''}
-        </div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">${d.name} ${d.date}</div>
-        ${d.trainings.length?`<div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap">${d.trainings.map(t=>{
-          const s=SPORT_META[t.sport]||SPORT_META.rest;
-          return `<span style="font-size:10px;padding:2px 8px;border-radius:4px;background:${s.bg};color:${s.color};font-weight:600">${s.emoji} ${t.dist}</span>`;
-        }).join('')}</div>`:''}
-        ${loadInput}
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-        <div style="text-align:right">
-          <div style="font-size:14px;font-weight:700">${d.kcal.toLocaleString('fr')}</div>
-          <div style="font-size:9px;color:var(--text3)">kcal / jour</div>
-          <div style="display:flex;gap:3px;margin-top:4px;justify-content:flex-end">
-            <span style="font-size:9px;padding:1px 5px;border-radius:3px;background:var(--orange-l);color:var(--orange-d);font-weight:600">G${macroForDay(d,'g')}g</span>
-            <span style="font-size:9px;padding:1px 5px;border-radius:3px;background:var(--blue-l);color:var(--blue-d);font-weight:600">P${macroForDay(d,'p')}g</span>
-            <span style="font-size:9px;padding:1px 5px;border-radius:3px;background:var(--purple-l);color:var(--purple-d);font-weight:600">L${macroForDay(d,'l')}g</span>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">${d.name} ${d.date}${t.startTime ? ' · ' + t.startTime : ''}</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:6px" onclick="event.stopPropagation()">
+              <span style="font-size:10px;color:var(--text3);white-space:nowrap">Load</span>
+              <input type="number" min="0" max="400" value="${tLoad||''}" placeholder="ex: 45"
+                style="width:60px;font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:4px;text-align:center"
+                onchange="setTrainingLoad(${di},${ti},this.value)">
+              ${tLoad > 0 ? `
+              <div style="flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:${loadPct}%;background:${loadColor};border-radius:3px"></div>
+              </div>
+              <span style="font-size:10px;font-weight:600;color:${loadColor};white-space:nowrap">${tLoad} · ${loadLabel}</span>` : ''}
+            </div>
           </div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <button class="btn btn-sm" style="padding:4px 8px;font-size:11px;color:var(--blue);border-color:var(--blue)" onclick="event.stopPropagation();openSessionDetail(${di})">👁</button>
-          <button class="btn btn-sm" style="padding:4px 8px;font-size:11px;color:var(--red);border-color:var(--red)" onclick="event.stopPropagation();deleteTraining(${di})">🗑</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:14px;font-weight:700">${d.kcal.toLocaleString('fr')}</div>
+            <div style="font-size:9px;color:var(--text3)">kcal / jour</div>
+            <div style="display:flex;gap:3px;margin-top:4px;justify-content:flex-end">
+              <span style="font-size:9px;padding:1px 5px;border-radius:3px;background:var(--orange-l);color:var(--orange-d);font-weight:600">G${macroForDay(d,'g')}g</span>
+              <span style="font-size:9px;padding:1px 5px;border-radius:3px;background:var(--blue-l);color:var(--blue-d);font-weight:600">P${macroForDay(d,'p')}g</span>
+              <span style="font-size:9px;padding:1px 5px;border-radius:3px;background:var(--purple-l);color:var(--purple-d);font-weight:600">L${macroForDay(d,'l')}g</span>
+            </div>
+          </div>
+        </div>`;
+      });
+    }
+  });
+  
+  el.innerHTML = html;
 }
 
 function setTrainingLoad(di, ti, value) {

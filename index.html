@@ -1360,13 +1360,17 @@ function renderDayDetail(){
         <div style="font-size:9px;color:var(--text3);text-align:center;line-height:1.2;max-width:40px">${m.time}</div>
       </div>
       <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;cursor:pointer" onclick="toggleMealDetail('meal-detail-${selectedDay}-${m.name.replace(/\s/g,'')}')">
           <span class="meal-title">${m.name}</span>
           <span style="font-size:10px;background:var(--surface2);color:var(--text2);padding:1px 6px;border-radius:4px;font-weight:500">⏱ ${disp.dur}</span>
           ${trainingCtx}
           ${overrideBadge}
+          <span style="font-size:10px;color:var(--indigo);margin-left:auto">▼ détail</span>
         </div>
-        <div class="meal-desc">🧺 ${disp.desc}</div>
+        <!-- Détail expandable avec quantités -->
+        <div id="meal-detail-${selectedDay}-${m.name.replace(/\s/g,'')}" style="display:none;margin-top:8px;padding:8px 10px;background:var(--surface2);border-radius:var(--r-sm);border-left:3px solid ${disp.bg||'var(--border2)'}">
+          <div style="font-size:12px;color:var(--text);line-height:1.6">${formatMealDetail(disp.desc)}</div>
+        </div>
         <div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap">
           <span class="mc mc-g">G ${disp.macros.g}g</span>
           <span class="mc mc-p">P ${disp.macros.p}g</span>
@@ -2850,6 +2854,27 @@ const EFFORT_KCAL = { gel: 100, bidon: 150, barre: 200 };
 
 // Seuils de durée (minutes) en dessous desquels on ne prend rien pendant l'effort
 const EFFORT_MIN_DUR = { swim: 60, bike: 60, run: 45, gym: 999 };
+
+function toggleMealDetail(id) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  const isOpen = el.style.display !== 'none';
+  el.style.display = isOpen ? 'none' : 'block';
+  // Update arrow
+  const arrow = el.previousElementSibling?.querySelector('span:last-child');
+  if(arrow) arrow.textContent = isOpen ? '▼ détail' : '▲ détail';
+}
+
+function formatMealDetail(desc) {
+  if(!desc) return '—';
+  // Transforme "200g riz, 150g poulet, 80g brocolis, huile olive"
+  // en liste avec bullets si séparés par virgules ou points
+  const items = desc.split(/[,·]+/).map(s => s.trim()).filter(s => s.length > 0);
+  if(items.length > 1) {
+    return items.map(item => `• ${item}`).join('<br>');
+  }
+  return desc;
+}
 
 function toggleEffortNutritionEdit() {
   const v = document.getElementById('effort-nutrition-view');

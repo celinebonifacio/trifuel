@@ -464,59 +464,54 @@ button,input,select,textarea{font-family:inherit}
 
   <!-- ── PAGE PLANNING ── -->
   <div class="page active" id="page-plan">
+
+    <!-- Header -->
     <div class="page-header">
       <div>
-        <div class="page-title" id="plan-week-title">Semaine du 5 mai 2025</div>
+        <div class="page-title" id="plan-week-title">Semaine du 5 mai</div>
         <div class="page-sub" id="plan-week-sub">Ironman 70.3 · Céline & Samir</div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <div style="display:flex;align-items:center;gap:2px;border:1px solid var(--border2);border-radius:var(--r-sm);overflow:hidden">
-          <button class="btn btn-sm" style="border:none;border-radius:0;padding:6px 10px" onclick="changeWeek(-1)" title="Semaine précédente">←</button>
+          <button class="btn btn-sm" style="border:none;border-radius:0;padding:6px 10px" onclick="changeWeek(-1)">←</button>
           <button class="btn btn-sm" style="border:none;border-radius:0;padding:6px 10px;border-left:1px solid var(--border2);border-right:1px solid var(--border2);font-size:11px;font-weight:600;color:var(--indigo)" onclick="goToCurrentWeek()" id="week-label">Semaine actuelle</button>
-          <button class="btn btn-sm" style="border:none;border-radius:0;padding:6px 10px" onclick="changeWeek(1)" title="Semaine suivante">→</button>
+          <button class="btn btn-sm" style="border:none;border-radius:0;padding:6px 10px" onclick="changeWeek(1)">→</button>
         </div>
         <button class="btn btn-sm" onclick="showPage('shopping')">🛒 Courses</button>
         <button class="btn btn-sm" style="background:linear-gradient(135deg,#6366F1,#8B5CF6);color:white;border:none;font-weight:600" onclick="triggerAIPlanGeneration()">✨ Générer avec Claude</button>
       </div>
     </div>
 
-    <!-- Bilan semaine — 1 carte pleine largeur avec 2 colonnes internes -->
-    <div class="card" style="margin-bottom:.875rem">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-        <!-- Bilan Céline -->
-        <div>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <div style="font-size:11px;font-weight:700;color:#6366F1;text-transform:uppercase;letter-spacing:0.4px;border-left:3px solid #6366F1;padding-left:8px">📊 Semaine · Céline</div>
-            <div id="week-badges-celine"></div>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px" id="week-metrics-celine"></div>
-        </div>
-        <!-- Séparateur -->
-        <div style="border-left:1px solid var(--border);padding-left:1rem">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <div style="font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:0.4px;border-left:3px solid #059669;padding-left:8px">📊 Semaine · <span id="samir-week-label">Samir</span></div>
-            <div id="week-badges-samir"></div>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px" id="week-metrics-samir"></div>
-        </div>
+    <!-- ── RANGÉE 1 : Bilans semaine ── -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem;margin-bottom:.875rem">
+      <div class="card" style="border-top:3px solid #6366F1">
+        <div style="font-size:11px;font-weight:700;color:#6366F1;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">📊 Semaine · Céline</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px" id="week-metrics-celine"></div>
+      </div>
+      <div class="card" style="border-top:3px solid #059669">
+        <div style="font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">📊 Semaine · <span id="samir-week-label">Samir</span></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px" id="week-metrics-samir"></div>
       </div>
     </div>
 
-    <!-- Strips jours — 1 carte pleine largeur avec 2 strips internes -->
-    <div class="card" style="margin-bottom:.875rem;padding:.875rem 1.25rem">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-        <div>
-          <div style="font-size:10px;font-weight:700;color:#6366F1;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px;border-left:3px solid #6366F1;padding-left:8px">Céline</div>
-          <div class="week-strip" id="day-strip"></div>
-        </div>
-        <div style="border-left:1px solid var(--border);padding-left:1rem">
-          <div style="font-size:10px;font-weight:700;color:#059669;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px;border-left:3px solid #059669;padding-left:8px" id="samir-strip-label">Samir</div>
-          <div class="week-strip" id="day-strip-samir"></div>
-        </div>
+    <!-- ── RANGÉE 2 : Strips jours ── -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem;margin-bottom:.875rem">
+      <div class="card" style="border-top:3px solid #6366F1">
+        <div style="font-size:10px;font-weight:700;color:#6366F1;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">Céline</div>
+        <div class="week-strip" id="day-strip"></div>
+      </div>
+      <div class="card" style="border-top:3px solid #059669">
+        <div style="font-size:10px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px" id="samir-strip-label">Samir</div>
+        <div class="week-strip" id="day-strip-samir"></div>
       </div>
     </div>
 
-    <div id="day-detail"></div>
+    <!-- ── RANGÉE 3 : Détail jour ── -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem">
+      <div id="day-detail-celine"></div>
+      <div id="day-detail-samir"></div>
+    </div>
+
   </div>
 
   <!-- ── PAGE ENTRAÎNEMENTS ── -->
@@ -1169,7 +1164,21 @@ const SHOP_COMMON = {
 };
 
 // ══ STATE ══
-let selectedDay = 0;
+// ══ ÉTAT SÉLECTION JOUR (indépendant par membre) ══
+let selectedDay = 0;       // Céline
+let selectedDaySamir = 0;  // Samir
+
+function selectDay(i) {
+  selectedDay = i;
+  renderDayStrip();
+  renderDayDetailCeline();
+}
+
+function selectDaySamir(i) {
+  selectedDaySamir = i;
+  renderDayStrip();
+  renderDayDetailSamir();
+}
 let partnerShown = false;
 let checkedShop = new Set();
 let obStep = 1;
@@ -1297,13 +1306,12 @@ function selR(el){
 function renderDayStrip(){
   const iLabels=['Repos','Léger','Modéré','Intense'];
 
-  function buildStrip(days, member) {
+  function buildStrip(days, selectedIdx, clickFn) {
     return days.map((d,i)=>{
       const sports=[...new Set(d.trainings.map(t=>t.sport))];
       const icons=sports.map(s=>SPORT_META[s]?.emoji||'').join('');
-      const color = member==='celine' ? '#6366F1' : '#059669';
-      return `<div class="day-pill ${d.rest?'rest':''} ${i===selectedDay?'active':''}" onclick="selectDay(${i})"
-        style="${i===selectedDay ? `background:${color};border-color:${color}` : ''}">
+      const isActive = i === selectedIdx;
+      return `<div class="day-pill ${d.rest?'rest':''} ${isActive?'active':''}" onclick="${clickFn}(${i})">
         <div class="dp-name">${d.name}</div>
         <div style="font-size:11px">${icons||'😴'}</div>
         <div style="font-size:11px;font-weight:600">${d.kcal.toLocaleString('fr')}</div>
@@ -1314,219 +1322,208 @@ function renderDayStrip(){
 
   const stripC = document.getElementById('day-strip');
   const stripS = document.getElementById('day-strip-samir');
-  if(stripC) stripC.innerHTML = buildStrip(DAYS, 'celine');
-  if(stripS) stripS.innerHTML = buildStrip(DAYS_SAMIR, 'samir');
+  if(stripC) stripC.innerHTML = buildStrip(DAYS, selectedDay, 'selectDay');
+  if(stripS) stripS.innerHTML = buildStrip(DAYS_SAMIR, selectedDaySamir, 'selectDaySamir');
 }
 
 function selectDay(i){selectedDay=i;renderDayStrip();renderDayDetail();}
 
 // ══ DAY DETAIL ══
 function renderDayDetail(){
-  const d = DAYS[selectedDay];
-  const dS = DAYS_SAMIR[selectedDay];
-  const iLabels = ['Repos','Léger','Modéré','Intense'];
+  renderDayDetailCeline();
+  renderDayDetailSamir();
+}
 
-  // ── Helper : macro rings ──
-  function ring(val,max,color,label,unit){
+function renderDayDetailCeline(){
+  const d = DAYS[selectedDay];
+  const iLabels = ['Repos','Léger','Modéré','Intense'];
+  const color = '#6366F1';
+
+  function ring(val,max,clr,label,unit){
     const pct=Math.min(val/max,1), r=24, c=2*Math.PI*r, dash=pct*c;
     return `<div class="macro-ring-wrap">
       <div class="macro-ring" style="width:56px;height:56px">
         <svg viewBox="0 0 72 72" width="56" height="56"><circle cx="36" cy="36" r="${r}" fill="none" stroke="#F3F4F6" stroke-width="8"/>
-        <circle cx="36" cy="36" r="${r}" fill="none" stroke="${color}" stroke-width="8" stroke-dasharray="${dash.toFixed(1)} ${c.toFixed(1)}" stroke-linecap="round" transform="rotate(-90 36 36)"/></svg>
-        <div class="macro-ring-label"><div class="macro-ring-val" style="color:${color};font-size:13px">${val}</div><div class="macro-ring-unit" style="font-size:9px">${unit}</div></div>
+        <circle cx="36" cy="36" r="${r}" fill="none" stroke="${clr}" stroke-width="8" stroke-dasharray="${dash.toFixed(1)} ${c.toFixed(1)}" stroke-linecap="round" transform="rotate(-90 36 36)"/></svg>
+        <div class="macro-ring-label"><div class="macro-ring-val" style="color:${clr};font-size:13px">${val}</div><div class="macro-ring-unit" style="font-size:9px">${unit}</div></div>
       </div>
       <div class="macro-ring-name" style="font-size:10px">${label}</div>
     </div>`;
   }
 
-  // ── Helper : bloc séances avec effort en accordéon ──
-  function buildTrainHtml(day, member) {
-    if(!day.trainings.length) return '<div style="font-size:12px;color:var(--text3);padding:6px 0">😴 Repos · récupération active</div>';
-    return day.trainings.map((t,ti)=>{
-      const sm = SPORT_META[t.sport]||SPORT_META.rest;
-      const sportToEffortKey = {swim:'Natation',bike:'Vélo',run:'Course à pied',gym:null};
-      const ep = EFFORT_PLANS[sportToEffortKey[t.sport]];
-      let effortAccordion = '';
-      if(ep){
-        const ec={swim:['#DBEAFE','#BFDBFE','#1D4ED8'],bike:['#FEF3C7','#FDE68A','#B45309'],run:['#FEE2E2','#FECACA','#B91C1C']}[ep.sport]||['#F3F4F6','#E5E7EB','#374151'];
-        const effortId = `effort-${member}-${selectedDay}-${ti}`;
-        effortAccordion = `
-          <button onclick="toggleEffortAccordion('${effortId}')" style="margin-top:5px;font-size:10px;padding:2px 8px;border:1px solid ${ec[1]};background:${ec[0]};color:${ec[2]};border-radius:4px;cursor:pointer;font-family:inherit;font-weight:600">
-            ⚡ Nutrition effort ▾
-          </button>
-          <div id="${effortId}" style="display:none;margin-top:4px;padding:6px 8px;background:${ec[0]};border:1px solid ${ec[1]};border-radius:6px">
-            ${ep.items.map(it=>`<div style="display:flex;gap:8px;padding:3px 0;border-bottom:1px solid ${ec[1]};font-size:10px"><span style="font-weight:600;color:${ec[2]};min-width:55px;flex-shrink:0">${it.t}</span><span style="color:${ec[2]};opacity:0.85;line-height:1.3">${it.v}</span></div>`).join('')}
-          </div>`;
-      }
-      let timeHtml = `<span style="font-size:10px;color:var(--text3)">⏰ ${t.startTime||'—'}</span>`;
-      if(member === 'celine') {
-        const timeId=`time-${selectedDay}-${ti}`;
-        timeHtml=`<span class="meal-time-chip" id="chip-${timeId}" onclick="editTrainingTime('${timeId}','${t.startTime||'07:30'}',${selectedDay},${ti})">⏰ ${t.startTime||'?h??'}</span>
-          <div id="editor-${timeId}" style="display:none" class="time-edit-inline">
-            <input type="time" value="${(t.startTime||'07:30').replace('h',':')}" id="inp-${timeId}">
-            <button class="btn btn-sm btn-primary" style="padding:2px 6px;font-size:10px" onclick="saveTrainingTime('${timeId}',${selectedDay},${ti})">✓</button>
-            <button class="btn btn-sm" style="padding:2px 6px;font-size:10px" onclick="cancelTimeEdit('${timeId}')">✕</button>
-          </div>`;
-      }
-      return `<div style="padding:8px 0;border-bottom:1px solid var(--border)">
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="width:32px;height:32px;border-radius:7px;background:${sm.bg};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${sm.emoji}</div>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:12px;font-weight:600">${t.type} <span class="${sm.tagClass} sport-tag" style="font-size:9px;padding:1px 5px">${iLabels[day.intensity]}</span></div>
-            <div style="font-size:10px;color:var(--text2);margin-top:1px">${t.dur} · ${t.dist} · ${timeHtml}</div>
-          </div>
-        </div>
-        ${effortAccordion}
-      </div>`;
-    }).join('');
-  }
+  const trainHtml = buildTrainHtmlFn(d, 'celine', selectedDay, iLabels);
+  const macroHtml = buildMacroSummaryFn(selectedDay, 'celine', d, iLabels, ring);
+  const mealHtml  = buildMealRowsFn(selectedDay, 'celine');
 
-  // ── Helper : plan repas — vide si pas de plan IA ──
-  function buildMealRows(dayIdx, member) {
-    const hasPlan = member === 'celine'
-      ? (window.AI_MEALS && window.AI_MEALS[dayIdx] && window.AI_MEALS[dayIdx].length > 0)
-      : (window.AI_MEALS_SAMIR && window.AI_MEALS_SAMIR[dayIdx] && window.AI_MEALS_SAMIR[dayIdx].length > 0);
-
-    if(!hasPlan) {
-      const memberName = member === 'celine' ? 'Céline' : (member2Profile?.member2_name || 'Samir');
-      return `<div style="text-align:center;padding:1rem;color:var(--text3)">
-        <div style="font-size:24px;margin-bottom:6px">🤖</div>
-        <div style="font-size:12px">Pas encore de plan pour ${memberName}</div>
-        <div style="font-size:11px;margin-top:4px">Clique sur <strong>✨ Générer avec Claude</strong> pour créer le plan de la semaine</div>
-      </div>`;
-    }
-
-    const meals = member === 'celine' ? getMealsForDay(dayIdx) : getMealsForDaySamir(dayIdx);
-    return meals.map((m,mi)=>{
-      const disp = m;
-      let ctx='';
-      if(m.preTraining)  ctx=`<span style="font-size:9px;background:var(--orange-l);color:var(--orange-d);padding:1px 5px;border-radius:4px">⚡ Pré-séance</span>`;
-      if(m.postTraining) ctx=`<span style="font-size:9px;background:var(--green-l);color:var(--green-d);padding:1px 5px;border-radius:4px">💪 Récup</span>`;
-      if(m.effort)       ctx=`<span style="font-size:9px;background:var(--red-l);color:var(--red-d);padding:1px 5px;border-radius:4px">🔥 Effort</span>`;
-      return `<div class="meal-row">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0">
-          <div class="meal-emoji" style="background:${disp.bg};width:34px;height:34px;font-size:16px">${disp.emoji}</div>
-          <div style="font-size:9px;color:var(--text3);text-align:center;max-width:34px;line-height:1.2">${m.time}</div>
-        </div>
-        <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
-            <span style="font-size:12px;font-weight:600">${m.name}</span>${ctx}
-          </div>
-          <div style="margin-top:4px;padding:5px 7px;background:var(--surface2);border-radius:6px;border-left:3px solid ${disp.bg||'var(--border2)'}">
-            <div style="font-size:11px;color:var(--text);line-height:1.5">${formatMealDetail(disp.desc)}</div>
-          </div>
-          <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">
-            <span class="mc mc-g">G${disp.macros.g}g</span>
-            <span class="mc mc-p">P${disp.macros.p}g</span>
-            <span class="mc mc-l">L${disp.macros.l}g</span>
-            <span style="font-size:10px;color:var(--text3)">${disp.kcal} kcal</span>
-          </div>
-        </div>
-        <button style="background:linear-gradient(135deg,#059669,#10B981);color:white;border:none;font-size:10px;padding:3px 7px;border-radius:5px;cursor:pointer;flex-shrink:0;align-self:flex-start;margin-top:2px" onclick="openChatForMealMember(${dayIdx},${mi},'${member}')">💬</button>
-      </div>`;
-    }).join('');
-  }
-
-  // ── Helper : bilan macro — vide si pas de plan ──
-  function buildMacroSummary(dayIdx, member, dayObj) {
-    const hasPlan = member === 'celine'
-      ? (window.AI_MEALS && window.AI_MEALS[dayIdx] && window.AI_MEALS[dayIdx].length > 0)
-      : (window.AI_MEALS_SAMIR && window.AI_MEALS_SAMIR[dayIdx] && window.AI_MEALS_SAMIR[dayIdx].length > 0);
-
-    // Toujours afficher la cible kcal
-    const targetLine = `<div style="text-align:center;font-size:11px;color:var(--text2);padding:5px 8px;background:var(--surface2);border-radius:6px;margin-top:4px">
-      Cible : <strong>${dayObj.kcal.toLocaleString('fr')} kcal</strong> · ${iLabels[dayObj.intensity]}
-    </div>`;
-
-    if(!hasPlan) return targetLine;
-
-    const meals = member === 'celine' ? getMealsForDay(dayIdx) : getMealsForDaySamir(dayIdx);
-    const totG = meals.reduce((s,m)=>s+(m.macros?.g||0),0);
-    const totP = meals.reduce((s,m)=>s+(m.macros?.p||0),0);
-    const totL = meals.reduce((s,m)=>s+(m.macros?.l||0),0);
-    const totK = meals.reduce((s,m)=>s+(m.kcal||0),0) || dayObj.kcal;
-    return `<div style="display:flex;justify-content:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
-      ${ring(totG,400,'#F59E0B','Glucides','g')}
-      ${ring(totP,200,'#3B82F6','Protéines','g')}
-      ${ring(totL,100,'#8B5CF6','Lipides','g')}
-      ${ring(totK,4500,'#1E1B4B','kcal','kcal')}
-    </div>${targetLine}`;
-  }
-
-  // ── Construit les 2 colonnes ──
-  const celineColor = '#6366F1';
-  const samirColor  = '#059669';
-
-  document.getElementById('day-detail').innerHTML = `
-    <!-- Carte pleine largeur avec titre + 2 colonnes internes -->
-    <div class="card" style="padding:0;overflow:hidden">
-      <!-- Titre jour -->
-      <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px">
-        <span style="font-size:14px;font-weight:700">${d.name} ${d.date}</span>
+  const el = document.getElementById('day-detail-celine');
+  if(!el) return;
+  el.innerHTML = `<div class="card" style="border-top:3px solid ${color}">
+    <div style="background:#EEF2FF;margin:-1rem -1.25rem 1rem;padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:2px solid ${color}">
+      <div style="width:26px;height:26px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;flex-shrink:0">CÉ</div>
+      <div style="font-size:13px;font-weight:700;color:#1E1B4B">Céline · ${d.name} ${d.date}</div>
+      <div style="margin-left:auto;font-size:11px;color:#4338CA;font-weight:600">${d.kcal.toLocaleString('fr')} kcal · ${iLabels[d.intensity]}</div>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">🏋️ Séances</div>
+    ${trainHtml}
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🔥 Bilan énergétique</div>
+      ${macroHtml}
+    </div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:10px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:0.5px">🥗 Plan alimentaire</div>
+        <button style="background:linear-gradient(135deg,#6366F1,#8B5CF6);color:white;border:none;font-size:10px;padding:4px 8px;border-radius:5px;cursor:pointer;font-weight:600" onclick="openAIChatMember('celine')">💬 Coach Céline</button>
       </div>
-      <!-- 2 colonnes -->
-      <div style="display:grid;grid-template-columns:1fr 1fr">
-
-      <!-- ══ CÉLINE ══ -->
-      <div style="display:flex;flex-direction:column;border-right:1px solid var(--border)">
-        <!-- Header Céline -->
-        <div style="background:#EEF2FF;padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:2px solid #6366F1">
-          <div style="width:26px;height:26px;border-radius:50%;background:#6366F1;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;flex-shrink:0">CÉ</div>
-          <div style="font-size:13px;font-weight:700;color:#1E1B4B">Céline</div>
-          <div style="margin-left:auto;font-size:11px;color:#4338CA;font-weight:600">${d.kcal.toLocaleString('fr')} kcal · ${iLabels[d.intensity]}</div>
-        </div>
-        <!-- Séances Céline -->
-        <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
-          <div style="font-size:10px;font-weight:700;color:${celineColor};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">🏋️ Séances</div>
-          ${buildTrainHtml(d,'celine')}
-        </div>
-        <!-- Bilan macro Céline -->
-        <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
-          <div style="font-size:10px;font-weight:700;color:${celineColor};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🔥 Bilan énergétique</div>
-          ${buildMacroSummary(selectedDay,'celine',d)}
-        </div>
-        <!-- Plan repas Céline -->
-        <div style="padding:12px 16px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <div style="font-size:10px;font-weight:700;color:${celineColor};text-transform:uppercase;letter-spacing:0.5px">🥗 Plan alimentaire</div>
-            <button style="background:linear-gradient(135deg,#6366F1,#8B5CF6);color:white;border:none;font-size:10px;padding:4px 8px;border-radius:5px;cursor:pointer;font-weight:600" onclick="openAIChatMember('celine')">💬 Coach Céline</button>
-          </div>
-          ${buildMealRows(selectedDay,'celine')}
-        </div>
-      </div>
-
-      <!-- ══ SAMIR ══ -->
-      <div style="display:flex;flex-direction:column">
-        <!-- Header Samir -->
-        <div style="background:#ECFDF5;padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:2px solid #059669">
-          <div style="width:26px;height:26px;border-radius:50%;background:#059669;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;flex-shrink:0" id="samir-av-day">SA</div>
-          <div style="font-size:13px;font-weight:700;color:#065F46" id="samir-name-day">Samir</div>
-          <div style="margin-left:auto;font-size:11px;color:#059669;font-weight:600">${dS.kcal.toLocaleString('fr')} kcal · ${iLabels[dS.intensity]}</div>
-        </div>
-        <!-- Séances Samir -->
-        <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
-          <div style="font-size:10px;font-weight:700;color:${samirColor};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">🏋️ Séances</div>
-          ${buildTrainHtml(dS,'samir')}
-        </div>
-        <!-- Bilan macro Samir -->
-        <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
-          <div style="font-size:10px;font-weight:700;color:${samirColor};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🔥 Bilan énergétique</div>
-          ${buildMacroSummary(selectedDay,'samir',dS)}
-        </div>
-        <!-- Plan repas Samir -->
-        <div style="padding:12px 16px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <div style="font-size:10px;font-weight:700;color:${samirColor};text-transform:uppercase;letter-spacing:0.5px">🥗 Plan alimentaire</div>
-            <button style="background:linear-gradient(135deg,#059669,#10B981);color:white;border:none;font-size:10px;padding:4px 8px;border-radius:5px;cursor:pointer;font-weight:600" onclick="openAIChatMember('samir')">💬 Coach Samir</button>
-          </div>
-          ${buildMealRows(selectedDay,'samir')}
-        </div>
-      </div>
-
-      </div><!-- fin 2 colonnes -->
-    </div><!-- fin carte -->
-    <div id="meal-action-panel" style="display:none;margin-top:.875rem"></div>`;
+      ${mealHtml}
+    </div>
+  </div>`;
 }
+
+function renderDayDetailSamir(){
+  const d = DAYS_SAMIR[selectedDaySamir];
+  const iLabels = ['Repos','Léger','Modéré','Intense'];
+  const color = '#059669';
+  const name = member2Profile?.member2_name || 'Samir';
+
+  function ring(val,max,clr,label,unit){
+    const pct=Math.min(val/max,1), r=24, c=2*Math.PI*r, dash=pct*c;
+    return `<div class="macro-ring-wrap">
+      <div class="macro-ring" style="width:56px;height:56px">
+        <svg viewBox="0 0 72 72" width="56" height="56"><circle cx="36" cy="36" r="${r}" fill="none" stroke="#F3F4F6" stroke-width="8"/>
+        <circle cx="36" cy="36" r="${r}" fill="none" stroke="${clr}" stroke-width="8" stroke-dasharray="${dash.toFixed(1)} ${c.toFixed(1)}" stroke-linecap="round" transform="rotate(-90 36 36)"/></svg>
+        <div class="macro-ring-label"><div class="macro-ring-val" style="color:${clr};font-size:13px">${val}</div><div class="macro-ring-unit" style="font-size:9px">${unit}</div></div>
+      </div>
+      <div class="macro-ring-name" style="font-size:10px">${label}</div>
+    </div>`;
+  }
+
+  const trainHtml = buildTrainHtmlFn(d, 'samir', selectedDaySamir, iLabels);
+  const macroHtml = buildMacroSummaryFn(selectedDaySamir, 'samir', d, iLabels, ring);
+  const mealHtml  = buildMealRowsFn(selectedDaySamir, 'samir');
+
+  const el = document.getElementById('day-detail-samir');
+  if(!el) return;
+  el.innerHTML = `<div class="card" style="border-top:3px solid ${color}">
+    <div style="background:#ECFDF5;margin:-1rem -1.25rem 1rem;padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:2px solid ${color}">
+      <div style="width:26px;height:26px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;flex-shrink:0">${name.substring(0,2).toUpperCase()}</div>
+      <div style="font-size:13px;font-weight:700;color:#065F46">${name} · ${d.name} ${d.date}</div>
+      <div style="margin-left:auto;font-size:11px;color:${color};font-weight:600">${d.kcal.toLocaleString('fr')} kcal · ${iLabels[d.intensity]}</div>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">🏋️ Séances</div>
+    ${trainHtml}
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🔥 Bilan énergétique</div>
+      ${macroHtml}
+    </div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:10px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:0.5px">🥗 Plan alimentaire</div>
+        <button style="background:linear-gradient(135deg,#059669,#10B981);color:white;border:none;font-size:10px;padding:4px 8px;border-radius:5px;cursor:pointer;font-weight:600" onclick="openAIChatMember('samir')">💬 Coach ${name}</button>
+      </div>
+      ${mealHtml}
+    </div>
+  </div>`;
+}
+
+// ── Helpers extraits de renderDayDetail ──
+function buildTrainHtmlFn(day, member, dayIdx, iLabels) {
+  if(!day.trainings.length) return '<div style="font-size:12px;color:var(--text3);padding:6px 0">😴 Repos · récupération active</div>';
+  return day.trainings.map((t,ti)=>{
+    const sm = SPORT_META[t.sport]||SPORT_META.rest;
+    const sportToEffortKey = {swim:'Natation',bike:'Vélo',run:'Course à pied',gym:null};
+    const ep = EFFORT_PLANS[sportToEffortKey[t.sport]];
+    let effortAccordion = '';
+    if(ep){
+      const ec={swim:['#DBEAFE','#BFDBFE','#1D4ED8'],bike:['#FEF3C7','#FDE68A','#B45309'],run:['#FEE2E2','#FECACA','#B91C1C']}[ep.sport]||['#F3F4F6','#E5E7EB','#374151'];
+      const effortId = `effort-${member}-${dayIdx}-${ti}`;
+      effortAccordion = `
+        <button onclick="toggleEffortAccordion('${effortId}')" style="margin-top:5px;font-size:10px;padding:2px 8px;border:1px solid ${ec[1]};background:${ec[0]};color:${ec[2]};border-radius:4px;cursor:pointer;font-family:inherit;font-weight:600">
+          ⚡ Nutrition effort ▾
+        </button>
+        <div id="${effortId}" style="display:none;margin-top:4px;padding:6px 8px;background:${ec[0]};border:1px solid ${ec[1]};border-radius:6px">
+          ${ep.items.map(it=>`<div style="display:flex;gap:8px;padding:3px 0;border-bottom:1px solid ${ec[1]};font-size:10px"><span style="font-weight:600;color:${ec[2]};min-width:55px;flex-shrink:0">${it.t}</span><span style="color:${ec[2]};opacity:0.85;line-height:1.3">${it.v}</span></div>`).join('')}
+        </div>`;
+    }
+    let timeHtml = `<span style="font-size:10px;color:var(--text3)">⏰ ${t.startTime||'—'}</span>`;
+    if(member === 'celine') {
+      const timeId=`time-${dayIdx}-${ti}`;
+      timeHtml=`<span class="meal-time-chip" id="chip-${timeId}" onclick="editTrainingTime('${timeId}','${t.startTime||'07:30'}',${dayIdx},${ti})">⏰ ${t.startTime||'?h??'}</span>
+        <div id="editor-${timeId}" style="display:none" class="time-edit-inline">
+          <input type="time" value="${(t.startTime||'07:30').replace('h',':')}" id="inp-${timeId}">
+          <button class="btn btn-sm btn-primary" style="padding:2px 6px;font-size:10px" onclick="saveTrainingTime('${timeId}',${dayIdx},${ti})">✓</button>
+          <button class="btn btn-sm" style="padding:2px 6px;font-size:10px" onclick="cancelTimeEdit('${timeId}')">✕</button>
+        </div>`;
+    }
+    return `<div style="padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:32px;height:32px;border-radius:7px;background:${sm.bg};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${sm.emoji}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600">${t.type} <span class="${sm.tagClass} sport-tag" style="font-size:9px;padding:1px 5px">${iLabels[day.intensity]}</span></div>
+          <div style="font-size:10px;color:var(--text2);margin-top:1px">${t.dur} · ${t.dist} · ${timeHtml}</div>
+        </div>
+      </div>
+      ${effortAccordion}
+    </div>`;
+  }).join('');
+}
+
+function buildMacroSummaryFn(dayIdx, member, dayObj, iLabels, ring) {
+  const hasPlan = member === 'celine'
+    ? (window.AI_MEALS && window.AI_MEALS[dayIdx]?.length > 0)
+    : (window.AI_MEALS_SAMIR && window.AI_MEALS_SAMIR[dayIdx]?.length > 0);
+  const targetLine = `<div style="text-align:center;font-size:11px;color:var(--text2);padding:5px 8px;background:var(--surface2);border-radius:6px;margin-top:4px">
+    Cible : <strong>${dayObj.kcal.toLocaleString('fr')} kcal</strong> · ${iLabels[dayObj.intensity]}
+  </div>`;
+  if(!hasPlan) return targetLine;
+  const meals = member === 'celine' ? getMealsForDay(dayIdx) : getMealsForDaySamir(dayIdx);
+  const totG=meals.reduce((s,m)=>s+(m.macros?.g||0),0), totP=meals.reduce((s,m)=>s+(m.macros?.p||0),0);
+  const totL=meals.reduce((s,m)=>s+(m.macros?.l||0),0), totK=meals.reduce((s,m)=>s+(m.kcal||0),0)||dayObj.kcal;
+  return `<div style="display:flex;justify-content:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+    ${ring(totG,400,'#F59E0B','Glucides','g')}${ring(totP,200,'#3B82F6','Protéines','g')}
+    ${ring(totL,100,'#8B5CF6','Lipides','g')}${ring(totK,4500,'#1E1B4B','kcal','kcal')}
+  </div>${targetLine}`;
+}
+
+function buildMealRowsFn(dayIdx, member) {
+  const hasPlan = member === 'celine'
+    ? (window.AI_MEALS && window.AI_MEALS[dayIdx]?.length > 0)
+    : (window.AI_MEALS_SAMIR && window.AI_MEALS_SAMIR[dayIdx]?.length > 0);
+  if(!hasPlan) {
+    const n = member === 'celine' ? 'Céline' : (member2Profile?.member2_name||'Samir');
+    return `<div style="text-align:center;padding:.875rem;color:var(--text3)">
+      <div style="font-size:20px;margin-bottom:4px">🤖</div>
+      <div style="font-size:12px">Pas encore de plan pour ${n}</div>
+      <div style="font-size:11px;margin-top:3px">Clique sur <strong>✨ Générer avec Claude</strong></div>
+    </div>`;
+  }
+  const meals = member === 'celine' ? getMealsForDay(dayIdx) : getMealsForDaySamir(dayIdx);
+  return meals.map((m,mi)=>{
+    let ctx='';
+    if(m.preTraining)  ctx=`<span style="font-size:9px;background:var(--orange-l);color:var(--orange-d);padding:1px 5px;border-radius:4px">⚡ Pré</span>`;
+    if(m.postTraining) ctx=`<span style="font-size:9px;background:var(--green-l);color:var(--green-d);padding:1px 5px;border-radius:4px">💪 Récup</span>`;
+    if(m.effort)       ctx=`<span style="font-size:9px;background:var(--red-l);color:var(--red-d);padding:1px 5px;border-radius:4px">🔥 Effort</span>`;
+    return `<div class="meal-row">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0">
+        <div class="meal-emoji" style="background:${m.bg};width:34px;height:34px;font-size:16px">${m.emoji}</div>
+        <div style="font-size:9px;color:var(--text3);text-align:center;max-width:34px;line-height:1.2">${m.time}</div>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+          <span style="font-size:12px;font-weight:600">${m.name}</span>${ctx}
+        </div>
+        <div style="margin-top:4px;padding:5px 7px;background:var(--surface2);border-radius:6px;border-left:3px solid ${m.bg||'var(--border2)'}">
+          <div style="font-size:11px;color:var(--text);line-height:1.5">${formatMealDetail(m.desc)}</div>
+        </div>
+        <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">
+          <span class="mc mc-g">G${m.macros.g}g</span><span class="mc mc-p">P${m.macros.p}g</span>
+          <span class="mc mc-l">L${m.macros.l}g</span><span style="font-size:10px;color:var(--text3)">${m.kcal} kcal</span>
+        </div>
+      </div>
+      <button style="background:${member==='celine'?'linear-gradient(135deg,#6366F1,#8B5CF6)':'linear-gradient(135deg,#059669,#10B981)'};color:white;border:none;font-size:10px;padding:3px 7px;border-radius:5px;cursor:pointer;flex-shrink:0;align-self:flex-start;margin-top:2px" onclick="openChatForMealMember(${dayIdx},${mi},'${member}')">💬</button>
+    </div>`;
+  }).join('');
+}
+
 
 // ── Ouvre le chat pour un membre spécifique ──
 function openAIChatMember(member) {
@@ -1940,7 +1937,7 @@ async function loadWeekLoads() {
   renderTrainingList();
   renderDayStrip();
   renderWeeklySummary();
-  if(document.getElementById('day-detail')) renderDayDetail();
+  if(document.getElementById('day-detail-celine')) renderDayDetail();
 }
 
 function getKcalForIntensity(intensity, load) {
@@ -3252,7 +3249,7 @@ function recalcWeekKcal() {
 
   renderDayStrip();
   renderWeeklySummary();
-  if(document.getElementById('day-detail')) renderDayDetail();
+  if(document.getElementById('day-detail-celine')) renderDayDetail();
 }
 // ══ COACH IA CHAT ══
 let chatHistory = [];

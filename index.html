@@ -792,10 +792,22 @@ button,input,select,textarea{font-family:inherit}
 
         <!-- ICU Céline -->
         <div class="card">
-          <div class="card-title">🔄 Intervals.icu</div>
+          <div class="card-title">🔄 Intervals.icu
+            <button class="btn btn-sm" style="margin-left:auto;font-size:11px" onclick="toggleCelineIcu()">Modifier</button>
+          </div>
           <div style="display:flex;flex-direction:column">
             <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Clé API</span><span id="prof-icu-key-view" style="font-size:11px;color:var(--text3)">—</span></div>
             <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0"><span style="color:var(--text2)">ID Athlète</span><span id="prof-icu-id-view">—</span></div>
+          </div>
+          <div id="celine-icu-edit" style="display:none;margin-top:10px">
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
+              <div><div class="form-label">Clé API</div><input class="form-input" id="celine-inp-icu-key" placeholder="ex: 71mcfp2l..." style="font-size:12px;padding:6px 8px;font-family:monospace"></div>
+              <div><div class="form-label">ID Athlète</div><input class="form-input" id="celine-inp-icu-id" placeholder="ex: i578841" style="font-size:12px;padding:6px 8px;font-family:monospace"></div>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end">
+              <button class="btn btn-sm" onclick="toggleCelineIcu()">Annuler</button>
+              <button class="btn btn-sm btn-primary" onclick="saveCelineIcu()">✓ Enregistrer</button>
+            </div>
           </div>
         </div>
 
@@ -864,6 +876,7 @@ button,input,select,textarea{font-family:inherit}
               <span class="badge" style="background:rgba(255,255,255,0.2);color:white;font-size:10px" id="m2-badge-race">—</span>
               <span class="badge" style="background:rgba(255,255,255,0.2);color:white;font-size:10px" id="m2-badge-level">—</span>
               <span class="badge" style="background:rgba(255,255,255,0.2);color:white;font-size:10px" id="m2-badge-regime">—</span>
+              <span class="badge" style="background:rgba(255,255,255,0.2);color:white;font-size:10px" id="m2-badge-goal">—</span>
             </div>
           </div>
         </div>
@@ -3460,6 +3473,24 @@ async function saveGoals() {
   showToast('✅ Profil mis à jour', '#059669');
 }
 
+function toggleCelineIcu() {
+  const e = document.getElementById('celine-icu-edit');
+  e.style.display = e.style.display === 'none' ? 'block' : 'none';
+}
+
+async function saveCelineIcu() {
+  const key = document.getElementById('celine-inp-icu-key').value.trim();
+  const id  = document.getElementById('celine-inp-icu-id').value.trim();
+  if(!currentUser) return;
+  const { error } = await sb.from('profiles').update({ icu_api_key: key||null, icu_athlete_id: id||null }).eq('id', currentUser.id);
+  if(error) { showToast('❌ ' + error.message, '#EF4444'); return; }
+  const set = (eid, val) => { const el=document.getElementById(eid); if(el) el.textContent=val||'—'; };
+  set('prof-icu-key-view', key ? '••••' + key.slice(-4) : null);
+  set('prof-icu-id-view',  id);
+  toggleCelineIcu();
+  showToast('✅ Clé ICU Céline enregistrée', '#059669');
+}
+
 function toggleMember2IcuEdit() {
   const e = document.getElementById('m2-icu-edit');
   e.style.display = e.style.display === 'none' ? 'block' : 'none';
@@ -3496,15 +3527,6 @@ async function saveM2Timings() {
   set('m2-t-dej',timings.member2_time_dej); set('m2-t-diner',timings.member2_time_diner);
   toggleM2TimingEdit();
   showToast('✅ Horaires Samir enregistrés','#059669');
-}
-
-function toggleMember2IcuEdit() {
-  const e = document.getElementById('m2-icu-edit');
-  e.style.display = e.style.display === 'none' ? 'block' : 'none';
-  if(e.style.display !== 'none') {
-    document.getElementById('m2-inp-icu-key').value = member2Profile.member2_icu_api_key || '';
-    document.getElementById('m2-inp-icu-id').value  = member2Profile.member2_icu_athlete_id || '';
-  }
 }
 
 async function saveMember2Icu() {
@@ -3599,6 +3621,7 @@ function applyMember2ToUI(p) {
   badgeSet('m2-badge-race',     p.member2_goal_race);
   badgeSet('m2-badge-level',    p.member2_level);
   badgeSet('m2-badge-regime',   p.member2_regime);
+  badgeSet('m2-badge-goal',     p.member2_goal_nutrition);
   badgeSet('m2-badge-allergies', p.member2_allergies && p.member2_allergies !== 'aucune' ? p.member2_allergies : null);
   // Header name
   if(p.member2_name) {

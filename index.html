@@ -478,7 +478,8 @@ button,input,select,textarea{font-family:inherit}
           <button class="btn btn-sm" style="border:none;border-radius:0;padding:6px 10px" onclick="changeWeek(1)">→</button>
         </div>
         <button class="btn btn-sm" onclick="showPage('shopping')">🛒 Courses</button>
-        <button class="btn btn-sm" style="background:linear-gradient(135deg,#6366F1,#8B5CF6);color:white;border:none;font-weight:600" onclick="triggerAIPlanGeneration()">✨ Générer avec Claude</button>
+        <button class="btn btn-sm" style="background:linear-gradient(135deg,#6366F1,#8B5CF6);color:white;border:none;font-weight:600" onclick="triggerAIPlanGeneration('celine')">✨ Plan Céline</button>
+        <button class="btn btn-sm" style="background:linear-gradient(135deg,#059669,#10B981);color:white;border:none;font-weight:600" id="btn-gen-samir" onclick="triggerAIPlanGeneration('samir')">✨ Plan Samir</button>
       </div>
     </div>
 
@@ -1293,7 +1294,7 @@ function obFinish(){
   saveProfileToDB({ name, goal_race: race, level, goal_nutrition: goal, regime, allergies });
   showToast(`✅ Profil de ${name} créé · ${race} · ${level}`, '#6366F1');
   // Lance la génération du plan IA
-  setTimeout(() => triggerAIPlanGeneration(), 1000);
+  setTimeout(() => triggerAIPlanGeneration('celine'), 1000);
 }
 function selR(el){
   // Find the closest parent that contains other .r-card siblings
@@ -2834,27 +2835,36 @@ async function saveProfileToDB(profileData) {
 // ══ CLAUDE AI — Génération du plan alimentaire ══
 const FUNCTION_URL = 'https://trifuel-ai.lingering-night-8d92.workers.dev';
 
-async function generateAIPlan(profile, profile2, trainings2Override, effort2) {
-  const trainings = DAYS.map(d => ({
-    day: d.name + ' ' + d.date,
-    type: d.trainings.map(t => t.type).join(' + ') || 'Repos',
+async function generateAIPlan(profile, profile2, trainingsOverride, effortOverride, targetMember) {
+  const member = targetMember || 'celine';
+  const isCeline = member === 'celine';
+  const memberName = isCeline ? profile.name : profile.name;
+  const color = isCeline ? '#6366F1' : '#059669';
+
+  const trainings = (trainingsOverride || DAYS).map(d => ({
+    day: d.name ? d.name + ' ' + (d.date||'') : d.day,
+    type: d.trainings ? (d.trainings.map(t => t.type).join(' + ') || 'Repos') : (d.type||'Repos'),
     kcal: d.kcal,
-    sessions: d.trainings.map(t => ({ type: t.type, sport: t.sport, dur: t.dur, startTime: t.startTime || '—', zone: t._zone || 2 }))
+    sessions: d.trainings
+      ? d.trainings.map(t => ({ type: t.type, sport: t.sport, dur: t.dur, startTime: t.startTime || '—', zone: t._zone || 2 }))
+      : (d.sessions || [])
   }));
 
   const activeDays = trainings.filter(t => t.type !== 'Repos').length;
 
-  const detail = document.getElementById('day-detail-celine') || document.getElementById('day-detail');
+  // Loader dans la bonne colonne
+  const detailEl = document.getElementById(isCeline ? 'day-detail-celine' : 'day-detail-samir');
   const loader = document.createElement('div');
-  loader.id = 'ai-loader';
-  loader.style.cssText = 'background:var(--indigo-l);border:1px solid #C7D2FE;border-radius:var(--r);padding:1.5rem;text-align:center;margin-bottom:.875rem;grid-column:1/-1';
-  loader.innerHTML = `<div style="font-size:24px;margin-bottom:8px">🤖</div>
-    <div style="font-size:14px;font-weight:600;color:#3730A3">Claude génère les plans${profile2?' pour toute la famille':''}...</div>
-    <div style="font-size:12px;color:#4338CA;margin-top:4px">${activeDays} séances · ${profile2?'2 appels séquentiels (~30s) · ':''}génération en cours</div>
-    <div style="margin-top:12px;height:4px;background:#C7D2FE;border-radius:2px;overflow:hidden">
-      <div id="ai-progress-bar" style="height:100%;width:5%;background:var(--indigo);border-radius:2px;transition:width 0.5s"></div>
+  loader.id = 'ai-loader-' + member;
+  loader.style.cssText = `background:${isCeline?'var(--indigo-l)':'#ECFDF5'};border:1px solid ${isCeline?'#C7D2FE':'#6EE7B7'};border-radius:var(--r);padding:1.25rem;text-align:center;margin-bottom:.875rem`;
+  loader.innerHTML = `<div style="font-size:20px;margin-bottom:6px">🤖</div>
+    <div style="font-size:13px;font-weight:600;color:${color}">Génération plan ${memberName}...</div>
+    <div style="font-size:11px;color:${color};opacity:0.8;margin-top:3px">${activeDays} séances · ~15 secondes</div>
+    <div style="margin-top:10px;height:3px;background:${isCeline?'#C7D2FE':'#6EE7B7'};border-radius:2px;overflow:hidden">
+      <div style="height:100%;width:5%;background:${color};border-radius:2px;transition:width 20s linear" id="bar-${member}"></div>
     </div>`;
-  if(detail) detail.parentNode.insertBefore(loader, detail);
+  if(detailEl) detailEl.parentNode.insertBefore(loader, detailEl);
+  setTimeout(() => { const b = document.getElementById('bar-'+member); if(b) b.style.width='90%'; }, 100);
 
   try {
     const response = await fetch(FUNCTION_URL, {
@@ -2863,36 +2873,29 @@ async function generateAIPlan(profile, profile2, trainings2Override, effort2) {
       body: JSON.stringify({
         request_type: 'weekly_plan',
         profile,
-        profile2: profile2 || null,
+        profile2: null,
         trainings,
-        trainings2: trainings2Override || null,
-        effort_nutrition: EFFORT_NUTRITION,
-        effort_nutrition2: effort2 || null
+        trainings2: null,
+        effort_nutrition: effortOverride || EFFORT_NUTRITION,
+        effort_nutrition2: null
       })
     });
 
-    const bar = document.getElementById('ai-progress-bar');
-    if(bar) bar.style.width = '90%';
+    loader.remove();
 
     if(!response.ok) {
       const errText = await response.text();
-      throw new Error('Erreur ' + response.status + ': ' + errText.substring(0,200));
+      throw new Error(`Erreur ${response.status}: ${errText.substring(0,200)}`);
     }
 
     const data = await response.json();
-    loader.remove();
     if(data.error) { showToast('❌ ' + data.error, '#EF4444'); return; }
 
-    await applyAIPlan(data.result, 'celine');
-    if(data.result2) {
-      await applyAIPlan(data.result2, 'samir');
-      showToast('✅ Plans générés pour ' + profile.name + ' & ' + (profile2?.name||'Samir') + ' !', '#059669');
-    } else {
-      showToast('✅ Plan de la semaine généré !', '#059669');
-    }
+    await applyAIPlan(data.result, member);
+    showToast(`✅ Plan ${memberName} généré !`, color);
 
   } catch(err) {
-    document.getElementById('ai-loader')?.remove();
+    document.getElementById('ai-loader-'+member)?.remove();
     showToast('❌ ' + err.message, '#EF4444');
   }
 }
@@ -3743,7 +3746,7 @@ async function initAuth() {
 // ══ LOGIN (old simple system - kept for fallback) ══
 // No longer used - replaced by Supabase above
 
-async function triggerAIPlanGeneration() {
+async function triggerAIPlanGeneration(member) {
   if(!currentUser) { showToast('Connecte-toi d\'abord', '#EF4444'); return; }
   const { data: profile } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
   if(!profile?.goal_race) {
@@ -3752,45 +3755,39 @@ async function triggerAIPlanGeneration() {
     return;
   }
 
-  // BMR Céline (femme)
-  const bmr1 = profile.weight_kg && profile.height_cm && profile.age
-    ? Math.round(10*profile.weight_kg + 6.25*profile.height_cm - 5*profile.age - 161)
-    : 1252;
+  const isCeline = !member || member === 'celine';
 
-  // BMR Samir (homme)
-  const bmr2 = profile.member2_weight_kg && profile.member2_height_cm && profile.member2_age
-    ? Math.round(10*profile.member2_weight_kg + 6.25*profile.member2_height_cm - 5*profile.member2_age + 5)
-    : 1780;
-
-  // Séances Samir depuis DAYS_SAMIR
-  const trainings2 = DAYS_SAMIR.map(d => ({
-    day: d.name + ' ' + d.date,
-    type: d.trainings.map(t => t.type).join(' + ') || 'Repos',
-    dur: d.trainings.map(t => t.dur).join(' + ') || '—',
-    intensity: ['Repos','Léger','Modéré','Intense'][d.intensity],
-    kcal: d.kcal,
-    startTime: d.trainings.map(t => t.startTime || '—').join(' + '),
-    sessions: d.trainings.map(t => ({ type: t.type, sport: t.sport, dur: t.dur, startTime: t.startTime || '—', zone: t._zone || 2 }))
-  }));
-
-  await generateAIPlan({
-    name: profile.name,
-    goal_race: profile.goal_race,
-    level: profile.level,
-    weight_kg: profile.weight_kg || 58,
-    height_cm: profile.height_cm || 162,
-    regime: profile.regime || 'Omnivore',
-    allergies: profile.allergies || 'aucune',
-    bmr: bmr1
-  }, profile.member2_name ? {
-    name: profile.member2_name,
-    goal_race: profile.member2_goal_race || profile.goal_race,
-    weight_kg: profile.member2_weight_kg || 83,
-    height_cm: profile.member2_height_cm || 180,
-    regime: profile.member2_regime || 'Omnivore',
-    allergies: profile.member2_allergies || 'aucune',
-    bmr: bmr2
-  } : null, trainings2, profile.member2_effort_nutrition);
+  if(isCeline) {
+    const bmr = profile.weight_kg && profile.height_cm && profile.age
+      ? Math.round(10*profile.weight_kg + 6.25*profile.height_cm - 5*profile.age - 161) : 1252;
+    await generateAIPlan({
+      name: profile.name,
+      goal_race: profile.goal_race,
+      level: profile.level,
+      weight_kg: profile.weight_kg || 58,
+      regime: profile.regime || 'Omnivore',
+      allergies: profile.allergies || 'aucune',
+      bmr
+    }, null, null, null, 'celine');
+  } else {
+    if(!profile.member2_name) { showToast('Remplis d\'abord le profil de Samir', '#F59E0B'); return; }
+    const bmr2 = profile.member2_weight_kg && profile.member2_height_cm && profile.member2_age
+      ? Math.round(10*profile.member2_weight_kg + 6.25*profile.member2_height_cm - 5*profile.member2_age + 5) : 1780;
+    const trainings2 = DAYS_SAMIR.map(d => ({
+      day: d.name + ' ' + d.date,
+      type: d.trainings.map(t => t.type).join(' + ') || 'Repos',
+      kcal: d.kcal,
+      sessions: d.trainings.map(t => ({ type: t.type, sport: t.sport, dur: t.dur, startTime: t.startTime || '—', zone: t._zone || 2 }))
+    }));
+    await generateAIPlan({
+      name: profile.member2_name,
+      goal_race: profile.member2_goal_race || profile.goal_race,
+      weight_kg: profile.member2_weight_kg || 83,
+      regime: profile.member2_regime || 'Omnivore',
+      allergies: profile.member2_allergies || 'aucune',
+      bmr: bmr2
+    }, null, trainings2, profile.member2_effort_nutrition, 'samir');
+  }
 }
 
 // ══ INIT ══
